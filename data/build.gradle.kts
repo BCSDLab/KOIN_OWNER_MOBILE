@@ -9,6 +9,9 @@ kotlin {
 
         commonMain.dependencies {
             implementation(projects.domain)
+
+            implementation(project.dependencies.platform(libs.koin.bom))
+            implementation(libs.koin.core)
         }
 
         iosMain.dependencies {

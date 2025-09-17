@@ -21,6 +21,8 @@ import koin_owner_mobile.composeapp.generated.resources.Res
 import koin_owner_mobile.composeapp.generated.resources.compose_multiplatform
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.core.KoinApplication
+import org.koin.dsl.KoinAppDeclaration
 
 @Composable
 @Preview
@@ -49,4 +51,9 @@ fun App() {
             }
         }
     }
+}
+
+internal fun businessAppDeclaration(additionalDeclaration: KoinApplication.() -> Unit = {}): KoinAppDeclaration = {
+    modules()
+    additionalDeclaration()
 }
