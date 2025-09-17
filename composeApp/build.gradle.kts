@@ -9,12 +9,14 @@ kotlin {
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
 
+            implementation(libs.kotlinx.coroutines.android)
             implementation(libs.koin.android)
         }
         commonMain.dependencies {
             implementation(projects.data)
             implementation(projects.domain)
 
+            implementation(libs.kotlinx.coroutines.core)
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.compose)
             implementation(libs.koin.core)
