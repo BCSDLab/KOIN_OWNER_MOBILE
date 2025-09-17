@@ -6,6 +6,7 @@ kotlin {
     sourceSets {
         androidMain.dependencies {
             implementation(libs.kotlinx.coroutines.android)
+            implementation(libs.ktor.client.okhttp)
         }
 
         commonMain.dependencies {
@@ -14,9 +15,15 @@ kotlin {
             implementation(libs.kotlinx.coroutines.core)
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.core)
+            implementation(libs.ktor.client.auth)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.logging)
+            implementation(libs.ktor.serialization.kotlinx.json)
         }
 
         iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
     }
 }
