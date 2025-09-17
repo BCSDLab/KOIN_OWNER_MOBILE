@@ -12,9 +12,6 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.data)
             implementation(projects.domain)
-
-            implementation(libs.androidx.lifecycle.viewmodelCompose)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

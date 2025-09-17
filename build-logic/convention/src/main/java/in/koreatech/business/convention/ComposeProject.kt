@@ -9,6 +9,8 @@ internal fun Project.configureComposeProject(
     kotlinMultiplatformExtension.apply {
         sourceSets.apply {
             commonMain.dependencies {
+                implementation(libs.findLibrary("androidx-lifecycle-runtimeCompose").get())
+                implementation(libs.findLibrary("androidx-lifecycle-viewmodelCompose").get())
                 implementation(libs.findLibrary("compose-foundation").get())
                 implementation(libs.findLibrary("compose-runtime").get())
                 implementation(libs.findLibrary("compose-material3").get())
