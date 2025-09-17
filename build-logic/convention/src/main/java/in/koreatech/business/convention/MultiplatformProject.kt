@@ -10,7 +10,7 @@ internal fun Project.configureMultiplatformProject(
     kotlinMultiplatformExtension.apply {
         androidTarget {
             compilerOptions {
-                jvmTarget.set(JvmTarget.JVM_11)
+                jvmTarget.set(JvmTarget.JVM_17)
             }
         }
 
