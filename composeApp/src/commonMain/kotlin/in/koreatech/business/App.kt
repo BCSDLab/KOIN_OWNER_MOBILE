@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import `in`.koreatech.business.data.di.dataSourceModule
 import `in`.koreatech.business.data.di.dataStoreModule
+import `in`.koreatech.business.data.di.networkModule
 import `in`.koreatech.business.data.di.repositoryModule
 import koin_owner_mobile.composeapp.generated.resources.Res
 import koin_owner_mobile.composeapp.generated.resources.compose_multiplatform
@@ -60,6 +61,7 @@ internal fun businessAppDeclaration(additionalDeclaration: KoinApplication.() ->
     modules(
         dataSourceModule,
         dataStoreModule,
+        networkModule,
         repositoryModule
     )
     additionalDeclaration()
