@@ -8,7 +8,7 @@ import `in`.koreatech.business.data.utils.dataStoreFileName
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
-actual val dataModule = module {
+actual val dataStoreModule = module {
     singleOf(::provideDataStore)
 }
 

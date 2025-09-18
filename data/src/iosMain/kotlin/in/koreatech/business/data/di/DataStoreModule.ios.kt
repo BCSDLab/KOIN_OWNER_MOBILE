@@ -12,7 +12,7 @@ import platform.Foundation.NSFileManager
 import platform.Foundation.NSURL
 import platform.Foundation.NSUserDomainMask
 
-actual val dataModule = module {
+actual val dataStoreModule = module {
     singleOf(::provideDataStore)
 }
 
