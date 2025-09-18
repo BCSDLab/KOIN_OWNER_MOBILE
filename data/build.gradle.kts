@@ -12,6 +12,8 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.domain)
 
+            implementation(libs.androidx.datastore)
+            implementation(libs.androidx.datastore.preference)
             implementation(libs.kotlinx.coroutines.core)
             implementation(project.dependencies.platform(libs.koin.bom))
             implementation(libs.koin.core)
