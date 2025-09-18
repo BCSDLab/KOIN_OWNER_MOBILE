@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import `in`.koreatech.business.data.di.dataSourceModule
+import `in`.koreatech.business.data.di.repositoryModule
 import koin_owner_mobile.composeapp.generated.resources.Res
 import koin_owner_mobile.composeapp.generated.resources.compose_multiplatform
 import org.jetbrains.compose.resources.painterResource
@@ -56,7 +57,8 @@ fun App() {
 
 internal fun businessAppDeclaration(additionalDeclaration: KoinApplication.() -> Unit = {}): KoinAppDeclaration = {
     modules(
-        dataSourceModule
+        dataSourceModule,
+        repositoryModule
     )
     additionalDeclaration()
 }
