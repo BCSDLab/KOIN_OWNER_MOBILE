@@ -9,6 +9,15 @@ internal fun Project.configureMultiplatformProject(
     kotlinMultiplatformExtension: KotlinMultiplatformExtension,
 ) {
     kotlinMultiplatformExtension.apply {
+        targets.configureEach {
+            compilations.configureEach {
+                compileTaskProvider.get().compilerOptions {
+                    // See: https://youtrack.jetbrains.com/issue/KT-61573
+                    freeCompilerArgs.add("-Xexpect-actual-classes")
+                }
+            }
+        }
+
         androidTarget {
             compilerOptions {
                 jvmTarget.set(JvmTarget.JVM_17)
