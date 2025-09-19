@@ -5,27 +5,32 @@ import androidx.datastore.preferences.core.Preferences
 import `in`.koreatech.business.data.utils.createDataStore
 import `in`.koreatech.business.data.utils.dataStoreFileName
 import kotlinx.cinterop.ExperimentalForeignApi
-import org.koin.core.module.dsl.singleOf
-import org.koin.dsl.module
+import org.koin.core.annotation.Module
+import org.koin.core.annotation.Single
+import org.koin.core.scope.Scope
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSURL
 import platform.Foundation.NSUserDomainMask
 
-actual val dataStoreModule = module {
-    singleOf(::provideDataStore)
+@Module
+actual class DataStoreModule {
+    @Single
+    actual fun provideDataStore(scope: Scope): DataStorePlatformModule = DataStoreIOSModule()
 }
 
-@OptIn(ExperimentalForeignApi::class)
-fun provideDataStore(): DataStore<Preferences> = createDataStore(
-    producePath = {
-        val documentDirectory: NSURL? = NSFileManager.defaultManager.URLForDirectory(
-            directory = NSDocumentDirectory,
-            inDomain = NSUserDomainMask,
-            appropriateForURL = null,
-            create = false,
-            error = null
-        )
-        requireNotNull(documentDirectory).path + "/$dataStoreFileName"
-    }
-)
+class DataStoreIOSModule : DataStorePlatformModule {
+    @OptIn(ExperimentalForeignApi::class)
+    override fun provideDataStore(): DataStore<Preferences> = createDataStore(
+        producePath = {
+            val documentDirectory: NSURL? = NSFileManager.defaultManager.URLForDirectory(
+                directory = NSDocumentDirectory,
+                inDomain = NSUserDomainMask,
+                appropriateForURL = null,
+                create = false,
+                error = null
+            )
+            requireNotNull(documentDirectory).path + "/$dataStoreFileName"
+        }
+    )
+}

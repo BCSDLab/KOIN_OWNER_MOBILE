@@ -5,6 +5,7 @@ plugins {
 kotlin {
     sourceSets {
         androidMain.dependencies {
+            implementation(libs.koin.android)
             implementation(libs.kotlinx.coroutines.android)
             implementation(libs.ktor.client.okhttp)
         }
@@ -16,6 +17,7 @@ kotlin {
             implementation(libs.androidx.datastore.preference)
             implementation(libs.kotlinx.coroutines.core)
             implementation(project.dependencies.platform(libs.koin.bom))
+            api(libs.koin.annotation)
             implementation(libs.koin.core)
             implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.core)
@@ -42,4 +44,5 @@ android {
 }
 
 dependencies {
+    add("kspCommonMainMetadata", libs.koin.ksp.compiler)
 }

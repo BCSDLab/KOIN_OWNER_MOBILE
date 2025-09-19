@@ -1,5 +1,16 @@
 package `in`.koreatech.business.data.di
 
-import org.koin.core.module.Module
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import org.koin.core.annotation.Module
+import org.koin.core.annotation.Single
 
-expect val dataStoreModule: Module
+@Module
+expect class DataStoreModule() {
+    @Single
+    fun provideDataStore(scope: org.koin.core.scope.Scope): DataStorePlatformModule
+}
+
+interface DataStorePlatformModule {
+    fun provideDataStore(): DataStore<Preferences>
+}
