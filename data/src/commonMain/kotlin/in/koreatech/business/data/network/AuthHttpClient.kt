@@ -19,38 +19,36 @@ import kotlinx.serialization.json.Json
 
 fun provideAuthHttpClient(
     tokenLocalDataSource: TokenLocalDataSource
-): HttpClient {
-    return HttpClient(httpClientEngine()) {
-        install(Logging) {
-            logger = Logger.DEFAULT
-            level = LogLevel.ALL
-        }
+): HttpClient = HttpClient(httpClientEngine()) {
+    install(Logging) {
+        logger = Logger.DEFAULT
+        level = LogLevel.ALL
+    }
 
-        install(Auth) {
-            bearer {
-                loadTokens {
-                    val accessToken = tokenLocalDataSource.getAccessToken()
-                    val refreshToken = tokenLocalDataSource.getRefreshToken()
-                    BearerTokens(accessToken, refreshToken)
-                }
+    install(Auth) {
+        bearer {
+            loadTokens {
+                val accessToken = tokenLocalDataSource.getAccessToken()
+                val refreshToken = tokenLocalDataSource.getRefreshToken()
+                BearerTokens(accessToken, refreshToken)
+            }
 
-                refreshTokens {
-                    // TODO: Implement refresh logic
-                    null
-                }
+            refreshTokens {
+                // TODO: Implement refresh logic
+                null
             }
         }
+    }
 
-        install(ContentNegotiation) {
-            json(
-                Json {
-                    ignoreUnknownKeys = true
-                }
-            )
-        }
+    install(ContentNegotiation) {
+        json(
+            Json {
+                ignoreUnknownKeys = true
+            }
+        )
+    }
 
-        install(DefaultRequest) {
-            url(if (isDebug()) BASE_URL_STAGE else BASE_URL_PRODUCTION)
-        }
+    install(DefaultRequest) {
+        url(if (isDebug()) BASE_URL_STAGE else BASE_URL_PRODUCTION)
     }
 }

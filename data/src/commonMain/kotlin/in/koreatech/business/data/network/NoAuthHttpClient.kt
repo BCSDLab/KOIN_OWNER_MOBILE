@@ -13,23 +13,21 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 
-fun provideNoAuthHttpClient(): HttpClient {
-    return HttpClient(httpClientEngine()) {
-        install(Logging) {
-            logger = Logger.DEFAULT
-            level = LogLevel.ALL
-        }
+fun provideNoAuthHttpClient(): HttpClient = HttpClient(httpClientEngine()) {
+    install(Logging) {
+        logger = Logger.DEFAULT
+        level = LogLevel.ALL
+    }
 
-        install(ContentNegotiation) {
-            json(
-                Json {
-                    ignoreUnknownKeys = true
-                }
-            )
-        }
+    install(ContentNegotiation) {
+        json(
+            Json {
+                ignoreUnknownKeys = true
+            }
+        )
+    }
 
-        install(DefaultRequest) {
-            url(if (isDebug()) BASE_URL_STAGE else BASE_URL_PRODUCTION)
-        }
+    install(DefaultRequest) {
+        url(if (isDebug()) BASE_URL_STAGE else BASE_URL_PRODUCTION)
     }
 }

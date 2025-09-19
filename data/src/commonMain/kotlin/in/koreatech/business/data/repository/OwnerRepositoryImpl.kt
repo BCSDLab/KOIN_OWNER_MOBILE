@@ -5,4 +5,4 @@ import `in`.koreatech.business.domain.repository.OwnerRepository
 
 class OwnerRepositoryImpl(
     private val ownerRemoteDataSource: OwnerRemoteDataSource
-): OwnerRepository
+) : OwnerRepository
