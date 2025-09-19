@@ -17,6 +17,7 @@ kotlin = "2.2.20"
 kotlinx-coroutines = "1.10.2"
 ktlint = "13.1.0"
 ktor = "3.3.0"
+napier = "2.7.1"
 orbit = "10.0.0"
 
 [libraries]
@@ -54,6 +55,7 @@ ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "kto
 ktor-client-darwin = { module = "io.ktor:ktor-client-darwin", version.ref = "ktor" }
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktor" }
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
+napier = { module = "io.github.aakira:napier", version.ref = "napier" }
 orbit-core = { module = "org.orbit-mvi:orbit-core", version.ref = "orbit" }
 orbit-viewmodel = { module = "org.orbit-mvi:orbit-viewmodel", version.ref = "orbit" }
 orbit-compose = { module = "org.orbit-mvi:orbit-compose", version.ref = "orbit" }
