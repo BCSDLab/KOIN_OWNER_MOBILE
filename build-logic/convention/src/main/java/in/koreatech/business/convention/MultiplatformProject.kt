@@ -47,4 +47,12 @@ internal fun Project.configureMultiplatformProject(
             dependsOn("kspCommonMainKotlinMetadata")
         }
     }
+
+    // Fix ktlint bug
+    // https://github.com/JLLeitschuh/ktlint-gradle/issues/724
+    tasks.matching { it.name == "runKtlintFormatOverCommonMainSourceSet" }.configureEach {
+        if (project.tasks.findByName("kspCommonMainKotlinMetadata") != null) {
+            dependsOn("kspCommonMainKotlinMetadata")
+        }
+    }
 }
