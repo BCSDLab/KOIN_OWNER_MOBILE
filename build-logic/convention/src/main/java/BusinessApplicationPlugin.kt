@@ -18,6 +18,7 @@ class BusinessApplicationPlugin : Plugin<Project> {
                 apply(libs.findPlugin("composeCompiler").get().get().pluginId)
                 apply(libs.findPlugin("kotlinx-serialization").get().get().pluginId)
                 apply(libs.findPlugin("ktlint").get().get().pluginId)
+                apply(libs.findPlugin("ksp").get().get().pluginId)
             }
 
             extensions.configure<ApplicationExtension> {
