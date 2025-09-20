@@ -2,6 +2,7 @@ rootProject.name = "KOIN_OWNER_MOBILE"
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 pluginManagement {
+    includeBuild("build-logic")
     repositories {
         google {
             mavenContent {
@@ -28,6 +29,6 @@ dependencyResolutionManagement {
     }
 }
 
-enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
 include(":composeApp")
+include(":data")
+include(":domain")
