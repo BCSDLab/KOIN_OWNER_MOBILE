@@ -31,7 +31,8 @@ internal fun Project.configureMultiplatformProject(
         ).forEach { iosTarget ->
             iosTarget.binaries.framework {
                 baseName = "KoinOwner${project.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}"
-                isStatic = true
+                // https://youtrack.jetbrains.com/issue/KT-42254
+                isStatic = false
             }
         }
 
