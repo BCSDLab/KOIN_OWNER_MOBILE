@@ -34,3 +34,27 @@ class DataStoreIOSModule : DataStorePlatformModule {
         }
     )
 }
+
+actual class EncryptedDataStore actual constructor(scope: Scope) {
+    actual fun createData(key: String, value: String) {
+        iosKeyChainProvider?.createData(key, value)
+    }
+
+    actual fun readData(key: String): String? = iosKeyChainProvider?.readData(key)
+
+    actual fun deleteData(key: String) {
+        iosKeyChainProvider?.deleteData(key)
+    }
+}
+
+interface IOSKeyChainProvider {
+    fun createData(key: String, value: String)
+    fun readData(key: String): String?
+    fun deleteData(key: String)
+}
+
+private var iosKeyChainProvider: IOSKeyChainProvider? = null
+
+fun setIOSKeyChainProvider(provider: IOSKeyChainProvider) {
+    iosKeyChainProvider = provider
+}

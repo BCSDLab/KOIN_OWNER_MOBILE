@@ -30,8 +30,9 @@ internal fun Project.configureMultiplatformProject(
             iosSimulatorArm64()
         ).forEach { iosTarget ->
             iosTarget.binaries.framework {
-                baseName = "ComposeApp"
-                isStatic = true
+                baseName = "KoinOwner${project.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}"
+                // https://youtrack.jetbrains.com/issue/KT-42254
+                isStatic = false
             }
         }
 
