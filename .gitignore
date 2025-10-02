@@ -11,3 +11,7 @@ captures
 .externalNativeBuild
 .cxx
 iosApp/Configuration
+
+# Google Services
+google-services.json
+GoogleService-Info.plist
