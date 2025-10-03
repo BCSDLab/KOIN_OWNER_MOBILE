@@ -20,6 +20,16 @@ jobs:
           PROPERTIES: ${{ secrets.PROPERTIES }}
         run: echo $PROPERTIES | base64 -di > ./local.properties
 
+      - name: Update Firebase
+        env:
+          FIREBASE: ${{ secrets.FIREBASE }}
+        run: |
+          echo $FIREBASE | base64 -di > ./composeApp/google-services.json  
+          for file in $(find . -name 'google-services.json')
+          do
+           echo $file
+          done
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
