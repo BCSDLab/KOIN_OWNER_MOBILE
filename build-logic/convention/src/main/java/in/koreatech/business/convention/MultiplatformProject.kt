@@ -24,15 +24,24 @@ internal fun Project.configureMultiplatformProject(
             }
         }
 
-        listOf(
-            iosX64(),
-            iosArm64(),
-            iosSimulatorArm64()
-        ).forEach { iosTarget ->
-            iosTarget.binaries.framework {
-                baseName = "KoinOwner${project.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}"
-                // https://youtrack.jetbrains.com/issue/KT-42254
-                isStatic = false
+        jvm {
+            compilerOptions {
+                jvmTarget.set(JvmTarget.JVM_17)
+            }
+        }
+
+        val isMacOS = System.getProperty("os.name").contains("mac", ignoreCase = true)
+        if (isMacOS) {
+            listOf(
+                iosX64(),
+                iosArm64(),
+                iosSimulatorArm64()
+            ).forEach { iosTarget ->
+                iosTarget.binaries.framework {
+                    baseName = "KoinOwner${project.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}"
+                    // https://youtrack.jetbrains.com/issue/KT-42254
+                    isStatic = false
+                }
             }
         }
 

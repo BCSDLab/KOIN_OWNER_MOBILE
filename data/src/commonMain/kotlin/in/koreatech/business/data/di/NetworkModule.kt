@@ -3,6 +3,7 @@ package `in`.koreatech.business.data.di
 import `in`.koreatech.business.data.BASE_URL_PRODUCTION
 import `in`.koreatech.business.data.BASE_URL_STAGE
 import `in`.koreatech.business.data.api.OwnerApi
+import `in`.koreatech.business.data.api.PublicApi
 import `in`.koreatech.business.data.api.auth.OwnerAuthApi
 import `in`.koreatech.business.data.network.httpClientEngine
 import `in`.koreatech.business.data.source.local.TokenLocalDataSource
@@ -28,9 +29,11 @@ class NetworkModule {
     @Named("noAuth")
     @Single
     fun provideNoAuthHttpClient(): HttpClient = HttpClient(httpClientEngine()) {
+        expectSuccess = true
+
         install(Logging) {
             logger = Logger.DEFAULT
-            level = LogLevel.ALL
+            level = if (isDebug()) LogLevel.ALL else LogLevel.NONE
         }
 
         install(ContentNegotiation) {
@@ -49,11 +52,14 @@ class NetworkModule {
     @Named("auth")
     @Single
     fun provideAuthHttpClient(
-        tokenLocalDataSource: TokenLocalDataSource
+        tokenLocalDataSource: TokenLocalDataSource,
+        ownerAuthApi: OwnerAuthApi
     ): HttpClient = HttpClient(httpClientEngine()) {
+        expectSuccess = true
+
         install(Logging) {
             logger = Logger.DEFAULT
-            level = LogLevel.ALL
+            level = if (isDebug()) LogLevel.ALL else LogLevel.NONE
         }
 
         install(Auth) {
@@ -61,12 +67,35 @@ class NetworkModule {
                 loadTokens {
                     val accessToken = tokenLocalDataSource.getAccessToken()
                     val refreshToken = tokenLocalDataSource.getRefreshToken()
-                    BearerTokens(accessToken, refreshToken)
+                    if (accessToken.isBlank() || refreshToken.isBlank()) {
+                        null
+                    } else {
+                        BearerTokens(accessToken, refreshToken)
+                    }
                 }
 
                 refreshTokens {
-                    // TODO: Implement refresh logic
-                    null
+                    val currentRefreshToken = tokenLocalDataSource.getRefreshToken()
+                    if (currentRefreshToken.isBlank()) {
+                        tokenLocalDataSource.saveAccessToken("")
+                        tokenLocalDataSource.saveRefreshToken("")
+                        return@refreshTokens null
+                    }
+
+                    runCatching {
+                        ownerAuthApi.refreshToken(currentRefreshToken)
+                    }.fold(
+                        onSuccess = { response ->
+                            tokenLocalDataSource.saveAccessToken(response.token)
+                            tokenLocalDataSource.saveRefreshToken(response.refreshToken)
+                            BearerTokens(response.token, response.refreshToken)
+                        },
+                        onFailure = {
+                            tokenLocalDataSource.saveAccessToken("")
+                            tokenLocalDataSource.saveRefreshToken("")
+                            null
+                        }
+                    )
                 }
             }
         }
@@ -84,11 +113,21 @@ class NetworkModule {
         }
     }
 
-    @Named("noAuth")
+    @Named("s3")
     @Single
-    fun provideOwnerApi(httpClient: HttpClient): OwnerApi = OwnerApi(httpClient)
+    fun provideS3HttpClient(): HttpClient = HttpClient(httpClientEngine()) {
+        expectSuccess = true
+    }
 
-    @Named("auth")
     @Single
-    fun provideOwnerAuthApi(httpClient: HttpClient): OwnerAuthApi = OwnerAuthApi(httpClient)
+    fun provideOwnerApi(@Named("auth") httpClient: HttpClient): OwnerApi = OwnerApi(httpClient)
+
+    @Single
+    fun provideOwnerAuthApi(@Named("noAuth") httpClient: HttpClient): OwnerAuthApi = OwnerAuthApi(httpClient)
+
+    @Single
+    fun providePublicApi(
+        @Named("noAuth") httpClient: HttpClient,
+        @Named("s3") s3HttpClient: HttpClient,
+    ): PublicApi = PublicApi(httpClient, s3HttpClient)
 }

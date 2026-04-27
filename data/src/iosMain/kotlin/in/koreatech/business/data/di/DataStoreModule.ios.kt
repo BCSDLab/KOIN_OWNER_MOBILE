@@ -16,12 +16,8 @@ import platform.Foundation.NSUserDomainMask
 @Module
 actual class DataStoreModule {
     @Single
-    actual fun provideDataStore(scope: Scope): DataStorePlatformModule = DataStoreIOSModule()
-}
-
-class DataStoreIOSModule : DataStorePlatformModule {
     @OptIn(ExperimentalForeignApi::class)
-    override fun provideDataStore(): DataStore<Preferences> = createDataStore(
+    actual fun provideDataStore(scope: Scope): DataStore<Preferences> = createDataStore(
         producePath = {
             val documentDirectory: NSURL? = NSFileManager.defaultManager.URLForDirectory(
                 directory = NSDocumentDirectory,

@@ -30,6 +30,10 @@ kotlin {
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
+
+        jvmMain.dependencies {
+            implementation(libs.ktor.client.okhttp)
+        }
     }
 }
 

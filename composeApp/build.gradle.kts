@@ -16,6 +16,7 @@ kotlin {
             implementation(projects.core)
             implementation(projects.data)
             implementation(projects.domain)
+            implementation(libs.compose.ui.backhandler)
 
             implementation(libs.kotlinx.coroutines.core)
             implementation(project.dependencies.platform(libs.koin.bom))
@@ -24,11 +25,29 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.koin.compose.viewmodel.navigation)
+            implementation(libs.androidx.navigation.compose)
             implementation(libs.napier)
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor)
+            implementation(compose.materialIconsExtended)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.orbit.test)
+            implementation(libs.koin.test)
+            implementation(libs.kotlinx.coroutines.test)
         }
+
+        jvmMain.dependencies {
+            implementation(compose.desktop.currentOs)
+            implementation(libs.kotlinx.coroutines.swing)
+        }
+    }
+}
+
+compose.desktop {
+    application {
+        mainClass = "MainKt"
     }
 }
 
@@ -39,7 +58,7 @@ android {
         applicationId = "in.koreatech.business"
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
     }
     buildTypes {
         getByName("debug") {
@@ -47,7 +66,12 @@ android {
             isMinifyEnabled = false
         }
         getByName("release") {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }

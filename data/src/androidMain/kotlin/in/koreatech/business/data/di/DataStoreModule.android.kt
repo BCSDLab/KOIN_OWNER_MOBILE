@@ -15,24 +15,24 @@ import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
-import javax.crypto.spec.IvParameterSpec
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.koin.core.annotation.Module
 import org.koin.core.annotation.Single
 import org.koin.core.scope.Scope
 
+// Koin 컨테이너가 재생성되어도 같은 파일에 DataStore가 중복 생성되지 않도록 프로세스 수준 싱글톤 유지
+private var dataStoreInstance: DataStore<Preferences>? = null
+
 @Module
 actual class DataStoreModule {
     @Single
-    actual fun provideDataStore(scope: Scope): DataStorePlatformModule = DataStoreAndroidModule(scope)
-}
-
-class DataStoreAndroidModule(scope: Scope) : DataStorePlatformModule {
-    val context: Context = scope.get()
-    override fun provideDataStore(): DataStore<Preferences> = createDataStore(
-        producePath = { context.filesDir.resolve(dataStoreFileName).absolutePath }
-    )
+    actual fun provideDataStore(scope: Scope): DataStore<Preferences> {
+        val context: Context = scope.get()
+        return dataStoreInstance ?: createDataStore(
+            producePath = { context.filesDir.resolve(dataStoreFileName).absolutePath }
+        ).also { dataStoreInstance = it }
+    }
 }
 
 private fun generateKey() {
@@ -60,14 +60,13 @@ private fun encryptData(value: String): String {
     val keyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
     val secretKey = keyStore.getKey(KEY_ALIAS, null) as SecretKey
 
-    val iv = ByteArray(16)
     val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-    cipher.init(Cipher.ENCRYPT_MODE, secretKey, IvParameterSpec(iv))
+    cipher.init(Cipher.ENCRYPT_MODE, secretKey) // IV는 KeyStore가 랜덤 생성
 
     val encryptedBytes = cipher.doFinal(value.toByteArray(Charsets.UTF_8))
 
-    val encryptedBase64 = Base64.encodeToString(encryptedBytes, Base64.DEFAULT)
-    val ivBase64 = Base64.encodeToString(iv, Base64.DEFAULT)
+    val encryptedBase64 = Base64.encodeToString(encryptedBytes, Base64.NO_WRAP)
+    val ivBase64 = Base64.encodeToString(cipher.iv, Base64.NO_WRAP)
 
     return "$ivBase64:$encryptedBase64"
 }
@@ -76,12 +75,14 @@ private fun decryptData(value: String): String {
     val keyStore = KeyStore.getInstance("AndroidKeyStore").apply { load(null) }
     val secretKey = keyStore.getKey(KEY_ALIAS, null) as SecretKey
 
-    val encryptedBytes = Base64.decode(value.substring(16..value.length), Base64.DEFAULT)
-    val iv = Base64.decode(value.substring(0 until 15), Base64.DEFAULT)
+    val delimIndex = value.indexOf(':')
+    if (delimIndex < 0) return ""
+
+    val iv = Base64.decode(value.substring(0, delimIndex), Base64.NO_WRAP)
+    val encryptedBytes = Base64.decode(value.substring(delimIndex + 1), Base64.NO_WRAP)
 
     val cipher = Cipher.getInstance("AES/GCM/NoPadding")
-    val spec = GCMParameterSpec(128, iv)
-    cipher.init(Cipher.DECRYPT_MODE, secretKey, spec)
+    cipher.init(Cipher.DECRYPT_MODE, secretKey, GCMParameterSpec(128, iv))
 
     val decryptedBytes = cipher.doFinal(encryptedBytes)
     return String(decryptedBytes)

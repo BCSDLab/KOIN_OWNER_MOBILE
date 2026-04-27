@@ -9,4 +9,33 @@ plugins {
     alias(libs.plugins.kotlinx.serialization) apply false
     alias(libs.plugins.ktlint) apply false
     alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.detekt)
+    alias(libs.plugins.spotless)
+}
+
+detekt {
+    config.setFrom(files("config/detekt.yml"))
+    baseline = file("config/detekt-baseline.xml")
+    buildUponDefaultConfig = true
+    source.setFrom(
+        "composeApp/src",
+        "data/src",
+        "domain/src",
+        "core/src"
+    )
+}
+
+spotless {
+    kotlin {
+        target("**/*.kt")
+        targetExclude("**/build/**")
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+    kotlinGradle {
+        target("**/*.kts")
+        targetExclude("**/build/**")
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
 }

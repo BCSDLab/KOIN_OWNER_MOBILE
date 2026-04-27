@@ -1,12 +1,10 @@
 package `in`.koreatech.business
 
 import androidx.compose.ui.window.ComposeUIViewController
-import org.koin.compose.KoinApplication
+import `in`.koreatech.business.platform.IosViewControllerHolder
 
 fun MainViewController() = ComposeUIViewController {
-    KoinApplication(
-        application = businessAppDeclaration()
-    ) {
-        App()
-    }
+    App()
+}.also { viewController ->
+    IosViewControllerHolder.rootViewController = viewController
 }

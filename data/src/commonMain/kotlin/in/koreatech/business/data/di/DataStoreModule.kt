@@ -9,17 +9,13 @@ import org.koin.core.scope.Scope
 @Module
 expect class DataStoreModule() {
     @Single
-    fun provideDataStore(scope: Scope): DataStorePlatformModule
+    fun provideDataStore(scope: Scope): DataStore<Preferences>
 }
 
 @Module
 class EncryptedDataStoreModule {
     @Single
     fun provideEncryptedDataStore(scope: Scope): EncryptedDataStore = EncryptedDataStore(scope)
-}
-
-interface DataStorePlatformModule {
-    fun provideDataStore(): DataStore<Preferences>
 }
 
 expect class EncryptedDataStore(scope: Scope) {
