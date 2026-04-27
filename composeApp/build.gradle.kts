@@ -1,44 +1,21 @@
 plugins {
     alias(libs.plugins.business.application)
-    alias(libs.plugins.business.orbit)
 }
 
 kotlin {
     sourceSets {
         androidMain.dependencies {
+            implementation(projects.umbrella)
             implementation(compose.preview)
             implementation(libs.androidx.activity.compose)
-
             implementation(libs.kotlinx.coroutines.android)
             implementation(libs.koin.android)
         }
         commonMain.dependencies {
-            implementation(projects.core)
-            implementation(projects.data)
-            implementation(projects.domain)
-            implementation(libs.compose.ui.backhandler)
-
-            implementation(libs.kotlinx.coroutines.core)
-            implementation(project.dependencies.platform(libs.koin.bom))
-            api(libs.koin.annotation)
-            implementation(libs.koin.compose)
-            implementation(libs.koin.core)
-            implementation(libs.koin.compose.viewmodel)
-            implementation(libs.koin.compose.viewmodel.navigation)
-            implementation(libs.androidx.navigation.compose)
-            implementation(libs.napier)
-            implementation(libs.coil.compose)
-            implementation(libs.coil.network.ktor)
-            implementation(compose.materialIconsExtended)
+            implementation(projects.umbrella)
         }
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
-            implementation(libs.orbit.test)
-            implementation(libs.koin.test)
-            implementation(libs.kotlinx.coroutines.test)
-        }
-
         jvmMain.dependencies {
+            implementation(projects.umbrella)
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
         }
@@ -78,5 +55,4 @@ android {
 
 dependencies {
     debugImplementation(compose.uiTooling)
-    add("kspCommonMainMetadata", libs.koin.ksp.compiler)
 }

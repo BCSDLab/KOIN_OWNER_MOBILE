@@ -32,17 +32,9 @@ internal fun Project.configureMultiplatformProject(
 
         val isMacOS = System.getProperty("os.name").contains("mac", ignoreCase = true)
         if (isMacOS) {
-            listOf(
-                iosX64(),
-                iosArm64(),
-                iosSimulatorArm64()
-            ).forEach { iosTarget ->
-                iosTarget.binaries.framework {
-                    baseName = "KoinOwner${project.name.replaceFirstChar { if (it.isLowerCase()) it.titlecase() else it.toString() }}"
-                    // https://youtrack.jetbrains.com/issue/KT-42254
-                    isStatic = false
-                }
-            }
+            iosX64()
+            iosArm64()
+            iosSimulatorArm64()
         }
 
         sourceSets.apply {
@@ -53,7 +45,7 @@ internal fun Project.configureMultiplatformProject(
     }
 
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().configureEach {
-        if (name != "kspCommonMainKotlinMetadata") {
+        if (name != "kspCommonMainKotlinMetadata" && project.tasks.findByName("kspCommonMainKotlinMetadata") != null) {
             dependsOn("kspCommonMainKotlinMetadata")
         }
     }

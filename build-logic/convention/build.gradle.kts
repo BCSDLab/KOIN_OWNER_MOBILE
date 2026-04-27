@@ -43,5 +43,9 @@ gradlePlugin {
             id = "in.koreatech.business.plugin.orbit"
             implementationClass = "BusinessOrbitPlugin"
         }
+        register("businessUmbrella") {
+            id = "in.koreatech.business.plugin.umbrella"
+            implementationClass = "BusinessUmbrellaPlugin"
+        }
     }
 }

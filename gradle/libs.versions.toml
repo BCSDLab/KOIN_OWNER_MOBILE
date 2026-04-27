@@ -94,5 +94,6 @@ business-application = { id = "in.koreatech.business.plugin.application", versio
 business-feature = { id = "in.koreatech.business.plugin.feature", version = "unspecified" }
 business-library = { id = "in.koreatech.business.plugin.library", version = "unspecified" }
 business-orbit = { id = "in.koreatech.business.plugin.orbit", version = "unspecified" }
+business-umbrella = { id = "in.koreatech.business.plugin.umbrella", version = "unspecified" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }

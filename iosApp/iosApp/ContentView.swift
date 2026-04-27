@@ -1,6 +1,6 @@
 import UIKit
 import SwiftUI
-import KoinOwnerComposeApp
+import Umbrella
 
 struct ComposeView: UIViewControllerRepresentable {
     func makeUIViewController(context: Context) -> UIViewController {
