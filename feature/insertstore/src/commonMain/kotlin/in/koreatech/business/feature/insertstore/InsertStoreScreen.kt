@@ -40,22 +40,15 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import `in`.koreatech.business.domain.model.dayOfWeekLabels
 import `in`.koreatech.business.platform.PlatformFile
 import `in`.koreatech.business.platform.rememberFilePicker
@@ -67,108 +60,7 @@ import `in`.koreatech.business.ui.component.KoinTextFieldAlert
 import `in`.koreatech.business.ui.component.KoinTextFieldAlertType
 import `in`.koreatech.business.ui.theme.KoinTheme
 import koreatech.business.designsystem.resources.*
-import koreatech.business.designsystem.resources.Res
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
-import org.orbitmvi.orbit.compose.collectAsState
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-fun InsertStoreScreen(
-    onNavigateBack: () -> Unit,
-    onNavigateToStoreMain: () -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: InsertStoreViewModel = koinViewModel()
-) {
-    val uiState by viewModel.collectAsState()
-    val navController = rememberNavController()
-
-    LaunchedEffect(navController, uiState.step) {
-        syncInsertStoreRoute(
-            navController = navController,
-            route = uiState.step.route
-        )
-    }
-
-    BackHandler {
-        val navigated = viewModel.navigateBack()
-        if (!navigated) onNavigateBack()
-    }
-
-    NavHost(
-        navController = navController,
-        startDestination = InsertStoreStep.Start.route
-    ) {
-        composable(InsertStoreStep.Start.route) {
-            StartStep(
-                onNext = viewModel::navigateNext,
-                onClose = onNavigateBack
-            )
-        }
-        composable(InsertStoreStep.SelectCategory.route) {
-            SelectCategoryStep(
-                uiState = uiState,
-                onCategorySelected = viewModel::onCategorySelected,
-                onNext = viewModel::navigateNext,
-                onBack = { viewModel.navigateBack() }
-            )
-        }
-        composable(InsertStoreStep.BasicInfo.route) {
-            BasicInfoStep(
-                uiState = uiState,
-                onNameChanged = viewModel::onNameChanged,
-                onAddressChanged = viewModel::onAddressChanged,
-                onPhoneChanged = viewModel::onPhoneChanged,
-                onAddCoverImage = viewModel::addCoverImage,
-                onRemoveCoverImage = viewModel::removeCoverImage,
-                onNext = viewModel::navigateNext,
-                onBack = { viewModel.navigateBack() }
-            )
-        }
-        composable(InsertStoreStep.DetailInfo.route) {
-            DetailInfoStep(
-                uiState = uiState,
-                onToggleCard = viewModel::onToggleCard,
-                onToggleBank = viewModel::onToggleBank,
-                onToggleDelivery = viewModel::onToggleDelivery,
-                onDeliveryPriceChanged = viewModel::onDeliveryPriceChanged,
-                onDescriptionChanged = viewModel::onDescriptionChanged,
-                onOperatingTimeToggle = viewModel::onOperatingTimeToggle,
-                onOpenTimeChanged = viewModel::onOperatingOpenTimeChanged,
-                onCloseTimeChanged = viewModel::onOperatingCloseTimeChanged,
-                onNext = viewModel::navigateNext,
-                onBack = { viewModel.navigateBack() }
-            )
-        }
-        composable(InsertStoreStep.FinalCheck.route) {
-            FinalCheckStep(
-                uiState = uiState,
-                onSubmit = viewModel::navigateNext,
-                onBack = { viewModel.navigateBack() }
-            )
-        }
-        composable(InsertStoreStep.Complete.route) {
-            CompleteStep(
-                onNavigateToStoreMain = onNavigateToStoreMain
-            )
-        }
-    }
-}
-
-private suspend fun syncInsertStoreRoute(
-    navController: NavHostController,
-    route: String
-) {
-    val currentRoute = navController.currentBackStackEntry?.destination?.route
-    if (currentRoute == route) return
-
-    val popped = navController.popBackStack(route, inclusive = false)
-    if (!popped) {
-        navController.navigate(route) {
-            launchSingleTop = true
-        }
-    }
-}
 
 // --- Start ---
 
@@ -310,8 +202,6 @@ internal fun SelectCategoryStep(
     }
 }
 
-// --- Basic Info ---
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun BasicInfoStep(
@@ -401,8 +291,6 @@ internal fun BasicInfoStep(
         }
     }
 }
-
-// --- Detail Info ---
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -740,7 +628,7 @@ private fun InsertStoreCoverImageRow(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = stringResource(Res.string.remove_image),
-                        tint = KoinTheme.colors.neutral0,
+                        tint = KoinTheme.colors.neutral50,
                         modifier = Modifier.size(14.dp)
                     )
                 }
