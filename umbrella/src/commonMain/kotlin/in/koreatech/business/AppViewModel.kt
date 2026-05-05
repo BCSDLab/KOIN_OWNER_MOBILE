@@ -1,148 +1,97 @@
 package `in`.koreatech.business
 
 import androidx.lifecycle.ViewModel
-import `in`.koreatech.business.data.di.EncryptedDataStore
-import `in`.koreatech.business.domain.repository.AuthRepository
-import `in`.koreatech.business.domain.repository.OwnerRepository
-import `in`.koreatech.business.domain.repository.TokenRepository
-import `in`.koreatech.business.feature.store.shared.ActiveStoreContext
-import `in`.koreatech.business.feature.store.shared.StoreSelectionSource
+import androidx.lifecycle.viewModelScope
+import `in`.koreatech.business.domain.model.ThemeMode
+import `in`.koreatech.business.domain.usecase.auth.DeleteAccountUseCase
+import `in`.koreatech.business.domain.usecase.owner.GetRequiredVersionUseCase
+import `in`.koreatech.business.domain.usecase.preferences.ObserveThemeModeUseCase
+import `in`.koreatech.business.domain.usecase.store.SetActiveStoreIdUseCase
+import `in`.koreatech.business.domain.usecase.token.ClearTokensUseCase
+import `in`.koreatech.business.domain.usecase.token.GetAccessTokenUseCase
 import `in`.koreatech.business.platform.getAppVersion
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
-sealed class AppSideEffect {
-    data object ToLoading : AppSideEffect()
-    data object ToForceUpdate : AppSideEffect()
-    data object ToSignIn : AppSideEffect()
-    data object ToSignUp : AppSideEffect()
-    data object ToFindPassword : AppSideEffect()
-    data object ToStoreMain : AppSideEffect()
-    data object ToStoreRegister : AppSideEffect()
-    data class ShowError(val message: String) : AppSideEffect()
+enum class LaunchState {
+    Loading,
+    RequiresUpdate,
+    Authenticated,
+    Unauthenticated,
 }
 
+data class AppUiState(
+    val themeMode: ThemeMode = ThemeMode.System
+)
+
 class AppViewModel(
-    private val authRepository: AuthRepository,
-    private val ownerRepository: OwnerRepository,
-    private val tokenRepository: TokenRepository,
-    private val encryptedDataStore: EncryptedDataStore
-) : ViewModel(),
-    ContainerHost<AppUiState, AppSideEffect> {
-    override val container = container<AppUiState, AppSideEffect>(AppUiState())
+    private val deleteAccountUseCase: DeleteAccountUseCase,
+    private val getRequiredVersionUseCase: GetRequiredVersionUseCase,
+    private val getAccessTokenUseCase: GetAccessTokenUseCase,
+    private val clearTokensUseCase: ClearTokensUseCase,
+    private val setActiveStoreIdUseCase: SetActiveStoreIdUseCase,
+    private val observeThemeModeUseCase: ObserveThemeModeUseCase,
+) : ViewModel(), ContainerHost<AppUiState, Nothing> {
+    override val container = container<AppUiState, Nothing>(AppUiState())
+
+    private val _launchState = MutableStateFlow(LaunchState.Loading)
+    val launchState: StateFlow<LaunchState> = _launchState.asStateFlow()
 
     init {
+        observeThemeMode()
         refreshLaunchState()
     }
 
+    private fun observeThemeMode() {
+        viewModelScope.launch {
+            observeThemeModeUseCase().collectLatest { mode ->
+                intent(registerIdling = false) { reduce { state.copy(themeMode = mode) } }
+            }
+        }
+    }
+
     fun refreshLaunchState() {
-        intent {
-            postSideEffect(AppSideEffect.ToLoading)
-
-            if (isForceUpdateRequired()) {
-                postSideEffect(AppSideEffect.ToForceUpdate)
-                return@intent
+        viewModelScope.launch {
+            _launchState.value = LaunchState.Loading
+            val state = when {
+                isForceUpdateRequired() -> LaunchState.RequiresUpdate
+                hasValidOwnerSession() -> LaunchState.Authenticated
+                else -> LaunchState.Unauthenticated
             }
-
-            if (hasValidOwnerSession()) {
-                val activeStoreContext = restoreActiveStoreContext()
-                reduce { state.copy(activeStoreContext = activeStoreContext) }
-                postSideEffect(AppSideEffect.ToStoreMain)
-            } else {
-                reduce { state.copy(activeStoreContext = null) }
-                postSideEffect(AppSideEffect.ToSignIn)
-            }
+            _launchState.value = state
         }
     }
 
-    fun navigateToSignUp() {
-        intent(registerIdling = false) {
-            postSideEffect(AppSideEffect.ToSignUp)
-        }
-    }
-
-    fun navigateToFindPassword() {
-        intent(registerIdling = false) {
-            postSideEffect(AppSideEffect.ToFindPassword)
-        }
-    }
-
-    fun navigateBackToSignIn() {
-        intent(registerIdling = false) {
-            postSideEffect(AppSideEffect.ToSignIn)
-        }
-    }
-
-    fun signOut() {
-        intent {
-            runCatching {
-                withContext(Dispatchers.Default) {
-                    tokenRepository.saveAccessToken("")
-                    tokenRepository.saveRefreshToken("")
-                    encryptedDataStore.deleteData(LAST_ACTIVE_STORE_ID_KEY)
-                }
-            }
-            reduce { state.copy(activeStoreContext = null) }
-            postSideEffect(AppSideEffect.ToSignIn)
+    fun clearSession() {
+        viewModelScope.launch {
+            runCatching { clearTokensUseCase() }
+            runCatching { setActiveStoreIdUseCase(null) }
+            _launchState.value = LaunchState.Unauthenticated
         }
     }
 
     fun deleteAccount() {
-        intent {
-            try {
-                authRepository.deleteAccount()
-                withContext(Dispatchers.Default) {
-                    tokenRepository.saveAccessToken("")
-                    tokenRepository.saveRefreshToken("")
-                    encryptedDataStore.deleteData(LAST_ACTIVE_STORE_ID_KEY)
-                }
-                reduce { state.copy(activeStoreContext = null) }
-                postSideEffect(AppSideEffect.ToSignIn)
-            } catch (e: Exception) {
-                postSideEffect(AppSideEffect.ShowError(e.message ?: "계정 삭제에 실패했습니다."))
-            }
-        }
-    }
-
-    fun navigateToStoreMainAfterSignIn() {
-        refreshLaunchState()
-    }
-
-    fun navigateToStoreRegisterAfterSignIn() {
-        intent(registerIdling = false) {
-            reduce { state.copy(activeStoreContext = null) }
-            postSideEffect(AppSideEffect.ToStoreRegister)
+        viewModelScope.launch {
+            runCatching { deleteAccountUseCase() }
+            runCatching { clearTokensUseCase() }
+            runCatching { setActiveStoreIdUseCase(null) }
+            _launchState.value = LaunchState.Unauthenticated
         }
     }
 
     private suspend fun hasValidOwnerSession(): Boolean {
-        val accessToken = tokenRepository.getAccessToken().trim()
-        return accessToken.isNotBlank() && accessToken.lowercase() != "null"
-    }
-
-    private fun restoreActiveStoreContext(): ActiveStoreContext {
-        val lastActiveStoreId = encryptedDataStore.readData(LAST_ACTIVE_STORE_ID_KEY)
-            ?.trim()
-            ?.takeIf { it.isNotEmpty() }
-        val selectedFrom = if (lastActiveStoreId != null) {
-            StoreSelectionSource.RESTORE
-        } else {
-            StoreSelectionSource.BOOTSTRAP
-        }
-
-        return ActiveStoreContext(
-            accountId = AUTHENTICATED_ACCOUNT_ID,
-            activeStoreId = lastActiveStoreId,
-            selectedFrom = selectedFrom
-        )
+        val token = getAccessTokenUseCase().trim()
+        return token.isNotBlank() && token.lowercase() != "null"
     }
 
     private suspend fun isForceUpdateRequired(): Boolean = try {
-        val required = ownerRepository.getRequiredVersion()
-        compareVersions(getAppVersion(), required) < 0
-    } catch (e: Exception) {
+        compareVersions(getAppVersion(), getRequiredVersionUseCase()) < 0
+    } catch (_: Exception) {
         false
     }
 
@@ -155,13 +104,4 @@ class AppViewModel(
         }
         return 0
     }
-
-    companion object {
-        private const val AUTHENTICATED_ACCOUNT_ID = "authenticated-owner"
-        private const val LAST_ACTIVE_STORE_ID_KEY = "lastActiveStoreId"
-    }
 }
-
-data class AppUiState(
-    val activeStoreContext: ActiveStoreContext? = null
-)

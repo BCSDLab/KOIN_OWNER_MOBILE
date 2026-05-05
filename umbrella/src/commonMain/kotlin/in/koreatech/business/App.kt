@@ -15,7 +15,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -23,36 +22,40 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.rememberNavController
 import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import coil3.network.ktor3.KtorNetworkFetcherFactory
-import `in`.koreatech.business.data.di.DataSourceModule
-import `in`.koreatech.business.data.di.DataStoreModule
-import `in`.koreatech.business.data.di.EncryptedDataStoreModule
-import `in`.koreatech.business.data.di.NetworkModule
-import `in`.koreatech.business.data.di.RepositoryModule
 import `in`.koreatech.business.di.appModule
+import `in`.koreatech.business.di.dataSourceDslModule
+import `in`.koreatech.business.di.dataStoreModule
+import `in`.koreatech.business.di.encryptedDataStoreModule
+import `in`.koreatech.business.di.networkDslModule
+import `in`.koreatech.business.di.repositoryDslModule
+import `in`.koreatech.business.di.useCaseModule
 import `in`.koreatech.business.domain.model.ThemeMode
 import `in`.koreatech.business.feature.auth.di.authModule
 import `in`.koreatech.business.feature.insertstore.di.insertStoreModule
 import `in`.koreatech.business.feature.settings.di.settingsModule
 import `in`.koreatech.business.feature.store.di.storeModule
-import `in`.koreatech.business.domain.repository.AppPreferencesRepository
 import `in`.koreatech.business.navigation.AppNavigation
 import `in`.koreatech.business.ui.component.FilledActionButton
 import `in`.koreatech.business.ui.component.KoinLogo
 import `in`.koreatech.business.ui.theme.KoinTheme
-import koreatech.business.designsystem.resources.*
 import koreatech.business.designsystem.resources.Res
+import koreatech.business.designsystem.resources.checking_login
+import koreatech.business.designsystem.resources.force_update_desc
+import koreatech.business.designsystem.resources.force_update_title
+import koreatech.business.designsystem.resources.loading_service
+import koreatech.business.designsystem.resources.update_action
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinApplication as ComposeKoinApplication
-import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.KoinApplication
 import org.koin.dsl.KoinAppDeclaration
-import org.koin.ksp.generated.module
+import org.orbitmvi.orbit.compose.collectAsState
 
 @Composable
 @Preview
@@ -63,16 +66,21 @@ fun App() {
     }
     ComposeKoinApplication(application = koinDeclaration) {
         val appViewModel: AppViewModel = koinViewModel()
-        val prefs = koinInject<AppPreferencesRepository>()
-        val themeMode by prefs.themeMode.collectAsState(initial = ThemeMode.System)
-        val systemDark = isSystemInDarkTheme()
-        val darkTheme = when (themeMode) {
+        val appUiState by appViewModel.collectAsState()
+        val darkTheme = when (appUiState.themeMode) {
             ThemeMode.Light -> false
             ThemeMode.Dark -> true
-            ThemeMode.System -> systemDark
+            ThemeMode.System -> isSystemInDarkTheme()
         }
+        SyncSystemBarsAppearance(darkTheme)
+        val rootNavController = rememberNavController()
         KoinTheme(darkTheme = darkTheme) {
-            AppNavigation(appViewModel = appViewModel)
+            Surface(color = KoinTheme.colors.neutral50, modifier = Modifier.fillMaxSize()) {
+                AppNavigation(
+                    rootNavController = rootNavController,
+                    appViewModel = appViewModel
+                )
+            }
         }
     }
 }
@@ -82,7 +90,13 @@ private fun newImageLoader(context: PlatformContext): ImageLoader = ImageLoader.
     .build()
 
 @Composable
-fun LoadingRouteScreen() {
+fun LoadingRouteScreen(
+    launchState: LaunchState,
+    onResolved: (LaunchState) -> Unit
+) {
+    LaunchedEffect(launchState) {
+        if (launchState != LaunchState.Loading) onResolved(launchState)
+    }
     Surface(color = KoinTheme.colors.neutral50) {
         Column(
             modifier = Modifier
@@ -159,11 +173,12 @@ fun ForceUpdateRouteScreen() {
 
 fun businessAppDeclaration(additionalDeclaration: KoinApplication.() -> Unit = {}): KoinAppDeclaration = {
     modules(
-        DataSourceModule().module,
-        DataStoreModule().module,
-        EncryptedDataStoreModule().module,
-        NetworkModule().module,
-        RepositoryModule().module,
+        dataStoreModule,
+        encryptedDataStoreModule,
+        networkDslModule,
+        dataSourceDslModule,
+        repositoryDslModule,
+        useCaseModule,
         appModule,
         authModule,
         storeModule,
