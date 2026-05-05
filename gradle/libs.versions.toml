@@ -1,4 +1,5 @@
 [versions]
+aboutlibraries = "14.0.0"
 agp = "8.12.3"
 detekt = "1.23.8"
 spotless = "6.25.0"
@@ -14,13 +15,14 @@ androidx-lifecycle = "2.9.4"
 androidx-navigation = "2.9.0-rc01"
 androidx-testExt = "1.3.0"
 coil3 = "3.3.0"
-composeMultiplatform = "1.8.2"
+composeMultiplatform = "1.9.0"
 junit = "4.13.2"
 koin-annotations = "2.1.0"
 koin-bom = "4.1.1"
 ksp = "2.2.20-2.0.3"
 kotlin = "2.2.20"
 kotlinx-coroutines = "1.10.2"
+kotlinx-serialization = "1.11.0"
 ktlint = "13.1.0"
 ktor = "3.3.0"
 napier = "2.7.1"
@@ -45,6 +47,7 @@ coil-network-ktor = { module = "io.coil-kt.coil3:coil-network-ktor3", version.re
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "composeMultiplatform" }
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "composeMultiplatform" }
 compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "composeMultiplatform" }
+compose-material3-adaptive-navigation-suite = { module = "org.jetbrains.compose.material3:material3-adaptive-navigation-suite", version.ref = "composeMultiplatform" }
 compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMultiplatform" }
 compose-ui-backhandler = { module = "org.jetbrains.compose.ui:ui-backhandler", version.ref = "composeMultiplatform" }
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
@@ -52,6 +55,7 @@ compose-components-ui-tooling-preview = { module = "org.jetbrains.compose.compon
 kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinx-coroutines" }
 kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization"}
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
 koin-android = { module = "io.insert-koin:koin-android" }
 koin-annotation = { module = "io.insert-koin:koin-annotations" , version.ref = "koin-annotations" }
@@ -74,6 +78,7 @@ orbit-compose = { module = "org.orbit-mvi:orbit-compose", version.ref = "orbit" 
 orbit-test = { module = "org.orbit-mvi:orbit-test", version.ref = "orbit" }
 koin-test = { module = "io.insert-koin:koin-test" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
+aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
 
 android-gradlePlugin = { group = "com.android.tools.build", name = "gradle", version.ref = "agp" }
 detekt-gradlePlugin = { group = "io.gitlab.arturbosch.detekt", name = "detekt-gradle-plugin", version.ref = "detekt" }
@@ -97,3 +102,4 @@ business-orbit = { id = "in.koreatech.business.plugin.orbit", version = "unspeci
 business-umbrella = { id = "in.koreatech.business.plugin.umbrella", version = "unspecified" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
+aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }

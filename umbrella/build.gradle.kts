@@ -18,6 +18,8 @@ kotlin {
 
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.napier)
+            implementation(libs.androidx.datastore)
+            implementation(libs.androidx.datastore.preference)
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor)
             implementation(project.dependencies.platform(libs.koin.bom))

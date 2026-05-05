@@ -13,6 +13,7 @@ kotlin {
         }
         commonMain.dependencies {
             implementation(projects.umbrella)
+            implementation(libs.napier)
         }
         jvmMain.dependencies {
             implementation(projects.umbrella)
