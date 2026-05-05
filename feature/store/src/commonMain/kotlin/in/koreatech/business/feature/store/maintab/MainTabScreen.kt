@@ -10,7 +10,11 @@ import androidx.compose.material.icons.outlined.LocalOffer
 import androidx.compose.material.icons.outlined.MoreHoriz
 import androidx.compose.material.icons.outlined.Store
 import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.NavigationDrawerItemDefaults
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.graphics.vector.ImageVector
+import `in`.koreatech.business.ui.theme.KoinTheme
 
 @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
@@ -44,6 +49,32 @@ fun MainTabScreen(
         selectedTab = MainTabDestination.Dashboard
     }
 
+    val selectedColor = KoinTheme.colors.primary500
+    val unselectedColor = KoinTheme.colors.neutral500
+    val indicatorColor = KoinTheme.colors.primary100
+    val itemColors = NavigationSuiteDefaults.itemColors(
+        navigationBarItemColors = NavigationBarItemDefaults.colors(
+            selectedIconColor = selectedColor,
+            selectedTextColor = selectedColor,
+            indicatorColor = indicatorColor,
+            unselectedIconColor = unselectedColor,
+            unselectedTextColor = unselectedColor,
+        ),
+        navigationRailItemColors = NavigationRailItemDefaults.colors(
+            selectedIconColor = selectedColor,
+            selectedTextColor = selectedColor,
+            indicatorColor = indicatorColor,
+            unselectedIconColor = unselectedColor,
+            unselectedTextColor = unselectedColor,
+        ),
+        navigationDrawerItemColors = NavigationDrawerItemDefaults.colors(
+            selectedIconColor = selectedColor,
+            selectedTextColor = selectedColor,
+            unselectedIconColor = unselectedColor,
+            unselectedTextColor = unselectedColor,
+        )
+    )
+
     NavigationSuiteScaffold(
         modifier = modifier,
         navigationSuiteItems = {
@@ -58,7 +89,8 @@ fun MainTabScreen(
                             contentDescription = dest.label
                         )
                     },
-                    label = { Text(dest.label) }
+                    label = { Text(dest.label) },
+                    colors = itemColors
                 )
             }
         }
