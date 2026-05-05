@@ -1,0 +1,23 @@
+appId: in.koreatech.business.dev
+name: 01 - 로그인
+# 전제: 앱이 로그아웃 상태여야 합니다.
+# 처음 실행 시: adb shell pm clear in.koreatech.business.dev
+---
+- launchApp
+- assertVisible: "사장님, 안녕하세요"
+
+- tapOn: "010-0000-0000"
+- inputText: "01011113333"
+
+- tapOn: "비밀번호를 입력하세요"
+- inputText: "test1234!"
+- hideKeyboard
+
+- tapOn: "로그인"
+
+# 매장 없는 계정이라 InsertStore 마법사가 자동으로 열림 → 닫기
+- tapOn:
+    text: "닫기"
+
+- assertVisible: "대시보드"
+- assertVisible: "등록된 매장이 없습니다."

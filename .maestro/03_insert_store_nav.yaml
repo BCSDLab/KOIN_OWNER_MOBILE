@@ -1,0 +1,30 @@
+appId: in.koreatech.business.dev
+name: 03 - 매장 등록 마법사 탐색
+# 전제: 로그인 상태
+---
+- launchApp
+- assertVisible: "대시보드"
+
+# 더보기 탭으로 이동
+- tapOn: "더보기"
+- tapOn: "매장 추가 등록"
+
+# Start 단계: "매장 등록 시작" 버튼 확인
+- assertVisible: "매장 등록 시작"
+
+# SelectCategory 단계로 이동
+- tapOn: "매장 등록 시작"
+
+# SelectCategory 단계: 카테고리 목록 및 "다음" 버튼 확인
+- assertVisible: "다음"
+
+# Start 단계로 뒤로가기
+- back
+- assertVisible: "매장 등록 시작"
+
+# 마법사 닫기 (X 버튼)
+- tapOn:
+    text: "닫기"
+
+# 더보기 탭으로 복귀 확인
+- assertVisible: "매장 추가 등록"

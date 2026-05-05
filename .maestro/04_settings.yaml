@@ -1,0 +1,41 @@
+appId: in.koreatech.business.dev
+name: 04 - 설정 화면 검증
+# 전제: 로그인 상태
+---
+- launchApp
+- tapOn: "더보기"
+
+# 상단 섹션 항목 확인
+- assertVisible: "매장 정보 수정"
+- assertVisible: "매장 추가 등록"
+- assertVisible: "비밀번호 변경"
+- assertVisible: "SMS 인증으로 재설정"
+
+# 테마 피커 확인 (앱 설정 섹션)
+- assertVisible: "테마"
+- assertVisible: "라이트"
+- assertVisible: "다크"
+- assertVisible: "시스템"
+
+# 스크롤하여 약관 및 계정 섹션 확인
+- swipe:
+    start: "50%, 70%"
+    end: "50%, 20%"
+- assertVisible: "서비스 이용약관"
+- assertVisible: "개인정보 처리방침"
+- assertVisible: "오픈소스 라이선스"
+- assertVisible: "로그아웃"
+- assertVisible: "회원탈퇴"
+
+# 약관/정책 서브화면 탐색 확인 (back 후 더보기 탭 잔류 확인)
+- tapOn: "서비스 이용약관"
+- back
+- assertVisible: "서비스 이용약관"
+
+- tapOn: "개인정보 처리방침"
+- back
+- assertVisible: "개인정보 처리방침"
+
+- tapOn: "오픈소스 라이선스"
+- back
+- assertVisible: "오픈소스 라이선스"
