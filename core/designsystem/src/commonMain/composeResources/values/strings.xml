@@ -187,6 +187,10 @@
     <string name="add_menu_hint">우측 상단 \"메뉴 추가\" 버튼을 눌러 새 메뉴를 등록하세요.</string>
     <string name="first_menu_register">첫 메뉴 등록하기</string>
     <string name="menu_delete_dialog_title">메뉴 삭제</string>
+    <string name="store_register_first">매장을 먼저 등록해주세요.</string>
+    <string name="menu_empty_sub">카테고리 관리에서 카테고리를 만들고 메뉴를 등록해 보세요.</string>
+    <string name="option_price_label">옵션가격</string>
+    <string name="register_menu_plus">+ 메뉴 등록</string>
 
     <!-- ── Menu Editor ── -->
     <string name="menu_edit_title">메뉴 수정</string>
@@ -220,6 +224,16 @@
     <string name="app_preview">앱 미리보기</string>
     <string name="event_ongoing">진행중</string>
     <string name="event_title_preview">이벤트 제목 미리보기</string>
+    <string name="event_edit_title">이벤트 수정</string>
+    <string name="event_delete_title">이벤트 삭제</string>
+    <string name="event_delete_confirm">이벤트를 삭제하시겠습니까?</string>
+    <string name="event_empty_sub">학생들에게 매장을 알려보세요.</string>
+    <string name="add_event_plus">+ 이벤트 등록</string>
+    <string name="no_filtered_events">표시할 이벤트가 없습니다.</string>
+    <string name="try_other_filter">다른 필터를 선택해 보세요.</string>
+    <string name="filter_all">전체</string>
+    <string name="filter_live">진행 중</string>
+    <string name="selected_count">%1$d건 선택됨</string>
 
     <!-- ── Store Dashboard ── -->
     <string name="store_open">영업중</string>
@@ -253,6 +267,20 @@
     <string name="event_tab">이벤트 관리</string>
     <string name="add_menu_tab">메뉴 추가</string>
     <string name="add_event_tab">이벤트 추가</string>
+    <string name="tab_menu">메뉴</string>
+    <string name="tab_events">이벤트</string>
+    <string name="tab_more">더보기</string>
+    <string name="summary_section">운영 요약</string>
+    <string name="live_event_section">진행 중인 이벤트</string>
+    <string name="operating_hours">영업 시간</string>
+    <string name="live_event_count">%1$d개의 이벤트가 있습니다.</string>
+    <string name="no_live_events">진행 중인 이벤트가 없습니다.</string>
+    <string name="add_store_btn">매장 추가 등록</string>
+    <string name="empty_store_sub">매장을 등록하고 KOIN에서\n학생 손님을 만나보세요.</string>
+    <string name="info_none">정보 없음</string>
+    <string name="operating_daily_no_holiday">매일 %1$s · 휴무 없음</string>
+    <string name="operating_daily_holiday">매일 %1$s · %2$s요일 휴무</string>
+    <string name="operating_by_day">요일별 다름</string>
 
     <!-- ── Settings ── -->
     <string name="settings_title">설정</string>
@@ -330,5 +358,11 @@
     <string name="panel_terms_title">서비스 이용약관</string>
     <string name="panel_terms_sub">KOIN 사장님 서비스 이용에 관한 약관입니다.</string>
     <string name="panel_oss_title">오픈소스 라이선스</string>
+    <string name="section_store">매장</string>
+    <string name="current_store_info_edit">현재 매장 정보 편집</string>
+    <string name="section_owner_info">사장님 정보</string>
+    <string name="section_app_settings">앱 설정</string>
+    <string name="section_terms_policy">약관 및 정책</string>
+    <string name="section_app">앱</string>
 
 </resources>

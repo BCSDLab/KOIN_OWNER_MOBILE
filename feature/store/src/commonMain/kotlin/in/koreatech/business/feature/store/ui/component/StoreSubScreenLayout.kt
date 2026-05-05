@@ -166,7 +166,7 @@ fun StoreSubScreenLayout(
                     )
 
                     Spacer(Modifier.height(8.dp))
-                    SidebarSectionLabel("앱")
+                    SidebarSectionLabel(stringResource(Res.string.section_app))
                     SidebarNavItem(
                         label = stringResource(Res.string.theme),
                         icon = Icons.Outlined.DarkMode,
@@ -175,7 +175,7 @@ fun StoreSubScreenLayout(
                     )
 
                     Spacer(Modifier.height(8.dp))
-                    SidebarSectionLabel("약관 및 정책")
+                    SidebarSectionLabel(stringResource(Res.string.section_terms_policy))
                     SidebarNavItem(
                         label = stringResource(Res.string.service_terms),
                         icon = Icons.Default.Description,
@@ -337,7 +337,7 @@ private fun SidebarAccountCard(
             Spacer(Modifier.width(10.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "$ownerName 님",
+                    text = stringResource(Res.string.name_honorific, ownerName),
                     style = MaterialTheme.typography.bodySmall,
                     fontWeight = FontWeight.SemiBold,
                     color = KoinTheme.colors.neutral800

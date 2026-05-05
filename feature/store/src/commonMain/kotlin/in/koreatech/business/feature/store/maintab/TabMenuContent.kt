@@ -26,7 +26,7 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.LocalOffer
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -84,7 +84,7 @@ fun TabMenuContent(
                 title = {
                     Row(verticalAlignment = Alignment.Bottom) {
                         Text(
-                            text = "메뉴",
+                            text = stringResource(Res.string.tab_menu),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold,
                             color = KoinTheme.colors.neutral800
@@ -105,7 +105,7 @@ fun TabMenuContent(
             when {
                 storeId.isNullOrBlank() -> {
                     EmptyState(
-                        title = "매장을 먼저 등록해주세요.",
+                        title = stringResource(Res.string.store_register_first),
                         sub = null,
                         ctaLabel = null,
                         onCta = null
@@ -118,9 +118,9 @@ fun TabMenuContent(
                 }
                 uiState.categories.isEmpty() -> {
                     EmptyState(
-                        title = "등록된 메뉴가 없습니다.",
-                        sub = "카테고리 관리에서 카테고리를 만들고 메뉴를 등록해 보세요.",
-                        ctaLabel = "+ 메뉴 등록",
+                        title = stringResource(Res.string.no_menu),
+                        sub = stringResource(Res.string.menu_empty_sub),
+                        ctaLabel = stringResource(Res.string.register_menu_plus),
                         onCta = { onNavigateToMenuEditor(storeId, null) }
                     )
                 }
@@ -134,19 +134,21 @@ fun TabMenuContent(
         }
 
         if (!storeId.isNullOrBlank() && uiState.categories.isNotEmpty()) {
-            FloatingActionButton(
+            ExtendedFloatingActionButton(
                 onClick = { onNavigateToMenuEditor(storeId, null) },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(end = 16.dp, bottom = 16.dp),
                 containerColor = KoinTheme.colors.primary500,
-                contentColor = Color.White
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "메뉴 등록"
-                )
-            }
+                contentColor = Color.White,
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null
+                    )
+                },
+                text = { Text(text = stringResource(Res.string.menu_add_title)) }
+            )
         }
     }
 }
@@ -169,7 +171,7 @@ private fun CategoryChipButton(onClick: () -> Unit) {
         )
         Spacer(Modifier.width(4.dp))
         Text(
-            text = "카테고리",
+            text = stringResource(Res.string.field_category),
             fontSize = 12.sp,
             fontWeight = FontWeight.SemiBold,
             color = KoinTheme.colors.neutral800Variant
@@ -222,10 +224,11 @@ private fun MenuList(
 @Composable
 private fun MenuRow(menu: MenuItem, onClick: () -> Unit) {
     val singlePrice = menu.singlePrice
+    val optionPriceLabel = stringResource(Res.string.option_price_label)
     val priceLabel = when {
         menu.isSingle && singlePrice != null -> "${formatWon(singlePrice)}원"
         menu.optionPrices.size == 1 -> "${formatWon(menu.optionPrices.first().price)}원"
-        menu.optionPrices.isNotEmpty() -> "옵션가격"
+        menu.optionPrices.isNotEmpty() -> optionPriceLabel
         else -> "-"
     }
     Row(
@@ -271,8 +274,8 @@ private fun MenuRow(menu: MenuItem, onClick: () -> Unit) {
             Text(
                 text = priceLabel,
                 fontSize = 13.sp,
-                fontWeight = if (priceLabel == "옵션가격") FontWeight.Medium else FontWeight.Bold,
-                color = if (priceLabel == "옵션가격") KoinTheme.colors.neutral500 else KoinTheme.colors.primary500,
+                fontWeight = if (priceLabel == optionPriceLabel) FontWeight.Medium else FontWeight.Bold,
+                color = if (priceLabel == optionPriceLabel) KoinTheme.colors.neutral500 else KoinTheme.colors.primary500,
                 modifier = Modifier.padding(top = 2.dp)
             )
         }

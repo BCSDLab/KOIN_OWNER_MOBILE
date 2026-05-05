@@ -28,7 +28,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.LocalOffer
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -121,7 +121,7 @@ fun TabEventContent(
             }
 
             when {
-                storeId.isNullOrBlank() -> EmptyEventState("매장을 먼저 등록해주세요.", null, null, null)
+                storeId.isNullOrBlank() -> EmptyEventState(stringResource(Res.string.store_register_first), null, null, null)
                 uiState.isLoading && uiState.events.isEmpty() -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(color = KoinTheme.colors.primary500)
@@ -129,16 +129,16 @@ fun TabEventContent(
                 }
                 filteredEvents.isEmpty() && uiState.events.isEmpty() -> {
                     EmptyEventState(
-                        title = "진행 중인 이벤트가 없습니다.",
-                        sub = "학생들에게 매장을 알려보세요.",
-                        ctaLabel = "+ 이벤트 등록",
+                        title = stringResource(Res.string.no_live_events),
+                        sub = stringResource(Res.string.event_empty_sub),
+                        ctaLabel = stringResource(Res.string.add_event_plus),
                         onCta = { onNavigateToEventEditor(storeId) }
                     )
                 }
                 filteredEvents.isEmpty() -> {
                     EmptyEventState(
-                        title = "표시할 이벤트가 없습니다.",
-                        sub = "다른 필터를 선택해 보세요.",
+                        title = stringResource(Res.string.no_filtered_events),
+                        sub = stringResource(Res.string.try_other_filter),
                         ctaLabel = null,
                         onCta = null
                     )
@@ -162,19 +162,21 @@ fun TabEventContent(
 
         // 등록 FAB (편집 모드 아닐 때만)
         if (!uiState.isEditMode && !storeId.isNullOrBlank() && uiState.events.isNotEmpty()) {
-            FloatingActionButton(
+            ExtendedFloatingActionButton(
                 onClick = { onNavigateToEventEditor(storeId) },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(end = 16.dp, bottom = 16.dp),
                 containerColor = KoinTheme.colors.primary500,
-                contentColor = Color.White
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = "이벤트 등록"
-                )
-            }
+                contentColor = Color.White,
+                icon = {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null
+                    )
+                },
+                text = { Text(text = stringResource(Res.string.add_event_btn)) }
+            )
         }
 
         BusinessSnackbarHost(
@@ -194,7 +196,7 @@ private fun NormalAppBar(
     TopAppBar(
         title = {
             Text(
-                text = "이벤트",
+                text = stringResource(Res.string.tab_events),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = KoinTheme.colors.neutral800
@@ -206,7 +208,7 @@ private fun NormalAppBar(
                 IconButton(onClick = onToggleEditMode) {
                     Icon(
                         imageVector = Icons.Default.Edit,
-                        contentDescription = "편집",
+                        contentDescription = stringResource(Res.string.edit_mode),
                         tint = KoinTheme.colors.neutral800Variant,
                         modifier = Modifier.size(18.dp)
                     )
@@ -236,7 +238,7 @@ private fun EditModeAppBar(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "취소",
+            text = stringResource(Res.string.cancel),
             modifier = Modifier
                 .clickable(onClick = onCancel)
                 .padding(horizontal = 10.dp, vertical = 6.dp),
@@ -245,7 +247,7 @@ private fun EditModeAppBar(
             color = KoinTheme.colors.neutral800Variant
         )
         Text(
-            text = "${selectedCount}건 선택됨",
+            text = stringResource(Res.string.selected_count, selectedCount),
             modifier = Modifier.weight(1f),
             fontSize = 15.sp,
             fontWeight = FontWeight.SemiBold,
@@ -253,7 +255,7 @@ private fun EditModeAppBar(
             textAlign = androidx.compose.ui.text.style.TextAlign.Center
         )
         Text(
-            text = "삭제",
+            text = stringResource(Res.string.delete),
             modifier = Modifier
                 .clickable(enabled = canDelete, onClick = onDelete)
                 .padding(horizontal = 10.dp, vertical = 6.dp),
@@ -267,10 +269,10 @@ private fun EditModeAppBar(
 @Composable
 private fun FilterChips(filter: EventFilter, onFilterChange: (EventFilter) -> Unit) {
     val items = listOf(
-        EventFilter.All to "전체",
-        EventFilter.Live to "진행 중",
-        EventFilter.Planned to "예정",
-        EventFilter.Ended to "종료"
+        EventFilter.All to stringResource(Res.string.filter_all),
+        EventFilter.Live to stringResource(Res.string.filter_live),
+        EventFilter.Planned to stringResource(Res.string.event_status_upcoming),
+        EventFilter.Ended to stringResource(Res.string.event_status_ended)
     )
     Row(verticalAlignment = Alignment.CenterVertically) {
         items.forEach { (value, label) ->
@@ -453,7 +455,7 @@ private fun EventCard(
                 horizontalArrangement = Arrangement.End
             ) {
                 Text(
-                    text = "수정",
+                    text = stringResource(Res.string.edit),
                     modifier = Modifier
                         .clip(RoundedCornerShape(8.dp))
                         .clickable(onClick = onEdit)
@@ -470,9 +472,9 @@ private fun EventCard(
 @Composable
 private fun StatusBadge(status: EventStatus) {
     val (label, bg, fg) = when (status) {
-        EventStatus.Live -> Triple("진행 중", KoinTheme.colors.success100, KoinTheme.colors.success700)
-        EventStatus.Planned -> Triple("예정", KoinTheme.colors.primary100, KoinTheme.colors.primary500)
-        EventStatus.Ended -> Triple("종료", KoinTheme.colors.neutral200, KoinTheme.colors.neutral500)
+        EventStatus.Live -> Triple(stringResource(Res.string.filter_live), KoinTheme.colors.success100, KoinTheme.colors.success700)
+        EventStatus.Planned -> Triple(stringResource(Res.string.event_status_upcoming), KoinTheme.colors.primary100, KoinTheme.colors.primary500)
+        EventStatus.Ended -> Triple(stringResource(Res.string.event_status_ended), KoinTheme.colors.neutral200, KoinTheme.colors.neutral500)
     }
     Box(
         modifier = Modifier

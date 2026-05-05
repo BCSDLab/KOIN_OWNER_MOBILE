@@ -98,7 +98,7 @@ fun TabMoreContent(
         TopAppBar(
             title = {
                 Text(
-                    text = "더보기",
+                    text = stringResource(Res.string.tab_more),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = KoinTheme.colors.neutral800
@@ -153,23 +153,23 @@ fun TabMoreContent(
             Spacer(Modifier.height(12.dp))
 
             // 매장
-            MoreSection(title = "매장") {
+            MoreSection(title = stringResource(Res.string.section_store)) {
                 MoreRow(
                     icon = Icons.Default.Edit,
                     label = stringResource(Res.string.modify_store_info_title),
-                    sub = if (storeId.isNotEmpty()) "현재 매장 정보 편집" else null,
+                    sub = if (storeId.isNotEmpty()) stringResource(Res.string.current_store_info_edit) else null,
                     enabled = storeId.isNotEmpty(),
                     onClick = { if (storeId.isNotEmpty()) onNavigateToStoreInfoEdit(storeId) }
                 )
                 MoreRow(
                     icon = Icons.Default.Add,
-                    label = "매장 추가 등록",
+                    label = stringResource(Res.string.add_store_btn),
                     onClick = onNavigateToInsertStore
                 )
             }
 
             // 사장님 정보
-            MoreSection(title = "사장님 정보") {
+            MoreSection(title = stringResource(Res.string.section_owner_info)) {
                 MoreRow(
                     icon = Icons.Default.VpnKey,
                     label = stringResource(Res.string.change_password),
@@ -180,7 +180,7 @@ fun TabMoreContent(
 
             // 앱 설정 — 테마 인라인 picker
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                MoreSectionHeader(title = "앱 설정")
+                MoreSectionHeader(title = stringResource(Res.string.section_app_settings))
                 KoinCard(
                     modifier = Modifier.fillMaxWidth(),
                     padding = PaddingValues(16.dp)
@@ -209,7 +209,7 @@ fun TabMoreContent(
             }
 
             // 약관 및 정책
-            MoreSection(title = "약관 및 정책") {
+            MoreSection(title = stringResource(Res.string.section_terms_policy)) {
                 MoreRow(
                     icon = Icons.Default.Description,
                     label = stringResource(Res.string.service_terms),
@@ -235,7 +235,7 @@ fun TabMoreContent(
             }
 
             // 계정
-            MoreSection(title = "계정") {
+            MoreSection(title = stringResource(Res.string.settings_group_account)) {
                 MoreRow(
                     icon = Icons.AutoMirrored.Filled.Logout,
                     label = stringResource(Res.string.logout),
@@ -315,7 +315,7 @@ private fun OwnerHeaderCard(
             Spacer(Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "$name 님",
+                    text = stringResource(Res.string.name_honorific, name),
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     color = KoinTheme.colors.neutral800

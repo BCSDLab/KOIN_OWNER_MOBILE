@@ -25,6 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.graphics.vector.ImageVector
 import `in`.koreatech.business.ui.theme.KoinTheme
+import koreatech.business.designsystem.resources.Res
+import koreatech.business.designsystem.resources.*
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
 @Composable
@@ -86,10 +90,10 @@ fun MainTabScreen(
                     icon = {
                         Icon(
                             imageVector = if (isSelected) dest.iconFilled else dest.iconOutlined,
-                            contentDescription = dest.label
+                            contentDescription = stringResource(dest.labelRes)
                         )
                     },
-                    label = { Text(dest.label) },
+                    label = { Text(stringResource(dest.labelRes)) },
                     colors = itemColors
                 )
             }
@@ -122,12 +126,12 @@ fun MainTabScreen(
 }
 
 private enum class MainTabDestination(
-    val label: String,
+    val labelRes: StringResource,
     val iconFilled: ImageVector,
     val iconOutlined: ImageVector
 ) {
-    Dashboard("대시보드", Icons.Filled.Home, Icons.Outlined.Home),
-    Menu("메뉴", Icons.Filled.Store, Icons.Outlined.Store),
-    Events("이벤트", Icons.Filled.LocalOffer, Icons.Outlined.LocalOffer),
-    More("더보기", Icons.Filled.MoreHoriz, Icons.Outlined.MoreHoriz)
+    Dashboard(Res.string.sidebar_dashboard, Icons.Filled.Home, Icons.Outlined.Home),
+    Menu(Res.string.tab_menu, Icons.Filled.Store, Icons.Outlined.Store),
+    Events(Res.string.tab_events, Icons.Filled.LocalOffer, Icons.Outlined.LocalOffer),
+    More(Res.string.tab_more, Icons.Filled.MoreHoriz, Icons.Outlined.MoreHoriz)
 }

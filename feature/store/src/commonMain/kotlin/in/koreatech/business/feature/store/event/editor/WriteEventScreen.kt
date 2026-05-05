@@ -119,8 +119,8 @@ fun WriteEventScreen(
 
         Box(modifier = Modifier.fillMaxSize().background(KoinTheme.colors.neutral50)) {
             Column(modifier = Modifier.fillMaxSize()) {
-                val titleText = if (uiState.isEditMode) "이벤트 수정" else stringResource(Res.string.event_register_title)
-                val submitLabel = if (uiState.isEditMode) "수정 완료" else stringResource(Res.string.register)
+                val titleText = if (uiState.isEditMode) stringResource(Res.string.event_edit_title) else stringResource(Res.string.event_register_title)
+                val submitLabel = if (uiState.isEditMode) stringResource(Res.string.edit_complete) else stringResource(Res.string.register)
                 if (isDesktop) {
                     DesktopTopBar(
                         title = titleText,
@@ -131,7 +131,7 @@ fun WriteEventScreen(
                                 IconButton(onClick = { showDeleteDialog = true }) {
                                     Icon(
                                         imageVector = Icons.Default.Delete,
-                                        contentDescription = "삭제",
+                                        contentDescription = stringResource(Res.string.delete),
                                         tint = KoinTheme.colors.danger600
                                     )
                                 }
@@ -173,7 +173,7 @@ fun WriteEventScreen(
                                 IconButton(onClick = { showDeleteDialog = true }) {
                                     Icon(
                                         imageVector = Icons.Default.Delete,
-                                        contentDescription = "삭제",
+                                        contentDescription = stringResource(Res.string.delete),
                                         tint = KoinTheme.colors.danger600
                                     )
                                 }
@@ -458,7 +458,7 @@ fun WriteEventScreen(
                             .padding(horizontal = 16.dp, vertical = 12.dp)
                     ) {
                         GradientActionButton(
-                            text = if (uiState.isEditMode) "수정 완료" else stringResource(Res.string.register),
+                            text = if (uiState.isEditMode) stringResource(Res.string.edit_complete) else stringResource(Res.string.register),
                             onClick = viewModel::submit,
                             isLoading = uiState.isLoading
                         )
@@ -481,14 +481,14 @@ fun WriteEventScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text(text = "이벤트 삭제", style = MaterialTheme.typography.headlineMedium) },
-            text = { Text(text = "이벤트를 삭제하시겠습니까?", style = MaterialTheme.typography.bodyMedium) },
+            title = { Text(text = stringResource(Res.string.event_delete_title), style = MaterialTheme.typography.headlineMedium) },
+            text = { Text(text = stringResource(Res.string.event_delete_confirm), style = MaterialTheme.typography.bodyMedium) },
             confirmButton = {
                 TextButton(onClick = {
                     showDeleteDialog = false
                     viewModel.deleteEvent()
                 }) {
-                    Text(text = "삭제", color = KoinTheme.colors.danger700, style = MaterialTheme.typography.labelMedium)
+                    Text(text = stringResource(Res.string.delete), color = KoinTheme.colors.danger700, style = MaterialTheme.typography.labelMedium)
                 }
             },
             dismissButton = {

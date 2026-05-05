@@ -98,7 +98,7 @@ fun TabDashboardContent(
         TopAppBar(
             title = {
                 Text(
-                    text = "대시보드",
+                    text = stringResource(Res.string.sidebar_dashboard),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = KoinTheme.colors.neutral800
@@ -159,7 +159,7 @@ fun TabDashboardContent(
 
             // 운영 요약 라벨
             Text(
-                text = "운영 요약",
+                text = stringResource(Res.string.summary_section),
                 fontSize = 11.sp,
                 fontWeight = FontWeight.Bold,
                 color = KoinTheme.colors.neutral500,
@@ -170,15 +170,14 @@ fun TabDashboardContent(
             // 운영 요약 카드
             val today = remember { getCurrentDateString() }
             val liveEventCount = uiState.events.count { it.isLive(today) }
-            val upcomingTitle = uiState.events.firstOrNull { it.isLive(today) }?.title
             val operatingHoursLabel = formatOperatingHours(uiState.storeDetail?.operatingTimes)
 
             SummaryCard(
                 icon = Icons.Default.LocalOffer,
                 iconBg = KoinTheme.colors.primary100,
                 iconTint = KoinTheme.colors.primary500,
-                title = "진행 중인 이벤트",
-                sub = upcomingTitle ?: "진행 중인 이벤트가 없습니다",
+                title = stringResource(Res.string.live_event_section),
+                sub = if (liveEventCount > 0) stringResource(Res.string.live_event_count, liveEventCount) else stringResource(Res.string.no_live_events),
                 value = liveEventCount.toString(),
                 valueColor = if (liveEventCount > 0) KoinTheme.colors.primary500 else KoinTheme.colors.neutral800Variant
             )
@@ -187,7 +186,7 @@ fun TabDashboardContent(
                 icon = Icons.Default.AccessTime,
                 iconBg = KoinTheme.colors.neutral200,
                 iconTint = KoinTheme.colors.neutral500,
-                title = "영업 시간",
+                title = stringResource(Res.string.operating_hours),
                 sub = operatingHoursLabel,
                 value = null,
                 valueColor = KoinTheme.colors.neutral800Variant
@@ -222,14 +221,14 @@ private fun EmptyStoreState(onNavigateToInsertStore: () -> Unit) {
         }
         Spacer(Modifier.height(18.dp))
         Text(
-            text = "등록된 매장이 없습니다.",
+            text = stringResource(Res.string.no_stores),
             fontSize = 17.sp,
             fontWeight = FontWeight.Bold,
             color = KoinTheme.colors.neutral800
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            text = "매장을 등록하고 KOIN에서\n학생 손님을 만나보세요.",
+            text = stringResource(Res.string.empty_store_sub),
             fontSize = 13.sp,
             color = KoinTheme.colors.neutral500
         )
@@ -327,7 +326,7 @@ private fun StoreSelector(
                         )
                         Spacer(Modifier.width(6.dp))
                         Text(
-                            text = "매장 추가 등록",
+                            text = stringResource(Res.string.add_store_btn),
                             fontWeight = FontWeight.SemiBold,
                             color = KoinTheme.colors.primary500
                         )
@@ -367,7 +366,7 @@ private fun StoreHeroCard(
             )
             Spacer(Modifier.width(6.dp))
             Text(
-                text = "영업중",
+                text = stringResource(Res.string.store_open),
                 fontSize = 11.sp,
                 color = Color.White.copy(alpha = 0.85f)
             )
@@ -415,9 +414,9 @@ private fun StoreHeroCard(
         }
         Spacer(Modifier.height(12.dp))
         Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            if (isDelivery) WhiteBadge("배달")
-            if (isCard) WhiteBadge("카드")
-            if (isBank) WhiteBadge("계좌이체")
+            if (isDelivery) WhiteBadge(stringResource(Res.string.info_delivery))
+            if (isCard) WhiteBadge(stringResource(Res.string.info_payment_card))
+            if (isBank) WhiteBadge(stringResource(Res.string.info_payment_bank))
         }
     }
 }
@@ -498,18 +497,19 @@ private fun StoreEvent.isLive(todayIso: String): Boolean {
     return start <= todayIso && todayIso <= end
 }
 
+@Composable
 private fun formatOperatingHours(times: List<OperatingTime>?): String {
-    if (times.isNullOrEmpty()) return "정보 없음"
+    if (times.isNullOrEmpty()) return stringResource(Res.string.info_none)
     val opens = times.filterNot { it.isClosed }
-    if (opens.isEmpty()) return "휴무"
+    if (opens.isEmpty()) return stringResource(Res.string.closed)
     val sample = opens.first()
     val sameTime = opens.all { it.openTime == sample.openTime && it.closeTime == sample.closeTime }
     val closedDays = times.filter { it.isClosed }.mapNotNull { dayOfWeekLabels[it.dayOfWeek] }
     val timeLabel = "${sample.openTime.orEmpty()} – ${sample.closeTime.orEmpty()}"
     return when {
-        sameTime && closedDays.isEmpty() -> "매일 $timeLabel · 휴무 없음"
-        sameTime && closedDays.size == 1 -> "매일 $timeLabel · ${closedDays.first()}요일 휴무"
-        sameTime -> "매일 $timeLabel · ${closedDays.joinToString(",")}요일 휴무"
-        else -> "요일별 다름"
+        sameTime && closedDays.isEmpty() -> stringResource(Res.string.operating_daily_no_holiday, timeLabel)
+        sameTime && closedDays.size == 1 -> stringResource(Res.string.operating_daily_holiday, timeLabel, closedDays.first())
+        sameTime -> stringResource(Res.string.operating_daily_holiday, timeLabel, closedDays.joinToString(","))
+        else -> stringResource(Res.string.operating_by_day)
     }
 }
