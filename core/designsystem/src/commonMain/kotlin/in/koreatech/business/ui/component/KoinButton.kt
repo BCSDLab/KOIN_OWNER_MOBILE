@@ -46,11 +46,11 @@ fun KoinButton(
     val (bg, contentColor, borderColor) = when (variant) {
         KoinButtonVariant.Primary -> Triple(
             if (enabled) KoinTheme.colors.primary500 else KoinTheme.colors.neutral300,
-            if (enabled) KoinTheme.colors.neutral0 else KoinTheme.colors.neutral500,
+            if (enabled) KoinTheme.colors.neutral50 else KoinTheme.colors.neutral500,
             Color.Transparent
         )
         KoinButtonVariant.Outlined -> Triple(
-            KoinTheme.colors.neutral0,
+            KoinTheme.colors.neutral50,
             KoinTheme.colors.neutral800,
             KoinTheme.colors.neutral400
         )

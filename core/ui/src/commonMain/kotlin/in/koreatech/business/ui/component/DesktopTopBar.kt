@@ -28,7 +28,7 @@ fun DesktopTopBar(
     subtitle: String? = null,
     actions: @Composable RowScope.() -> Unit = {}
 ) {
-    Column(modifier = modifier.fillMaxWidth().background(KoinTheme.colors.neutral0)) {
+    Column(modifier = modifier.fillMaxWidth().background(KoinTheme.colors.neutral50)) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()

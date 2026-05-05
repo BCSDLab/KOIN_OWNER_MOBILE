@@ -26,10 +26,9 @@ fun KoinCard(
     val shape = RoundedCornerShape(12.dp)
     Column(
         modifier = modifier
-            .shadow(elevation = 1.dp, shape = shape, clip = false)
             .clip(shape)
             .background(KoinTheme.colors.neutral0)
-            .border(1.dp, KoinTheme.colors.neutral400, shape)
+            .border(0.5.dp, KoinTheme.colors.neutral400, shape)
             .padding(padding),
         verticalArrangement = Arrangement.spacedBy(spacing)
     ) {

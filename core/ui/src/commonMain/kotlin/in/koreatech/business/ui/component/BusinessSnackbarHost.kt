@@ -36,8 +36,8 @@ private fun BusinessSnackbar(
     Snackbar(
         snackbarData = data,
         containerColor = KoinTheme.colors.neutral800,
-        contentColor = KoinTheme.colors.neutral0,
+        contentColor = KoinTheme.colors.neutral50,
         actionContentColor = KoinTheme.colors.primary200,
-        dismissActionContentColor = KoinTheme.colors.neutral0
+        dismissActionContentColor = KoinTheme.colors.neutral50
     )
 }

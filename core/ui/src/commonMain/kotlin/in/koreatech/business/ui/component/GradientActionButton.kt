@@ -56,7 +56,7 @@ fun GradientActionButton(
         if (isLoading) {
             CircularProgressIndicator(
                 modifier = Modifier.size(22.dp),
-                color = KoinTheme.colors.neutral0,
+                color = KoinTheme.colors.neutral50,
                 strokeWidth = 2.dp
             )
         } else {
@@ -66,15 +66,15 @@ fun GradientActionButton(
             ) {
                 Text(
                     text = text,
-                    color = KoinTheme.colors.neutral0,
-                    style = KoinTheme.typography.bold16.copy(color = KoinTheme.colors.neutral0)
+                    color = KoinTheme.colors.neutral50,
+                    style = KoinTheme.typography.bold16.copy(color = KoinTheme.colors.neutral50)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                     contentDescription = null,
                     modifier = Modifier.size(18.dp),
-                    tint = KoinTheme.colors.neutral0
+                    tint = KoinTheme.colors.neutral50
                 )
             }
         }
@@ -91,7 +91,7 @@ fun FilledActionButton(
 ) {
     val shape = RoundedCornerShape(12.dp)
     val bgColor = if (enabled) KoinTheme.colors.primary500 else KoinTheme.colors.neutral300
-    val contentColor = if (enabled) KoinTheme.colors.neutral0 else KoinTheme.colors.neutral500
+    val contentColor = if (enabled) KoinTheme.colors.neutral50 else KoinTheme.colors.neutral500
 
     Box(
         modifier = modifier
