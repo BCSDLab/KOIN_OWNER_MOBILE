@@ -35,6 +35,16 @@ compose.desktop {
             packageVersion = "1.0.0"
             vendor = "BCSDLab"
             description = "KOIN 사장님 데스크톱 앱"
+
+            macOS {
+                iconFile.set(project.file("icons/icon-mac.icns"))
+            }
+            windows {
+                iconFile.set(project.file("icons/icon-windows.ico"))
+            }
+            linux {
+                iconFile.set(project.file("icons/icon-linux.png"))
+            }
         }
     }
 }
