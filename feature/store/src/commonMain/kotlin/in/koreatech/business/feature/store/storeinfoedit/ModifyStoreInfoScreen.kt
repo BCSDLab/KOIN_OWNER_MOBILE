@@ -462,29 +462,41 @@ private fun OperatingTimeRow(
         )
         if (!time.isClosed) {
             Spacer(modifier = Modifier.width(8.dp))
-            KoinTextField(
-                value = time.openTime.orEmpty(),
-                onValueChange = {},
-                placeholder = stringResource(Res.string.ph_time_start),
-                readOnly = true,
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable(onClick = onOpenTimeClick)
-            )
+            Box(modifier = Modifier.weight(1f)) {
+                KoinTextField(
+                    value = time.openTime.orEmpty(),
+                    onValueChange = {},
+                    placeholder = stringResource(Res.string.ph_time_start),
+                    readOnly = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable(onClick = onOpenTimeClick)
+                )
+            }
             Text(
                 text = "~",
                 modifier = Modifier.padding(horizontal = 4.dp),
                 color = KoinTheme.colors.neutral800Variant
             )
-            KoinTextField(
-                value = time.closeTime.orEmpty(),
-                onValueChange = {},
-                placeholder = stringResource(Res.string.ph_time_end),
-                readOnly = true,
-                modifier = Modifier
-                    .weight(1f)
-                    .clickable(onClick = onCloseTimeClick)
-            )
+            Box(modifier = Modifier.weight(1f)) {
+                KoinTextField(
+                    value = time.closeTime.orEmpty(),
+                    onValueChange = {},
+                    placeholder = stringResource(Res.string.ph_time_end),
+                    readOnly = true,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable(onClick = onCloseTimeClick)
+                )
+            }
         } else {
             Spacer(modifier = Modifier.width(8.dp))
             Text(
@@ -507,7 +519,7 @@ private fun TimePickerFieldDialog(
     val state = rememberTimePickerState(
         initialHour = initialHour,
         initialMinute = initialMinute,
-        is24Hour = true
+        is24Hour = false
     )
 
     AlertDialog(
