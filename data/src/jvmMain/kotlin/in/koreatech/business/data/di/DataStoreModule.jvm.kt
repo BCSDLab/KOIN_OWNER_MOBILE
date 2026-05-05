@@ -8,8 +8,6 @@ import `in`.koreatech.business.data.utils.createDataStore
 import `in`.koreatech.business.data.utils.dataStoreFileName
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
 import org.koin.core.scope.Scope
 import java.io.File
 import java.util.Base64
@@ -23,9 +21,7 @@ private val appDataDir: File
 
 private var dataStoreInstance: DataStore<Preferences>? = null
 
-@Module
 actual class DataStoreModule {
-    @Single
     actual fun provideDataStore(scope: Scope): DataStore<Preferences> {
         return dataStoreInstance ?: createDataStore(
             producePath = { appDataDir.resolve(dataStoreFileName).absolutePath }

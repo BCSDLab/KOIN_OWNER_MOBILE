@@ -17,16 +17,12 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
 import org.koin.core.scope.Scope
 
 // Koin 컨테이너가 재생성되어도 같은 파일에 DataStore가 중복 생성되지 않도록 프로세스 수준 싱글톤 유지
 private var dataStoreInstance: DataStore<Preferences>? = null
 
-@Module
 actual class DataStoreModule {
-    @Single
     actual fun provideDataStore(scope: Scope): DataStore<Preferences> {
         val context: Context = scope.get()
         return dataStoreInstance ?: createDataStore(

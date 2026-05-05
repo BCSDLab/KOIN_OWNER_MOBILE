@@ -8,31 +8,27 @@ import `in`.koreatech.business.data.api.auth.OwnerAuthApi
 import `in`.koreatech.business.data.network.httpClientEngine
 import `in`.koreatech.business.data.source.local.TokenLocalDataSource
 import `in`.koreatech.business.data.utils.isDebug
+import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.plugins.auth.providers.BearerTokens
 import io.ktor.client.plugins.auth.providers.bearer
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Named
-import org.koin.core.annotation.Single
 
-@Module
 class NetworkModule {
-    @Named("noAuth")
-    @Single
     fun provideNoAuthHttpClient(): HttpClient = HttpClient(httpClientEngine()) {
         expectSuccess = true
 
         install(Logging) {
-            logger = Logger.DEFAULT
+            logger = object : Logger {
+                override fun log(message: String) = Napier.d(message, tag = "HTTP-noAuth")
+            }
             level = if (isDebug()) LogLevel.ALL else LogLevel.NONE
         }
 
@@ -49,8 +45,6 @@ class NetworkModule {
         }
     }
 
-    @Named("auth")
-    @Single
     fun provideAuthHttpClient(
         tokenLocalDataSource: TokenLocalDataSource,
         ownerAuthApi: OwnerAuthApi
@@ -58,7 +52,9 @@ class NetworkModule {
         expectSuccess = true
 
         install(Logging) {
-            logger = Logger.DEFAULT
+            logger = object : Logger {
+                override fun log(message: String) = Napier.d(message, tag = "HTTP-auth")
+            }
             level = if (isDebug()) LogLevel.ALL else LogLevel.NONE
         }
 
@@ -66,11 +62,10 @@ class NetworkModule {
             bearer {
                 loadTokens {
                     val accessToken = tokenLocalDataSource.getAccessToken()
-                    val refreshToken = tokenLocalDataSource.getRefreshToken()
-                    if (accessToken.isBlank() || refreshToken.isBlank()) {
+                    if (accessToken.isBlank()) {
                         null
                     } else {
-                        BearerTokens(accessToken, refreshToken)
+                        BearerTokens(accessToken, tokenLocalDataSource.getRefreshToken())
                     }
                 }
 
@@ -113,21 +108,23 @@ class NetworkModule {
         }
     }
 
-    @Named("s3")
-    @Single
     fun provideS3HttpClient(): HttpClient = HttpClient(httpClientEngine()) {
         expectSuccess = true
+
+        install(Logging) {
+            logger = object : Logger {
+                override fun log(message: String) = Napier.d(message, tag = "HTTP-s3")
+            }
+            level = if (isDebug()) LogLevel.ALL else LogLevel.NONE
+        }
     }
 
-    @Single
-    fun provideOwnerApi(@Named("auth") httpClient: HttpClient): OwnerApi = OwnerApi(httpClient)
+    fun provideOwnerApi(httpClient: HttpClient): OwnerApi = OwnerApi(httpClient)
 
-    @Single
-    fun provideOwnerAuthApi(@Named("noAuth") httpClient: HttpClient): OwnerAuthApi = OwnerAuthApi(httpClient)
+    fun provideOwnerAuthApi(httpClient: HttpClient): OwnerAuthApi = OwnerAuthApi(httpClient)
 
-    @Single
     fun providePublicApi(
-        @Named("noAuth") httpClient: HttpClient,
-        @Named("s3") s3HttpClient: HttpClient,
+        httpClient: HttpClient,
+        s3HttpClient: HttpClient,
     ): PublicApi = PublicApi(httpClient, s3HttpClient)
 }

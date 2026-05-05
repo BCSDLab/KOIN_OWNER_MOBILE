@@ -3,6 +3,8 @@ plugins {
 }
 
 kotlin {
+    val isMacOS = System.getProperty("os.name").contains("mac", ignoreCase = true)
+
     sourceSets {
         androidMain.dependencies {
             implementation(libs.koin.android)
@@ -17,7 +19,6 @@ kotlin {
             implementation(libs.androidx.datastore.preference)
             implementation(libs.kotlinx.coroutines.core)
             implementation(project.dependencies.platform(libs.koin.bom))
-            api(libs.koin.annotation)
             implementation(libs.koin.core)
             implementation(libs.ktor.client.auth)
             implementation(libs.ktor.client.core)
@@ -27,8 +28,10 @@ kotlin {
             implementation(libs.napier)
         }
 
-        iosMain.dependencies {
-            implementation(libs.ktor.client.darwin)
+        if (isMacOS) {
+            iosMain.dependencies {
+                implementation(libs.ktor.client.darwin)
+            }
         }
 
         jvmMain.dependencies {
@@ -45,8 +48,4 @@ android {
             isMinifyEnabled = false
         }
     }
-}
-
-dependencies {
-    add("kspCommonMainMetadata", libs.koin.ksp.compiler)
 }

@@ -5,17 +5,13 @@ import androidx.datastore.preferences.core.Preferences
 import `in`.koreatech.business.data.utils.createDataStore
 import `in`.koreatech.business.data.utils.dataStoreFileName
 import kotlinx.cinterop.ExperimentalForeignApi
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
 import org.koin.core.scope.Scope
 import platform.Foundation.NSDocumentDirectory
 import platform.Foundation.NSFileManager
 import platform.Foundation.NSURL
 import platform.Foundation.NSUserDomainMask
 
-@Module
 actual class DataStoreModule {
-    @Single
     @OptIn(ExperimentalForeignApi::class)
     actual fun provideDataStore(scope: Scope): DataStore<Preferences> = createDataStore(
         producePath = {

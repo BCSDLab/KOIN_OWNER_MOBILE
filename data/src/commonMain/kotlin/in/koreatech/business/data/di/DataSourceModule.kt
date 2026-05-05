@@ -7,14 +7,9 @@ import `in`.koreatech.business.data.api.PublicApi
 import `in`.koreatech.business.data.api.auth.OwnerAuthApi
 import `in`.koreatech.business.data.source.local.TokenLocalDataSource
 import `in`.koreatech.business.data.source.remote.OwnerRemoteDataSource
-import org.koin.core.annotation.Module
-import org.koin.core.annotation.Single
 
-@Module
 class DataSourceModule {
-    @Single
     fun provideOwnerRemoteDataSource(ownerApi: OwnerApi, ownerAuthApi: OwnerAuthApi, publicApi: PublicApi): OwnerRemoteDataSource = OwnerRemoteDataSource(ownerApi, ownerAuthApi, publicApi)
 
-    @Single
     fun provideTokenLocalDataSource(dataStore: DataStore<Preferences>): TokenLocalDataSource = TokenLocalDataSource(dataStore)
 }
