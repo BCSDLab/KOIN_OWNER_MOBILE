@@ -1,3 +1,5 @@
+import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+
 plugins {
     alias(libs.plugins.business.application)
 }
@@ -26,6 +28,14 @@ kotlin {
 compose.desktop {
     application {
         mainClass = "MainKt"
+
+        nativeDistributions {
+            targetFormats(TargetFormat.Dmg, TargetFormat.Msi)
+            packageName = "KoinOwner"
+            packageVersion = "1.0.0"
+            vendor = "BCSDLab"
+            description = "KOIN 사장님 데스크톱 앱"
+        }
     }
 }
 

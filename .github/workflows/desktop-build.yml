@@ -1,0 +1,48 @@
+name: Desktop Build
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+concurrency:
+  group: desktop-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            label: macOS (DMG)
+            task: packageDmg
+            artifact-name: KoinOwner-macOS-dmg
+            artifact-path: composeApp/build/compose/binaries/main/dmg/*.dmg
+          - os: windows-latest
+            label: Windows (MSI)
+            task: packageMsi
+            artifact-name: KoinOwner-Windows-msi
+            artifact-path: composeApp/build/compose/binaries/main/msi/*.msi
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/gradle-setup
+        with:
+          properties: ${{ secrets.PROPERTIES }}
+
+      - name: Build installer
+        run: ./gradlew :composeApp:${{ matrix.task }}
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: ${{ matrix.artifact-path }}
+          retention-days: 30
+          if-no-files-found: error
