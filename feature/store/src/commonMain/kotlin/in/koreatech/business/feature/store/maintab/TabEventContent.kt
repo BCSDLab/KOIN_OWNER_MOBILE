@@ -48,7 +48,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import `in`.koreatech.business.domain.model.StoreEvent
-import `in`.koreatech.business.feature.store.shared.ActiveStoreContext
 import `in`.koreatech.business.platform.getCurrentDateString
 import `in`.koreatech.business.ui.component.BusinessSnackbarHost
 import `in`.koreatech.business.ui.component.GradientActionButton
@@ -63,18 +62,13 @@ import org.orbitmvi.orbit.compose.collectAsState
 
 @Composable
 fun TabEventContent(
-    activeStoreContext: ActiveStoreContext?,
     onNavigateToEventEditor: (storeId: String) -> Unit,
     onNavigateToEditEvent: (storeId: String, eventId: String) -> Unit = { _, _ -> },
     viewModel: EventTabViewModel = koinViewModel()
 ) {
     val uiState by viewModel.collectAsState()
-    val storeId = activeStoreContext?.activeStoreId
+    val storeId = uiState.storeId
     val snackbarHostState = remember { SnackbarHostState() }
-
-    LaunchedEffect(storeId) {
-        if (!storeId.isNullOrBlank()) viewModel.load(storeId)
-    }
 
     LaunchedEffect(uiState.errorMessage) {
         if (uiState.errorMessage.isNotEmpty()) {
@@ -216,7 +210,7 @@ private fun NormalAppBar(
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = KoinTheme.colors.neutral0
+            containerColor = KoinTheme.colors.neutral50
         )
     )
 }
@@ -231,7 +225,7 @@ private fun EditModeAppBar(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(KoinTheme.colors.neutral0)
+            .background(KoinTheme.colors.neutral50)
             .height(56.dp)
             .padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -357,7 +351,7 @@ private fun EventCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(KoinTheme.colors.neutral0)
+            .background(KoinTheme.colors.neutral50)
             .then(border)
             .clickable {
                 if (isEditMode) onToggleSelect() else onToggleExpand()

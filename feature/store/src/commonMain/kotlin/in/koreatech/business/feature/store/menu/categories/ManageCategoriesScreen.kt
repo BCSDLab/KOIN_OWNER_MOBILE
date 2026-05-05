@@ -165,7 +165,7 @@ fun ManageCategoriesScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(KoinTheme.colors.neutral0)
+                        .background(KoinTheme.colors.neutral50)
                         .statusBarsPadding()
                         .padding(horizontal = 4.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -267,7 +267,7 @@ private fun CategoryListCard(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(12.dp))
-            .background(KoinTheme.colors.neutral0)
+            .background(KoinTheme.colors.neutral50)
     ) {
         categories.forEachIndexed { idx, cat ->
             if (idx > 0) {

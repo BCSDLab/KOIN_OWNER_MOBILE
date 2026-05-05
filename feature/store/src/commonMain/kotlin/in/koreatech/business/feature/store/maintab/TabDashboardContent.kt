@@ -3,6 +3,7 @@
 package `in`.koreatech.business.feature.store.maintab
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -49,6 +50,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -60,7 +62,6 @@ import `in`.koreatech.business.domain.model.OperatingTime
 import `in`.koreatech.business.domain.model.StoreEvent
 import `in`.koreatech.business.domain.model.dayOfWeekLabels
 import `in`.koreatech.business.feature.store.dashboard.StoreDashboardViewModel
-import `in`.koreatech.business.feature.store.shared.ActiveStoreContext
 import `in`.koreatech.business.platform.getCurrentDateString
 import `in`.koreatech.business.ui.component.FilledActionButton
 import `in`.koreatech.business.ui.component.KoinCard
@@ -73,15 +74,10 @@ import org.orbitmvi.orbit.compose.collectAsState
 
 @Composable
 fun TabDashboardContent(
-    activeStoreContext: ActiveStoreContext?,
     onNavigateToInsertStore: () -> Unit,
     viewModel: StoreDashboardViewModel = koinViewModel()
 ) {
     val uiState by viewModel.collectAsState()
-
-    LaunchedEffect(activeStoreContext) {
-        viewModel.load(activeStoreContext?.activeStoreId)
-    }
 
     val currentActiveStoreId = uiState.activeStore?.uid?.toString()
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -121,7 +117,7 @@ fun TabDashboardContent(
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = KoinTheme.colors.neutral0
+                containerColor = KoinTheme.colors.neutral50
             )
         )
 
@@ -265,14 +261,16 @@ private fun StoreSelector(
     stores: List<String>,
     activeIndex: Int,
     onSelectIndex: (Int) -> Unit,
-    onAddStore: () -> Unit
+    onAddStore: () -> Unit,
+    shape: Shape = RoundedCornerShape(12.dp)
 ) {
     var expanded by remember { mutableStateOf(false) }
     Box {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(12.dp))
+                .border(0.5.dp, KoinTheme.colors.neutral400, shape)
+                .clip(shape)
                 .background(KoinTheme.colors.neutral0)
                 .clickable { expanded = !expanded }
                 .padding(horizontal = 14.dp, vertical = 10.dp),
@@ -299,7 +297,7 @@ private fun StoreSelector(
                     .padding(horizontal = 6.dp, vertical = 2.dp)
             ) {
                 Text(
-                    text = "${storeCount}개 중",
+                    text = "${storeCount}개 중 ${activeIndex + 1}번",
                     fontSize = 11.sp,
                     color = KoinTheme.colors.neutral500
                 )

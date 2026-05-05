@@ -185,7 +185,7 @@ fun WriteEventScreen(
                             }
                         },
                         colors = androidx.compose.material3.TopAppBarDefaults.topAppBarColors(
-                            containerColor = KoinTheme.colors.neutral0
+                            containerColor = KoinTheme.colors.neutral50
                         )
                     )
                 }
@@ -257,7 +257,7 @@ fun WriteEventScreen(
                                         listOf(stringResource(Res.string.period_1week) to 7, stringResource(Res.string.period_2weeks) to 14, stringResource(Res.string.period_1month) to 30, stringResource(Res.string.period_3months) to 90).forEach { (label, days) ->
                                             Surface(
                                                 shape = RoundedCornerShape(14.dp),
-                                                color = KoinTheme.colors.neutral0,
+                                                color = KoinTheme.colors.neutral50,
                                                 border = BorderStroke(1.dp, KoinTheme.colors.neutral400),
                                                 modifier = Modifier.clickable { viewModel.applyDurationPreset(days) }
                                             ) {
@@ -656,7 +656,7 @@ private fun EventImageThumbnailRow(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = stringResource(Res.string.remove_image),
-                        tint = KoinTheme.colors.neutral0,
+                        tint = KoinTheme.colors.neutral50,
                         modifier = Modifier.size(14.dp)
                     )
                 }
@@ -693,7 +693,7 @@ private fun EventImageThumbnailRow(
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = stringResource(Res.string.remove_image),
-                        tint = KoinTheme.colors.neutral0,
+                        tint = KoinTheme.colors.neutral50,
                         modifier = Modifier.size(14.dp)
                     )
                 }

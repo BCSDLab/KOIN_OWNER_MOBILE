@@ -3,6 +3,8 @@
 package `in`.koreatech.business.feature.store.maintab
 
 import androidx.compose.foundation.background
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -31,7 +33,6 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material.icons.filled.VpnKey
-import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.Refresh
@@ -59,7 +60,6 @@ import androidx.compose.ui.unit.sp
 import `in`.koreatech.business.domain.model.ThemeMode
 import `in`.koreatech.business.feature.settings.SettingsViewModel
 import `in`.koreatech.business.feature.store.dashboard.StoreDashboardViewModel
-import `in`.koreatech.business.feature.store.shared.ActiveStoreContext
 import `in`.koreatech.business.platform.getAppVersion
 import `in`.koreatech.business.ui.component.KoinCard
 import `in`.koreatech.business.ui.theme.KoinTheme
@@ -71,7 +71,6 @@ import org.orbitmvi.orbit.compose.collectAsState
 
 @Composable
 fun TabMoreContent(
-    activeStoreContext: ActiveStoreContext?,
     onNavigateToStoreInfoEdit: (storeId: String) -> Unit,
     onNavigateToInsertStore: () -> Unit,
     onNavigateToPasswordReset: () -> Unit,
@@ -85,7 +84,7 @@ fun TabMoreContent(
 ) {
     val uiState by viewModel.collectAsState()
     val dashboardState by dashboardViewModel.collectAsState()
-    val storeId = activeStoreContext?.activeStoreId.orEmpty()
+    val storeId = dashboardState.activeStore?.uid?.toString().orEmpty()
     val activeStoreName = dashboardState.activeStore?.name.orEmpty()
 
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -132,7 +131,7 @@ fun TabMoreContent(
                 }
             },
             colors = TopAppBarDefaults.topAppBarColors(
-                containerColor = KoinTheme.colors.neutral0
+                containerColor = KoinTheme.colors.neutral50
             )
         )
 
@@ -264,7 +263,8 @@ fun TabMoreContent(
                 showLogoutDialog = false
                 onSignOut()
             },
-            onDismiss = { showLogoutDialog = false }
+            onDismiss = { showLogoutDialog = false },
+            confirmTestTag = "logout_confirm"
         )
     }
     if (showDeleteDialog) {
@@ -509,7 +509,8 @@ private fun ConfirmDialog(
     confirmLabel: String,
     danger: Boolean,
     onConfirm: () -> Unit,
-    onDismiss: () -> Unit
+    onDismiss: () -> Unit,
+    confirmTestTag: String? = null
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -526,7 +527,10 @@ private fun ConfirmDialog(
             )
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) {
+            TextButton(
+                onClick = onConfirm,
+                modifier = if (confirmTestTag != null) Modifier.semantics { testTag = confirmTestTag } else Modifier
+            ) {
                 Text(
                     text = confirmLabel,
                     style = MaterialTheme.typography.labelMedium,

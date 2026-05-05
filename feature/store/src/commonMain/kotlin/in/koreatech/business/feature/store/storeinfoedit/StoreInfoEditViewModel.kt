@@ -3,8 +3,9 @@ package `in`.koreatech.business.feature.store.storeinfoedit
 import androidx.lifecycle.ViewModel
 import `in`.koreatech.business.domain.model.OperatingTime
 import `in`.koreatech.business.domain.model.defaultOperatingTimes
-import `in`.koreatech.business.domain.repository.OwnerRepository
-import `in`.koreatech.business.domain.repository.StoreRepository
+import `in`.koreatech.business.domain.usecase.owner.UploadFileUseCase
+import `in`.koreatech.business.domain.usecase.store.GetStoreDetailUseCase
+import `in`.koreatech.business.domain.usecase.store.UpdateStoreInfoUseCase
 import `in`.koreatech.business.platform.PlatformFile
 import `in`.koreatech.business.ui.util.BusinessFormatters
 import `in`.koreatech.business.ui.util.BusinessValidators
@@ -13,17 +14,17 @@ import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
 class StoreInfoEditViewModel(
-    private val storeRepository: StoreRepository,
-    private val ownerRepository: OwnerRepository
-) : ViewModel(),
-    ContainerHost<StoreInfoEditUiState, StoreInfoEditSideEffect> {
+    private val getStoreDetailUseCase: GetStoreDetailUseCase,
+    private val updateStoreInfoUseCase: UpdateStoreInfoUseCase,
+    private val uploadFileUseCase: UploadFileUseCase,
+) : ViewModel(), ContainerHost<StoreInfoEditUiState, StoreInfoEditSideEffect> {
     override val container = container<StoreInfoEditUiState, StoreInfoEditSideEffect>(StoreInfoEditUiState())
 
     fun load(storeId: String) {
         intent {
             reduce { state.copy(storeId = storeId, isLoading = true, errorMessage = "") }
             try {
-                val detail = storeRepository.getStoreDetail(storeId)
+                val detail = getStoreDetailUseCase(storeId)
                 val derivedMainCategoryId = detail.categoryIds.firstOrNull { it != ROOT_CATEGORY_ID } ?: ROOT_CATEGORY_ID
                 reduce {
                     state.copy(
@@ -44,67 +45,38 @@ class StoreInfoEditViewModel(
                     )
                 }
             } catch (exception: Exception) {
-                reduce {
-                    state.copy(isLoading = false, errorMessage = exception.message.orEmpty())
-                }
+                reduce { state.copy(isLoading = false, errorMessage = exception.message.orEmpty()) }
             }
         }
     }
 
     fun onPhoneChanged(value: String) = blockingIntent {
-        val digits = BusinessFormatters.digitsOnly(value, 11)
-        reduce { state.copy(phone = digits) }
+        reduce { state.copy(phone = BusinessFormatters.digitsOnly(value, 11)) }
     }
 
-    fun onAddressChanged(value: String) = blockingIntent {
-        reduce { state.copy(address = value) }
-    }
-
-    fun onDescriptionChanged(value: String) = blockingIntent {
-        reduce { state.copy(description = value) }
-    }
-
-    fun onOpenTimeChanged(value: String) = blockingIntent {
-        reduce { state.copy(openTime = value) }
-    }
-
-    fun onCloseTimeChanged(value: String) = blockingIntent {
-        reduce { state.copy(closeTime = value) }
-    }
-
-    fun onToggleDelivery() = blockingIntent {
-        reduce { state.copy(isDelivery = !state.isDelivery) }
-    }
-
-    fun onToggleCard() = blockingIntent {
-        reduce { state.copy(isCard = !state.isCard) }
-    }
-
-    fun onToggleBank() = blockingIntent {
-        reduce { state.copy(isBank = !state.isBank) }
-    }
+    fun onAddressChanged(value: String) = blockingIntent { reduce { state.copy(address = value) } }
+    fun onDescriptionChanged(value: String) = blockingIntent { reduce { state.copy(description = value) } }
+    fun onOpenTimeChanged(value: String) = blockingIntent { reduce { state.copy(openTime = value) } }
+    fun onCloseTimeChanged(value: String) = blockingIntent { reduce { state.copy(closeTime = value) } }
+    fun onToggleDelivery() = blockingIntent { reduce { state.copy(isDelivery = !state.isDelivery) } }
+    fun onToggleCard() = blockingIntent { reduce { state.copy(isCard = !state.isCard) } }
+    fun onToggleBank() = blockingIntent { reduce { state.copy(isBank = !state.isBank) } }
 
     fun onOperatingTimeToggle(index: Int) = blockingIntent {
         val times = state.operatingTimes.toMutableList()
-        if (index in times.indices) {
-            times[index] = times[index].copy(isClosed = !times[index].isClosed)
-        }
+        if (index in times.indices) times[index] = times[index].copy(isClosed = !times[index].isClosed)
         reduce { state.copy(operatingTimes = times) }
     }
 
     fun onOperatingOpenTimeChanged(index: Int, value: String) = blockingIntent {
         val times = state.operatingTimes.toMutableList()
-        if (index in times.indices) {
-            times[index] = times[index].copy(openTime = BusinessFormatters.normalizeTime(value))
-        }
+        if (index in times.indices) times[index] = times[index].copy(openTime = BusinessFormatters.normalizeTime(value))
         reduce { state.copy(operatingTimes = times) }
     }
 
     fun onOperatingCloseTimeChanged(index: Int, value: String) = blockingIntent {
         val times = state.operatingTimes.toMutableList()
-        if (index in times.indices) {
-            times[index] = times[index].copy(closeTime = BusinessFormatters.normalizeTime(value))
-        }
+        if (index in times.indices) times[index] = times[index].copy(closeTime = BusinessFormatters.normalizeTime(value))
         reduce { state.copy(operatingTimes = times) }
     }
 
@@ -119,45 +91,32 @@ class StoreInfoEditViewModel(
                 reduce { state.copy(errorMessage = "운영 시간을 올바르게 선택해주세요.") }
                 return@intent
             }
-
             reduce { state.copy(isLoading = true, errorMessage = "") }
             try {
-                val uploadedUrls = state.pendingImages.map { file ->
-                    ownerRepository.uploadFile(file.name, file.mimeType, file.bytes)
-                }
+                val uploadedUrls = state.pendingImages.map { uploadFileUseCase(it.name, it.mimeType, it.bytes) }
                 val mainId = state.mainCategoryId.takeIf { it > 0 }
                     ?: state.selectedCategoryIds.firstOrNull { it != ROOT_CATEGORY_ID }
                     ?: ROOT_CATEGORY_ID
                 val finalCategoryIds = (listOf(ROOT_CATEGORY_ID, mainId) + state.selectedCategoryIds).distinct()
-                storeRepository.updateStoreInfo(
-                    storeId = storeId,
-                    name = state.name,
-                    phone = state.phone,
-                    address = state.address,
-                    description = state.description,
-                    mainCategoryId = mainId,
-                    categoryIds = finalCategoryIds,
-                    isDelivery = state.isDelivery,
-                    deliveryPrice = state.deliveryPrice,
-                    isCard = state.isCard,
-                    isBank = state.isBank,
+                updateStoreInfoUseCase(
+                    storeId = storeId, name = state.name, phone = BusinessFormatters.formatPhone(state.phone),
+                    address = state.address, description = state.description,
+                    mainCategoryId = mainId, categoryIds = finalCategoryIds,
+                    isDelivery = state.isDelivery, deliveryPrice = state.deliveryPrice,
+                    isCard = state.isCard, isBank = state.isBank,
                     imageUrls = state.existingImageUrls + uploadedUrls,
                     operatingTimes = state.operatingTimes
                 )
                 reduce { state.copy(isLoading = false) }
                 postSideEffect(StoreInfoEditSideEffect.NavigateBack)
             } catch (exception: Exception) {
-                reduce {
-                    state.copy(isLoading = false, errorMessage = exception.message.orEmpty())
-                }
+                reduce { state.copy(isLoading = false, errorMessage = exception.message.orEmpty()) }
             }
         }
     }
 
     fun addImage(file: PlatformFile) {
-        intent(registerIdling = false) {
-            reduce { state.copy(pendingImages = state.pendingImages + file) }
-        }
+        intent(registerIdling = false) { reduce { state.copy(pendingImages = state.pendingImages + file) } }
     }
 
     fun removeExistingImage(index: Int) {
@@ -176,13 +135,9 @@ class StoreInfoEditViewModel(
         }
     }
 
-    fun clearError() {
-        intent(registerIdling = false) { reduce { state.copy(errorMessage = "") } }
-    }
+    fun clearError() { intent(registerIdling = false) { reduce { state.copy(errorMessage = "") } } }
 
-    companion object {
-        private const val ROOT_CATEGORY_ID = 1
-    }
+    companion object { private const val ROOT_CATEGORY_ID = 1 }
 }
 
 data class StoreInfoEditUiState(

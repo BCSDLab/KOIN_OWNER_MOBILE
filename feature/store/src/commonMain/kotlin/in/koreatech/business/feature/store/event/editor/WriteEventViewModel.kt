@@ -3,8 +3,11 @@
 package `in`.koreatech.business.feature.store.event.editor
 
 import androidx.lifecycle.ViewModel
-import `in`.koreatech.business.domain.repository.OwnerRepository
-import `in`.koreatech.business.domain.repository.StoreRepository
+import `in`.koreatech.business.domain.usecase.owner.UploadFileUseCase
+import `in`.koreatech.business.domain.usecase.store.DeleteEventUseCase
+import `in`.koreatech.business.domain.usecase.store.GetStoreEventsUseCase
+import `in`.koreatech.business.domain.usecase.store.RegisterEventUseCase
+import `in`.koreatech.business.domain.usecase.store.UpdateEventUseCase
 import `in`.koreatech.business.platform.PlatformFile
 import `in`.koreatech.business.ui.util.BusinessValidators
 import `in`.koreatech.business.ui.util.blockingIntent
@@ -13,10 +16,12 @@ import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
 class WriteEventViewModel(
-    private val storeRepository: StoreRepository,
-    private val ownerRepository: OwnerRepository
-) : ViewModel(),
-    ContainerHost<WriteEventUiState, WriteEventSideEffect> {
+    private val getStoreEventsUseCase: GetStoreEventsUseCase,
+    private val registerEventUseCase: RegisterEventUseCase,
+    private val updateEventUseCase: UpdateEventUseCase,
+    private val deleteEventUseCase: DeleteEventUseCase,
+    private val uploadFileUseCase: UploadFileUseCase,
+) : ViewModel(), ContainerHost<WriteEventUiState, WriteEventSideEffect> {
     override val container = container<WriteEventUiState, WriteEventSideEffect>(WriteEventUiState())
 
     fun init(storeId: String, eventId: String? = null) {
@@ -25,7 +30,7 @@ class WriteEventViewModel(
             if (eventId == null) return@intent
             reduce { state.copy(isLoading = true, errorMessage = "") }
             try {
-                val events = storeRepository.getStoreEvents(storeId)
+                val events = getStoreEventsUseCase(storeId)
                 val target = events.firstOrNull { it.id.toString() == eventId }
                 if (target != null) {
                     reduce {
@@ -47,21 +52,10 @@ class WriteEventViewModel(
         }
     }
 
-    fun onTitleChanged(value: String) = blockingIntent {
-        reduce { state.copy(title = value) }
-    }
-
-    fun onContentChanged(value: String) = blockingIntent {
-        reduce { state.copy(content = value) }
-    }
-
-    fun onStartDateChanged(value: String) = blockingIntent {
-        reduce { state.copy(startDate = value) }
-    }
-
-    fun onEndDateChanged(value: String) = blockingIntent {
-        reduce { state.copy(endDate = value) }
-    }
+    fun onTitleChanged(value: String) = blockingIntent { reduce { state.copy(title = value) } }
+    fun onContentChanged(value: String) = blockingIntent { reduce { state.copy(content = value) } }
+    fun onStartDateChanged(value: String) = blockingIntent { reduce { state.copy(startDate = value) } }
+    fun onEndDateChanged(value: String) = blockingIntent { reduce { state.copy(endDate = value) } }
 
     fun addImage(file: PlatformFile) {
         intent(registerIdling = false) { reduce { state.copy(images = state.images + file) } }
@@ -85,57 +79,29 @@ class WriteEventViewModel(
 
     fun submit() {
         intent {
-            if (state.title.isBlank()) {
-                reduce { state.copy(errorMessage = "제목을 입력해주세요.") }
-                return@intent
-            }
-            if (state.content.isBlank()) {
-                reduce { state.copy(errorMessage = "내용을 입력해주세요.") }
-                return@intent
-            }
+            if (state.title.isBlank()) { reduce { state.copy(errorMessage = "제목을 입력해주세요.") }; return@intent }
+            if (state.content.isBlank()) { reduce { state.copy(errorMessage = "내용을 입력해주세요.") }; return@intent }
             if (state.startDate.isBlank() || state.endDate.isBlank()) {
-                reduce { state.copy(errorMessage = "이벤트 기간을 입력해주세요.") }
-                return@intent
+                reduce { state.copy(errorMessage = "이벤트 기간을 입력해주세요.") }; return@intent
             }
             if (!BusinessValidators.isValidDate(state.startDate) || !BusinessValidators.isValidDate(state.endDate)) {
-                reduce { state.copy(errorMessage = "이벤트 기간을 올바르게 선택해주세요.") }
-                return@intent
+                reduce { state.copy(errorMessage = "이벤트 기간을 올바르게 선택해주세요.") }; return@intent
             }
-
             reduce { state.copy(isLoading = true, errorMessage = "") }
             try {
-                val uploadedUrls = state.images.map { file ->
-                    ownerRepository.uploadFile(file.name, file.mimeType, file.bytes)
-                }
+                val uploadedUrls = state.images.map { uploadFileUseCase(it.name, it.mimeType, it.bytes) }
                 val allImageUrls = state.existingImageUrls + uploadedUrls
                 val storeId = state.storeId ?: return@intent
                 val eventId = state.eventId
                 if (state.isEditMode && eventId != null) {
-                    storeRepository.updateEvent(
-                        storeId = storeId,
-                        eventId = eventId,
-                        title = state.title,
-                        content = state.content,
-                        imageUrls = allImageUrls,
-                        startDate = state.startDate,
-                        endDate = state.endDate
-                    )
+                    updateEventUseCase(storeId, eventId, state.title, state.content, allImageUrls, state.startDate, state.endDate)
                 } else {
-                    storeRepository.registerEvent(
-                        storeId = storeId,
-                        title = state.title,
-                        content = state.content,
-                        imageUrls = allImageUrls,
-                        startDate = state.startDate,
-                        endDate = state.endDate
-                    )
+                    registerEventUseCase(storeId, state.title, state.content, allImageUrls, state.startDate, state.endDate)
                 }
                 reduce { state.copy(isLoading = false) }
                 postSideEffect(WriteEventSideEffect.NavigateBack)
             } catch (exception: Exception) {
-                reduce {
-                    state.copy(isLoading = false, errorMessage = exception.message.orEmpty())
-                }
+                reduce { state.copy(isLoading = false, errorMessage = exception.message.orEmpty()) }
             }
         }
     }
@@ -146,7 +112,7 @@ class WriteEventViewModel(
             val eventId = state.eventId ?: return@intent
             reduce { state.copy(isLoading = true, errorMessage = "") }
             try {
-                storeRepository.deleteEvent(storeId, eventId)
+                deleteEventUseCase(storeId, eventId)
                 reduce { state.copy(isLoading = false) }
                 postSideEffect(WriteEventSideEffect.NavigateBack)
             } catch (exception: Exception) {
@@ -157,36 +123,22 @@ class WriteEventViewModel(
 
     fun applyDurationPreset(days: Int) = intent(registerIdling = false) {
         val base = state.startDate.ifBlank { todayIsoString() }
-        val endDate = addDaysToIsoDate(base, days)
-        reduce { state.copy(endDate = endDate) }
+        reduce { state.copy(endDate = addDaysToIsoDate(base, days)) }
     }
 
-    fun clearError() {
-        intent(registerIdling = false) { reduce { state.copy(errorMessage = "") } }
-    }
+    fun clearError() { intent(registerIdling = false) { reduce { state.copy(errorMessage = "") } } }
 }
 
-// ---------------------------------------------------------------------------
-// Pure-Kotlin KMP date helpers — no java.time, no kotlinx-datetime dependency
-// ---------------------------------------------------------------------------
-
-/** Returns today's date as "yyyy-MM-dd" using epoch-day arithmetic. */
 private fun todayIsoString(): String {
-    // currentTimeMillis() is available in common Kotlin
     val epochDay = (Clock.System.now().toEpochMilliseconds() / 86_400_000L).toInt()
     return epochDayToIso(epochDay)
 }
 
-/**
- * Adds [days] to an ISO date string "yyyy-MM-dd" and returns the result in the same format.
- * Falls back to today if [isoDate] is malformed.
- */
 private fun addDaysToIsoDate(isoDate: String, days: Int): String {
     val epochDay = isoToEpochDay(isoDate) ?: (Clock.System.now().toEpochMilliseconds() / 86_400_000L).toInt()
     return epochDayToIso(epochDay + days)
 }
 
-/** Converts "yyyy-MM-dd" to days since Unix epoch (1970-01-01). Returns null on parse failure. */
 private fun isoToEpochDay(iso: String): Int? {
     val parts = iso.split("-")
     if (parts.size != 3) return null
@@ -196,16 +148,9 @@ private fun isoToEpochDay(iso: String): Int? {
     return dateToEpochDay(y, m, d)
 }
 
-/** Converts a proleptic Gregorian date to days since Unix epoch (1970-01-01). */
 private fun dateToEpochDay(year: Int, month: Int, day: Int): Int {
-    var y = year
-    var m = month
-    if (m <= 2) {
-        y -= 1
-        m += 9
-    } else {
-        m -= 3
-    }
+    var y = year; var m = month
+    if (m <= 2) { y -= 1; m += 9 } else { m -= 3 }
     val era = if (y >= 0) y / 400 else (y - 399) / 400
     val yoe = y - era * 400
     val doy = (153 * m + 2) / 5 + day - 1
@@ -213,7 +158,6 @@ private fun dateToEpochDay(year: Int, month: Int, day: Int): Int {
     return era * 146097 + doe - 719468
 }
 
-/** Converts days since Unix epoch (1970-01-01) back to "yyyy-MM-dd". */
 private fun epochDayToIso(epochDay: Int): String {
     var z = epochDay + 719468
     val era = if (z >= 0) z / 146097 else (z - 146096) / 146097

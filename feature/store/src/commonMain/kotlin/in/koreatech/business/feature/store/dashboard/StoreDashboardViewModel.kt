@@ -1,49 +1,67 @@
 package `in`.koreatech.business.feature.store.dashboard
 
 import androidx.lifecycle.ViewModel
-import `in`.koreatech.business.data.di.EncryptedDataStore
+import androidx.lifecycle.viewModelScope
 import `in`.koreatech.business.domain.model.MenuCategory
 import `in`.koreatech.business.domain.model.StoreDetail
 import `in`.koreatech.business.domain.model.StoreEvent
 import `in`.koreatech.business.domain.model.owner.OwnerStore
-import `in`.koreatech.business.domain.repository.OwnerRepository
-import `in`.koreatech.business.domain.repository.StoreRepository
+import `in`.koreatech.business.domain.usecase.owner.GetOwnerProfileUseCase
+import `in`.koreatech.business.domain.usecase.owner.GetShopListUseCase
+import `in`.koreatech.business.domain.usecase.store.DeleteEventUseCase
+import `in`.koreatech.business.domain.usecase.store.GetStoreDetailUseCase
+import `in`.koreatech.business.domain.usecase.store.GetStoreEventsUseCase
+import `in`.koreatech.business.domain.usecase.store.GetStoreMenusUseCase
+import `in`.koreatech.business.domain.usecase.store.ObserveActiveStoreIdUseCase
+import `in`.koreatech.business.domain.usecase.store.SetActiveStoreIdUseCase
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
 class StoreDashboardViewModel(
-    private val ownerRepository: OwnerRepository,
-    private val storeRepository: StoreRepository,
-    private val encryptedDataStore: EncryptedDataStore
-) : ViewModel(),
-    ContainerHost<StoreDashboardUiState, StoreDashboardSideEffect> {
+    private val getShopListUseCase: GetShopListUseCase,
+    private val getOwnerProfileUseCase: GetOwnerProfileUseCase,
+    private val getStoreDetailUseCase: GetStoreDetailUseCase,
+    private val getStoreMenusUseCase: GetStoreMenusUseCase,
+    private val getStoreEventsUseCase: GetStoreEventsUseCase,
+    private val deleteEventUseCase: DeleteEventUseCase,
+    private val setActiveStoreIdUseCase: SetActiveStoreIdUseCase,
+    private val observeActiveStoreIdUseCase: ObserveActiveStoreIdUseCase,
+) : ViewModel(), ContainerHost<StoreDashboardUiState, StoreDashboardSideEffect> {
     override val container = container<StoreDashboardUiState, StoreDashboardSideEffect>(StoreDashboardUiState())
+
+    init {
+        observeActiveStoreIdUseCase()
+            .distinctUntilChanged()
+            .onEach { id -> load(id) }
+            .launchIn(viewModelScope)
+    }
 
     fun load(initialStoreId: String?) {
         intent {
             reduce { state.copy(isLoading = true, errorMessage = "") }
             try {
                 val (stores, profile) = coroutineScope {
-                    val storesDeferred = async { ownerRepository.getShopList() }
-                    val profileDeferred = async { runCatching { ownerRepository.getOwnerProfile() }.getOrNull() }
+                    val storesDeferred = async { getShopListUseCase() }
+                    val profileDeferred = async { runCatching { getOwnerProfileUseCase() }.getOrNull() }
                     storesDeferred.await() to profileDeferred.await()
                 }
-                if (profile != null) {
-                    reduce { state.copy(ownerName = profile.name) }
-                }
+                if (profile != null) reduce { state.copy(ownerName = profile.name) }
                 if (stores.isEmpty()) {
+                    setActiveStoreIdUseCase("")
                     reduce { state.copy(isLoading = false, stores = emptyList()) }
                     return@intent
                 }
-
                 val activeStore = initialStoreId?.let { id ->
                     stores.firstOrNull { it.uid.toString() == id }
                 } ?: stores.first()
-
-                encryptedDataStore.createData(LAST_ACTIVE_STORE_ID_KEY, activeStore.uid.toString())
-
+                if (activeStore.uid.toString() != initialStoreId) {
+                    setActiveStoreIdUseCase(activeStore.uid.toString())
+                }
                 loadStoreData(activeStore, stores)
             } catch (exception: Exception) {
                 val message = exception.message.orEmpty()
@@ -56,7 +74,7 @@ class StoreDashboardViewModel(
     fun selectStore(store: OwnerStore) {
         intent {
             reduce { state.copy(isLoading = true, errorMessage = "") }
-            encryptedDataStore.createData(LAST_ACTIVE_STORE_ID_KEY, store.uid.toString())
+            setActiveStoreIdUseCase(store.uid.toString())
             try {
                 loadStoreData(store, state.stores)
             } catch (exception: Exception) {
@@ -67,18 +85,11 @@ class StoreDashboardViewModel(
         }
     }
 
-    fun refresh() {
-        load(container.stateFlow.value.activeStore?.uid?.toString())
-    }
+    fun refresh() { load(container.stateFlow.value.activeStore?.uid?.toString()) }
 
     fun toggleEventEditMode() {
         intent(registerIdling = false) {
-            reduce {
-                state.copy(
-                    isEventEditMode = !state.isEventEditMode,
-                    selectedEventIds = emptySet()
-                )
-            }
+            reduce { state.copy(isEventEditMode = !state.isEventEditMode, selectedEventIds = emptySet()) }
         }
     }
 
@@ -93,8 +104,7 @@ class StoreDashboardViewModel(
     fun toggleAllEventSelection() {
         intent(registerIdling = false) {
             val allIds = state.events.map { it.id }.toSet()
-            val isAllSelected = state.selectedEventIds == allIds
-            reduce { state.copy(selectedEventIds = if (isAllSelected) emptySet() else allIds) }
+            reduce { state.copy(selectedEventIds = if (state.selectedEventIds == allIds) emptySet() else allIds) }
         }
     }
 
@@ -112,12 +122,9 @@ class StoreDashboardViewModel(
             val storeId = activeStore.uid.toString()
             val ids = state.selectedEventIds.toList()
             if (ids.isEmpty()) return@intent
-
             reduce { state.copy(isLoading = true, errorMessage = "") }
             try {
-                ids.forEach { eventId ->
-                    storeRepository.deleteEvent(storeId, eventId.toString())
-                }
+                ids.forEach { deleteEventUseCase(storeId, it.toString()) }
                 loadStoreData(activeStore, state.stores)
                 reduce { state.copy(selectedEventIds = emptySet(), isEventEditMode = false) }
             } catch (exception: Exception) {
@@ -132,10 +139,9 @@ class StoreDashboardViewModel(
         intent {
             val activeStore = state.activeStore ?: return@intent
             val storeId = activeStore.uid.toString()
-
             reduce { state.copy(isLoading = true, errorMessage = "") }
             try {
-                storeRepository.deleteEvent(storeId, eventId.toString())
+                deleteEventUseCase(storeId, eventId.toString())
                 loadStoreData(activeStore, state.stores)
             } catch (exception: Exception) {
                 val message = exception.message.orEmpty()
@@ -155,25 +161,12 @@ class StoreDashboardViewModel(
     ) {
         val storeId = activeStore.uid.toString()
         val (detail, menus, events) = coroutineScope {
-            val detailDeferred = async { storeRepository.getStoreDetail(storeId) }
-            val menusDeferred = async { storeRepository.getStoreMenus(storeId) }
-            val eventsDeferred = async { storeRepository.getStoreEvents(storeId) }
+            val detailDeferred = async { getStoreDetailUseCase(storeId) }
+            val menusDeferred = async { getStoreMenusUseCase(storeId) }
+            val eventsDeferred = async { getStoreEventsUseCase(storeId) }
             Triple(detailDeferred.await(), menusDeferred.await(), eventsDeferred.await())
         }
-        reduce {
-            state.copy(
-                isLoading = false,
-                stores = stores,
-                activeStore = activeStore,
-                storeDetail = detail,
-                menus = menus,
-                events = events
-            )
-        }
-    }
-
-    companion object {
-        private const val LAST_ACTIVE_STORE_ID_KEY = "lastActiveStoreId"
+        reduce { state.copy(isLoading = false, stores = stores, activeStore = activeStore, storeDetail = detail, menus = menus, events = events) }
     }
 }
 

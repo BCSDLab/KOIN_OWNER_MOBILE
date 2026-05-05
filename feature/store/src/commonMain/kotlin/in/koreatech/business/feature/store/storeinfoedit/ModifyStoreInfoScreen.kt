@@ -139,7 +139,7 @@ fun ModifyStoreInfoScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(KoinTheme.colors.neutral0)
+                            .background(KoinTheme.colors.neutral50)
                             .statusBarsPadding()
                             .padding(horizontal = 4.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -631,7 +631,7 @@ private fun StoreImageBox(
             Icon(
                 imageVector = Icons.Default.Close,
                 contentDescription = stringResource(Res.string.remove_image),
-                tint = KoinTheme.colors.neutral0,
+                tint = KoinTheme.colors.neutral50,
                 modifier = Modifier.size(14.dp)
             )
         }

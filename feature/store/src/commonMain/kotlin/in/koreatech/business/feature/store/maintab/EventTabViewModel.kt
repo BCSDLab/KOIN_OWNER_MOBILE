@@ -1,14 +1,18 @@
 package `in`.koreatech.business.feature.store.maintab
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import `in`.koreatech.business.domain.model.StoreEvent
-import `in`.koreatech.business.domain.repository.StoreRepository
+import `in`.koreatech.business.domain.usecase.store.DeleteEventUseCase
+import `in`.koreatech.business.domain.usecase.store.GetStoreEventsUseCase
+import `in`.koreatech.business.domain.usecase.store.ObserveActiveStoreIdUseCase
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
-enum class EventFilter {
-    All, Live, Planned, Ended
-}
+enum class EventFilter { All, Live, Planned, Ended }
 
 data class EventTabUiState(
     val isLoading: Boolean = false,
@@ -22,16 +26,24 @@ data class EventTabUiState(
 )
 
 class EventTabViewModel(
-    private val storeRepository: StoreRepository
-) : ViewModel(),
-    ContainerHost<EventTabUiState, Nothing> {
+    private val getStoreEventsUseCase: GetStoreEventsUseCase,
+    private val deleteEventUseCase: DeleteEventUseCase,
+    private val observeActiveStoreIdUseCase: ObserveActiveStoreIdUseCase,
+) : ViewModel(), ContainerHost<EventTabUiState, Nothing> {
     override val container = container<EventTabUiState, Nothing>(EventTabUiState())
+
+    init {
+        observeActiveStoreIdUseCase()
+            .distinctUntilChanged()
+            .onEach { id -> if (!id.isNullOrBlank()) load(id) }
+            .launchIn(viewModelScope)
+    }
 
     fun load(storeId: String) {
         intent {
             reduce { state.copy(storeId = storeId, isLoading = true, errorMessage = "") }
             try {
-                val events = storeRepository.getStoreEvents(storeId)
+                val events = getStoreEventsUseCase(storeId)
                 reduce { state.copy(isLoading = false, events = events) }
             } catch (e: Exception) {
                 reduce { state.copy(isLoading = false, errorMessage = e.message.orEmpty()) }
@@ -39,10 +51,7 @@ class EventTabViewModel(
         }
     }
 
-    fun refresh() {
-        val storeId = container.stateFlow.value.storeId ?: return
-        load(storeId)
-    }
+    fun refresh() { val storeId = container.stateFlow.value.storeId ?: return; load(storeId) }
 
     fun setFilter(filter: EventFilter) {
         intent(registerIdling = false) { reduce { state.copy(filter = filter) } }
@@ -50,12 +59,7 @@ class EventTabViewModel(
 
     fun toggleEditMode() {
         intent(registerIdling = false) {
-            reduce {
-                state.copy(
-                    isEditMode = !state.isEditMode,
-                    selectedEventIds = emptySet()
-                )
-            }
+            reduce { state.copy(isEditMode = !state.isEditMode, selectedEventIds = emptySet()) }
         }
     }
 
@@ -70,8 +74,7 @@ class EventTabViewModel(
     fun toggleAllSelection() {
         intent(registerIdling = false) {
             val allIds = state.events.map { it.id }.toSet()
-            val isAllSelected = state.selectedEventIds == allIds
-            reduce { state.copy(selectedEventIds = if (isAllSelected) emptySet() else allIds) }
+            reduce { state.copy(selectedEventIds = if (state.selectedEventIds == allIds) emptySet() else allIds) }
         }
     }
 
@@ -90,18 +93,9 @@ class EventTabViewModel(
             if (ids.isEmpty()) return@intent
             reduce { state.copy(isLoading = true, errorMessage = "") }
             try {
-                ids.forEach { id ->
-                    storeRepository.deleteEvent(storeId, id.toString())
-                }
-                val events = storeRepository.getStoreEvents(storeId)
-                reduce {
-                    state.copy(
-                        isLoading = false,
-                        events = events,
-                        selectedEventIds = emptySet(),
-                        isEditMode = false
-                    )
-                }
+                ids.forEach { deleteEventUseCase(storeId, it.toString()) }
+                val events = getStoreEventsUseCase(storeId)
+                reduce { state.copy(isLoading = false, events = events, selectedEventIds = emptySet(), isEditMode = false) }
             } catch (e: Exception) {
                 reduce { state.copy(isLoading = false, errorMessage = e.message.orEmpty()) }
             }

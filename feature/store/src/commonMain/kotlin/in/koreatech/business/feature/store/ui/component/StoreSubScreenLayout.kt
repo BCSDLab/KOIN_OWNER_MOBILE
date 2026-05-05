@@ -98,7 +98,7 @@ fun StoreSubScreenLayout(
                 modifier = Modifier
                     .width(SIDEBAR_WIDTH)
                     .fillMaxHeight()
-                    .background(KoinTheme.colors.neutral0)
+                    .background(KoinTheme.colors.neutral50)
             ) {
                 Column(modifier = Modifier.padding(start = 20.dp, end = 20.dp, top = 24.dp, bottom = 16.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {

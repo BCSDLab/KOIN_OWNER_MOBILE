@@ -186,7 +186,7 @@ fun MenuEditorScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .background(KoinTheme.colors.neutral0)
+                            .background(KoinTheme.colors.neutral50)
                             .statusBarsPadding()
                             .padding(horizontal = 4.dp, vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
@@ -345,7 +345,7 @@ fun MenuEditorScreen(
                                             checked = uiState.isHidden,
                                             onCheckedChange = { viewModel.toggleHidden() },
                                             colors = SwitchDefaults.colors(
-                                                checkedThumbColor = KoinTheme.colors.neutral0,
+                                                checkedThumbColor = KoinTheme.colors.neutral50,
                                                 checkedTrackColor = KoinTheme.colors.primary500
                                             )
                                         )
@@ -505,7 +505,7 @@ fun MenuEditorScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clip(RoundedCornerShape(12.dp))
-                                .background(KoinTheme.colors.neutral0)
+                                .background(KoinTheme.colors.neutral50)
                                 .padding(horizontal = 16.dp, vertical = 12.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
@@ -526,7 +526,7 @@ fun MenuEditorScreen(
                                 checked = uiState.isHidden,
                                 onCheckedChange = { viewModel.toggleHidden() },
                                 colors = SwitchDefaults.colors(
-                                    checkedThumbColor = KoinTheme.colors.neutral0,
+                                    checkedThumbColor = KoinTheme.colors.neutral50,
                                     checkedTrackColor = KoinTheme.colors.primary500
                                 )
                             )
@@ -741,7 +741,7 @@ private fun ImageThumbnailBox(
             Icon(
                 imageVector = Icons.Default.Close,
                 contentDescription = stringResource(Res.string.remove_image),
-                tint = KoinTheme.colors.neutral0,
+                tint = KoinTheme.colors.neutral50,
                 modifier = Modifier.size(14.dp)
             )
         }

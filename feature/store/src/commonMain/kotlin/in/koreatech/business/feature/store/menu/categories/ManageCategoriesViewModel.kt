@@ -2,16 +2,22 @@ package `in`.koreatech.business.feature.store.menu.categories
 
 import androidx.lifecycle.ViewModel
 import `in`.koreatech.business.domain.model.MenuCategory
-import `in`.koreatech.business.domain.repository.StoreRepository
+import `in`.koreatech.business.domain.usecase.store.CreateMenuCategoryUseCase
+import `in`.koreatech.business.domain.usecase.store.DeleteMenuCategoryUseCase
+import `in`.koreatech.business.domain.usecase.store.GetMenuCategoriesUseCase
+import `in`.koreatech.business.domain.usecase.store.GetStoreMenusUseCase
+import `in`.koreatech.business.domain.usecase.store.RenameMenuCategoryUseCase
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
 class ManageCategoriesViewModel(
-    private val storeRepository: StoreRepository
-) : ViewModel(),
-    ContainerHost<ManageCategoriesUiState, ManageCategoriesSideEffect> {
-    override val container =
-        container<ManageCategoriesUiState, ManageCategoriesSideEffect>(ManageCategoriesUiState())
+    private val getMenuCategoriesUseCase: GetMenuCategoriesUseCase,
+    private val getStoreMenusUseCase: GetStoreMenusUseCase,
+    private val createMenuCategoryUseCase: CreateMenuCategoryUseCase,
+    private val renameMenuCategoryUseCase: RenameMenuCategoryUseCase,
+    private val deleteMenuCategoryUseCase: DeleteMenuCategoryUseCase,
+) : ViewModel(), ContainerHost<ManageCategoriesUiState, ManageCategoriesSideEffect> {
+    override val container = container<ManageCategoriesUiState, ManageCategoriesSideEffect>(ManageCategoriesUiState())
 
     fun load(storeId: String) = intent {
         reduce { state.copy(storeId = storeId, isLoading = true) }
@@ -28,7 +34,7 @@ class ManageCategoriesViewModel(
         if (name.isBlank()) return@intent
         reduce { state.copy(isLoading = true) }
         try {
-            storeRepository.createMenuCategory(storeId, name.trim())
+            createMenuCategoryUseCase(storeId, name.trim())
             val updated = loadCategoriesWithMenus(storeId)
             reduce { state.copy(isLoading = false, categories = updated) }
         } catch (e: Exception) {
@@ -41,7 +47,7 @@ class ManageCategoriesViewModel(
         if (name.isBlank()) return@intent
         reduce { state.copy(isLoading = true) }
         try {
-            storeRepository.renameMenuCategory(categoryId, name.trim())
+            renameMenuCategoryUseCase(categoryId, name.trim())
             val updated = loadCategoriesWithMenus(storeId)
             reduce { state.copy(isLoading = false, categories = updated) }
         } catch (e: Exception) {
@@ -54,27 +60,19 @@ class ManageCategoriesViewModel(
         val cat = state.categories.find { it.id == categoryId } ?: return@intent
         reduce { state.copy(isLoading = true) }
         try {
-            storeRepository.deleteMenuCategory(categoryId)
+            deleteMenuCategoryUseCase(categoryId)
             val updated = loadCategoriesWithMenus(storeId)
             reduce { state.copy(isLoading = false, categories = updated) }
         } catch (e: Exception) {
-            reduce {
-                state.copy(
-                    isLoading = false,
-                    blockDeleteCategory = cat,
-                    errorMessage = ""
-                )
-            }
+            reduce { state.copy(isLoading = false, blockDeleteCategory = cat, errorMessage = "") }
         }
     }
 
     private suspend fun loadCategoriesWithMenus(storeId: String): List<MenuCategory> {
-        val allCategories = storeRepository.getMenuCategories(storeId)
-        val categoriesWithMenus = runCatching { storeRepository.getStoreMenus(storeId) }.getOrDefault(emptyList())
+        val allCategories = getMenuCategoriesUseCase(storeId)
+        val categoriesWithMenus = runCatching { getStoreMenusUseCase(storeId) }.getOrDefault(emptyList())
         val menusByCategoryId = categoriesWithMenus.associateBy { it.id }
-        return allCategories.map { cat ->
-            cat.copy(menus = menusByCategoryId[cat.id]?.menus.orEmpty())
-        }
+        return allCategories.map { cat -> cat.copy(menus = menusByCategoryId[cat.id]?.menus.orEmpty()) }
     }
 
     fun clearBlockDelete() = intent(registerIdling = false) {

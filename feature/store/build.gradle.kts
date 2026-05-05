@@ -25,6 +25,7 @@ kotlin {
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor)
             implementation(compose.materialIconsExtended)
+            implementation(libs.compose.material3.adaptive.navigation.suite)
         }
     }
 }

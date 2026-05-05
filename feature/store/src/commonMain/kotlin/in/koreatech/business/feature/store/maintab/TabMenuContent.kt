@@ -47,7 +47,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import `in`.koreatech.business.domain.model.MenuCategory
 import `in`.koreatech.business.domain.model.MenuItem
 import `in`.koreatech.business.feature.store.menu.manage.ManageMenusViewModel
-import `in`.koreatech.business.feature.store.shared.ActiveStoreContext
 import `in`.koreatech.business.ui.component.GradientActionButton
 import `in`.koreatech.business.ui.component.KoinAsyncImage
 import `in`.koreatech.business.ui.component.KoinButton
@@ -60,19 +59,12 @@ import org.orbitmvi.orbit.compose.collectAsState
 
 @Composable
 fun TabMenuContent(
-    activeStoreContext: ActiveStoreContext?,
     onNavigateToMenuEditor: (storeId: String, menuId: String?) -> Unit,
     onNavigateToCategories: (storeId: String) -> Unit,
     viewModel: ManageMenusViewModel = koinViewModel()
 ) {
     val uiState by viewModel.collectAsState()
-    val storeId = activeStoreContext?.activeStoreId
-
-    LaunchedEffect(storeId) {
-        if (!storeId.isNullOrBlank()) {
-            viewModel.load(storeId)
-        }
-    }
+    val storeId = uiState.storeId
 
     val lifecycleOwner = LocalLifecycleOwner.current
     androidx.compose.runtime.DisposableEffect(lifecycleOwner) {
@@ -105,7 +97,7 @@ fun TabMenuContent(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = KoinTheme.colors.neutral0
+                    containerColor = KoinTheme.colors.neutral50
                 )
             )
 
@@ -162,7 +154,7 @@ private fun CategoryChipButton(onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(KoinTheme.colors.neutral0)
+            .background(KoinTheme.colors.neutral50)
             .clickable(onClick = onClick)
             .padding(horizontal = 10.dp, vertical = 6.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -215,7 +207,7 @@ private fun MenuList(
                     )
                 }
             }
-            items(category.menus, key = { "menu_${it.id}" }) { menu ->
+            items(category.menus, key = { "menu_${category.id}_${it.id}" }) { menu ->
                 MenuRow(menu = menu, onClick = { onClickMenu(menu) })
             }
             item(key = "spacer_${category.id}") {
@@ -237,7 +229,7 @@ private fun MenuRow(menu: MenuItem, onClick: () -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(KoinTheme.colors.neutral0)
+            .background(KoinTheme.colors.neutral50)
             .clickable(onClick = onClick)
             .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
