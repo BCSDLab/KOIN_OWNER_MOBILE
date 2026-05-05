@@ -89,7 +89,7 @@ fun ThemeSettingsScreen(
                         }
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
-                        containerColor = KoinTheme.colors.neutral0
+                        containerColor = KoinTheme.colors.neutral50
                     )
                 )
             }

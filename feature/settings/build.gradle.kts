@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.business.feature)
     alias(libs.plugins.business.orbit)
+    alias(libs.plugins.aboutlibraries)
 }
 
 kotlin {
@@ -16,9 +17,26 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
             implementation(libs.koin.compose.viewmodel.navigation)
+            implementation(libs.kotlinx.serialization.json)
             implementation(libs.androidx.navigation.compose)
             implementation(compose.materialIconsExtended)
+            implementation(libs.aboutlibraries.compose.m3)
         }
+    }
+}
+
+compose.resources {
+    publicResClass = false
+    packageOfResClass = "in.koreatech.business.feature.settings.resources"
+}
+
+aboutLibraries {
+    collect {
+        fetchRemoteLicense = false
+    }
+    export {
+        outputFile = file("src/commonMain/composeResources/files/aboutlibraries.json")
+        prettyPrint = true
     }
 }
 

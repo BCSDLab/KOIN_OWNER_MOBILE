@@ -3,8 +3,9 @@ package `in`.koreatech.business.feature.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import `in`.koreatech.business.domain.model.ThemeMode
-import `in`.koreatech.business.domain.repository.AppPreferencesRepository
-import `in`.koreatech.business.domain.repository.OwnerRepository
+import `in`.koreatech.business.domain.usecase.owner.GetOwnerProfileUseCase
+import `in`.koreatech.business.domain.usecase.preferences.ObserveThemeModeUseCase
+import `in`.koreatech.business.domain.usecase.preferences.SetThemeModeUseCase
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.orbitmvi.orbit.ContainerHost
@@ -19,14 +20,14 @@ data class SettingsUiState(
 )
 
 class SettingsViewModel(
-    private val preferences: AppPreferencesRepository,
-    private val ownerRepository: OwnerRepository
-) : ViewModel(),
-    ContainerHost<SettingsUiState, Nothing> {
+    private val observeThemeModeUseCase: ObserveThemeModeUseCase,
+    private val setThemeModeUseCase: SetThemeModeUseCase,
+    private val getOwnerProfileUseCase: GetOwnerProfileUseCase,
+) : ViewModel(), ContainerHost<SettingsUiState, Nothing> {
     override val container = container<SettingsUiState, Nothing>(SettingsUiState())
 
     init {
-        preferences.themeMode
+        observeThemeModeUseCase()
             .onEach { mode -> intent { reduce { state.copy(themeMode = mode) } } }
             .launchIn(viewModelScope)
         loadOwnerProfile()
@@ -35,25 +36,14 @@ class SettingsViewModel(
     private fun loadOwnerProfile() = intent {
         reduce { state.copy(isProfileLoading = true, profileError = "") }
         try {
-            val profile = ownerRepository.getOwnerProfile()
-            reduce {
-                state.copy(
-                    ownerName = profile.name,
-                    ownerEmail = profile.email,
-                    isProfileLoading = false
-                )
-            }
+            val profile = getOwnerProfileUseCase()
+            reduce { state.copy(ownerName = profile.name, ownerEmail = profile.email, isProfileLoading = false) }
         } catch (e: Exception) {
-            reduce {
-                state.copy(
-                    isProfileLoading = false,
-                    profileError = e.message.orEmpty()
-                )
-            }
+            reduce { state.copy(isProfileLoading = false, profileError = e.message.orEmpty()) }
         }
     }
 
     fun setThemeMode(mode: ThemeMode) = intent {
-        preferences.setThemeMode(mode)
+        setThemeModeUseCase(mode)
     }
 }
