@@ -21,11 +21,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.LocalOffer
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -50,7 +52,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import `in`.koreatech.business.domain.model.StoreEvent
 import `in`.koreatech.business.platform.getCurrentDateString
 import `in`.koreatech.business.ui.component.BusinessSnackbarHost
-import `in`.koreatech.business.ui.component.GradientActionButton
 import `in`.koreatech.business.ui.component.KoinAsyncImage
 import `in`.koreatech.business.ui.component.KoinButton
 import `in`.koreatech.business.ui.theme.KoinTheme
@@ -160,15 +161,17 @@ fun TabEventContent(
 
         // 등록 FAB (편집 모드 아닐 때만)
         if (!uiState.isEditMode && !storeId.isNullOrBlank() && uiState.events.isNotEmpty()) {
-            Box(
+            FloatingActionButton(
+                onClick = { onNavigateToEventEditor(storeId) },
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 16.dp, bottom = 16.dp),
+                containerColor = KoinTheme.colors.primary500,
+                contentColor = Color.White
             ) {
-                GradientActionButton(
-                    text = "+ 이벤트 등록",
-                    onClick = { onNavigateToEventEditor(storeId) }
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "이벤트 등록"
                 )
             }
         }

@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.LocalOffer
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,7 +49,6 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import `in`.koreatech.business.domain.model.MenuCategory
 import `in`.koreatech.business.domain.model.MenuItem
 import `in`.koreatech.business.feature.store.menu.manage.ManageMenusViewModel
-import `in`.koreatech.business.ui.component.GradientActionButton
 import `in`.koreatech.business.ui.component.KoinAsyncImage
 import `in`.koreatech.business.ui.component.KoinButton
 import `in`.koreatech.business.ui.theme.KoinTheme
@@ -132,17 +133,18 @@ fun TabMenuContent(
             }
         }
 
-        // 하단 메뉴 등록 그래디언트 버튼 (전역)
         if (!storeId.isNullOrBlank() && uiState.categories.isNotEmpty()) {
-            Box(
+            FloatingActionButton(
+                onClick = { onNavigateToMenuEditor(storeId, null) },
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp)
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 16.dp, bottom = 16.dp),
+                containerColor = KoinTheme.colors.primary500,
+                contentColor = Color.White
             ) {
-                GradientActionButton(
-                    text = "+ 메뉴 등록",
-                    onClick = { onNavigateToMenuEditor(storeId, null) }
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "메뉴 등록"
                 )
             }
         }
