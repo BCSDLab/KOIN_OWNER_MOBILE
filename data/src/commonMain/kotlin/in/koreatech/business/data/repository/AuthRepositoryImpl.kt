@@ -10,6 +10,7 @@ import `in`.koreatech.business.data.utils.sha256
 import `in`.koreatech.business.data.utils.toUserMessage
 import `in`.koreatech.business.domain.repository.AuthRepository
 import `in`.koreatech.business.domain.repository.TokenRepository
+import io.ktor.client.plugins.ClientRequestException
 
 class AuthRepositoryImpl(
     private val ownerRemoteDataSource: OwnerRemoteDataSource,
@@ -104,6 +105,13 @@ class AuthRepositoryImpl(
     override suspend fun sendFindPasswordSms(phoneNumber: String) {
         try {
             ownerRemoteDataSource.sendFindPasswordSms(phoneNumber)
+        } catch (exception: ClientRequestException) {
+            val message = when (exception.response.status.value) {
+                400 -> "올바른 전화번호 형식이 아닙니다."
+                404 -> "가입되지 않은 전화번호입니다."
+                else -> exception.toUserMessage()
+            }
+            throw IllegalStateException(message, exception)
         } catch (exception: Exception) {
             throw IllegalStateException(exception.toUserMessage(), exception)
         }

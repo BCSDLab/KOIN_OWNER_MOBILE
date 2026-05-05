@@ -32,17 +32,17 @@ class OwnerAuthApi(private val httpClient: HttpClient) {
 
     /**
      * GET /owners/exists/account — 계정 존재 여부 확인.
-     * @return true 이미 가입된 번호. false 아직 가입되지 않은 번호(404).
+     * @return true 이미 가입된 번호(409). false 아직 가입되지 않은 번호(200).
      */
     suspend fun checkPhoneExists(phoneNumber: String): Boolean {
         return try {
             httpClient.get("/owners/exists/account") {
                 parameter("account", phoneNumber)
             }
-            true
+            false
         } catch (exception: ClientRequestException) {
-            if (exception.response.status == HttpStatusCode.NotFound) {
-                false
+            if (exception.response.status == HttpStatusCode.Conflict) {
+                true
             } else {
                 throw exception
             }
@@ -73,19 +73,19 @@ class OwnerAuthApi(private val httpClient: HttpClient) {
     suspend fun deleteAccount() = httpClient.delete("/user")
 
     suspend fun sendFindPasswordSms(request: FindPasswordSendSmsRequest) =
-        httpClient.post("/owner/change-password/send-sms") {
+        httpClient.post("/owners/password/reset/verification/sms") {
             header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
             setBody(request)
         }
 
     suspend fun verifyFindPasswordSms(request: FindPasswordVerifySmsRequest) =
-        httpClient.post("/owner/change-password/sms-code") {
+        httpClient.post("/owners/password/reset/send/sms") {
             header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
             setBody(request)
         }
 
     suspend fun changePasswordBySms(request: ChangePasswordRequest) =
-        httpClient.put("/owner/change-password-sms") {
+        httpClient.put("/owners/password/reset/sms") {
             header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
             setBody(request)
         }
