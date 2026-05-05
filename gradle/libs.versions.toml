@@ -1,5 +1,5 @@
 [versions]
-aboutlibraries = "14.0.0"
+aboutlibraries = "13.2.1"
 agp = "8.12.3"
 detekt = "1.23.8"
 spotless = "6.25.0"
