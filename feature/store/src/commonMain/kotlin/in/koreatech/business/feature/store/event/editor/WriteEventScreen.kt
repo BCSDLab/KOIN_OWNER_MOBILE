@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -38,6 +37,8 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.LocalOffer
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +46,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -54,7 +56,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import `in`.koreatech.business.platform.PlatformFile
@@ -94,12 +95,6 @@ fun WriteEventScreen(
     val pickFile = rememberFilePicker(onFilePicked = viewModel::addImage)
     var selectingStartDate by remember { mutableStateOf(false) }
     var selectingEndDate by remember { mutableStateOf(false) }
-    var startYear by remember { mutableStateOf("2026") }
-    var startMonth by remember { mutableStateOf("01") }
-    var startDay by remember { mutableStateOf("01") }
-    var endYear by remember { mutableStateOf("2026") }
-    var endMonth by remember { mutableStateOf("01") }
-    var endDay by remember { mutableStateOf("01") }
     var showDeleteDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(storeId, eventId) {
@@ -506,12 +501,7 @@ fun WriteEventScreen(
 
     if (selectingStartDate) {
         EventDatePickerDialog(
-            year = startYear,
-            month = startMonth,
-            day = startDay,
-            onYearChanged = { startYear = it },
-            onMonthChanged = { startMonth = it },
-            onDayChanged = { startDay = it },
+            initialDate = uiState.startDate,
             onDismiss = { selectingStartDate = false },
             onConfirm = {
                 viewModel.onStartDateChanged(it)
@@ -522,12 +512,7 @@ fun WriteEventScreen(
 
     if (selectingEndDate) {
         EventDatePickerDialog(
-            year = endYear,
-            month = endMonth,
-            day = endDay,
-            onYearChanged = { endYear = it },
-            onMonthChanged = { endMonth = it },
-            onDayChanged = { endDay = it },
+            initialDate = uiState.endDate,
             onDismiss = { selectingEndDate = false },
             onConfirm = {
                 viewModel.onEndDateChanged(it)
@@ -548,54 +533,22 @@ private fun FieldLabel(text: String) {
 
 @Composable
 private fun EventDatePickerDialog(
-    year: String,
-    month: String,
-    day: String,
-    onYearChanged: (String) -> Unit,
-    onMonthChanged: (String) -> Unit,
-    onDayChanged: (String) -> Unit,
+    initialDate: String,
     onDismiss: () -> Unit,
     onConfirm: (String) -> Unit
 ) {
-    AlertDialog(
+    val state = rememberDatePickerState(
+        initialSelectedDateMillis = isoDateToEpochMillis(initialDate)
+    )
+    DatePickerDialog(
         onDismissRequest = onDismiss,
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                Text(
-                    text = stringResource(Res.string.date_picker_title),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = KoinTheme.colors.neutral800Variant
-                )
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    KoinTextField(
-                        value = year,
-                        onValueChange = { onYearChanged(it.filter(Char::isDigit).take(4)) },
-                        placeholder = "YYYY",
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.weight(1f)
-                    )
-                    KoinTextField(
-                        value = month,
-                        onValueChange = { onMonthChanged(it.filter(Char::isDigit).take(2)) },
-                        placeholder = "MM",
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.weight(1f)
-                    )
-                    KoinTextField(
-                        value = day,
-                        onValueChange = { onDayChanged(it.filter(Char::isDigit).take(2)) },
-                        placeholder = "DD",
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.weight(1f)
-                    )
-                }
-            }
-        },
         confirmButton = {
             TextButton(
                 onClick = {
-                    onConfirm("${year.padStart(4, '0')}-${month.padStart(2, '0')}-${day.padStart(2, '0')}")
-                }
+                    val millis = state.selectedDateMillis
+                    if (millis != null) onConfirm(epochMillisToIsoDate(millis))
+                },
+                enabled = state.selectedDateMillis != null
             ) {
                 Text(stringResource(Res.string.confirm))
             }
@@ -605,7 +558,48 @@ private fun EventDatePickerDialog(
                 Text(stringResource(Res.string.cancel))
             }
         }
-    )
+    ) {
+        DatePicker(state = state)
+    }
+}
+
+private fun isoDateToEpochMillis(iso: String): Long? {
+    val parts = iso.split("-")
+    if (parts.size != 3) return null
+    val y = parts[0].toIntOrNull() ?: return null
+    val m = parts[1].toIntOrNull() ?: return null
+    val d = parts[2].toIntOrNull() ?: return null
+    return dateToEpochDay(y, m, d).toLong() * 86_400_000L
+}
+
+private fun epochMillisToIsoDate(millis: Long): String {
+    val epochDay = millis.floorDiv(86_400_000L).toInt()
+    return epochDayToIsoDate(epochDay)
+}
+
+private fun dateToEpochDay(year: Int, month: Int, day: Int): Int {
+    var y = year
+    var m = month
+    if (m <= 2) { y -= 1; m += 9 } else { m -= 3 }
+    val era = if (y >= 0) y / 400 else (y - 399) / 400
+    val yoe = y - era * 400
+    val doy = (153 * m + 2) / 5 + day - 1
+    val doe = yoe * 365 + yoe / 4 - yoe / 100 + doy
+    return era * 146097 + doe - 719468
+}
+
+private fun epochDayToIsoDate(epochDay: Int): String {
+    val z = epochDay + 719468
+    val era = if (z >= 0) z / 146097 else (z - 146096) / 146097
+    val doe = z - era * 146097
+    val yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365
+    val y = yoe + era * 400
+    val doy = doe - (365 * yoe + yoe / 4 - yoe / 100)
+    val mp = (5 * doy + 2) / 153
+    val d = doy - (153 * mp + 2) / 5 + 1
+    val m = if (mp < 10) mp + 3 else mp - 9
+    val finalY = if (m <= 2) y + 1 else y
+    return finalY.toString().padStart(4, '0') + "-" + m.toString().padStart(2, '0') + "-" + d.toString().padStart(2, '0')
 }
 
 @Composable

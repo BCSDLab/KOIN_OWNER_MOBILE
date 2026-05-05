@@ -220,7 +220,6 @@
     <string name="app_preview">앱 미리보기</string>
     <string name="event_ongoing">진행중</string>
     <string name="event_title_preview">이벤트 제목 미리보기</string>
-    <string name="date_picker_title">이벤트 날짜를 입력해주세요</string>
 
     <!-- ── Store Dashboard ── -->
     <string name="store_open">영업중</string>
