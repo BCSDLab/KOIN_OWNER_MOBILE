@@ -38,8 +38,7 @@ data class MenuItemResponse(
     @SerialName("is_single") val isSingle: Boolean? = null,
     @SerialName("single_price") val singlePrice: Int? = null,
     @SerialName("option_prices") val optionPrices: List<MenuOptionPriceResponse>? = null,
-    @SerialName("category_ids") val categoryIds: List<Int>? = null,
-    @SerialName("is_hidden") val isHidden: Boolean? = null
+    @SerialName("category_ids") val categoryIds: List<Int>? = null
 ) {
     fun toDomain(): MenuItem {
         val resolvedOptionPrices = if (isSingle == true && singlePrice != null) {
@@ -56,8 +55,7 @@ data class MenuItemResponse(
             isSingle = isSingle ?: (optionPrices.orEmpty().size <= 1),
             singlePrice = singlePrice,
             optionPrices = resolvedOptionPrices,
-            categoryIds = categoryIds.orEmpty(),
-            isHidden = isHidden ?: false
+            categoryIds = categoryIds.orEmpty()
         )
     }
 }

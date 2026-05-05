@@ -16,7 +16,6 @@
     <string name="refresh">새로고침</string>
     <string name="available">가능</string>
     <string name="unavailable">불가</string>
-    <string name="hidden_badge">숨김</string>
     <string name="no_menu_in_category">메뉴 없음</string>
     <string name="add_image">이미지 추가</string>
     <string name="remove_image">제거</string>
@@ -196,9 +195,6 @@
     <string name="edit_complete">수정 완료</string>
     <string name="add_option">+ 옵션 추가</string>
     <string name="add_option_btn">옵션 추가</string>
-    <string name="menu_hide_title">메뉴 숨기기</string>
-    <string name="menu_hide_desc_desktop">앱에서 이 메뉴를 표시하지 않습니다.</string>
-    <string name="menu_hide_desc_mobile">고객에게 노출되지 않습니다</string>
     <string name="image_spec_menu">권장 크기 1:1, 1MB 이하\nJPG, PNG, WebP</string>
     <string name="image_spec_store">권장 크기 16:9, 2MB 이하\nJPG, PNG, WebP</string>
     <string name="field_store_images">매장 사진</string>

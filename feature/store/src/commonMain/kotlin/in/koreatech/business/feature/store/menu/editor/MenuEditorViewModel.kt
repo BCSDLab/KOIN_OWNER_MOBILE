@@ -53,7 +53,6 @@ class MenuEditorViewModel(
                             name = menu.name,
                             description = menu.description,
                             existingImageUrls = menu.imageUrls,
-                            isHidden = menu.isHidden,
                             singlePrice = if (menu.optionPrices.size == 1 && menu.optionPrices.first().option.isBlank()) {
                                 menu.optionPrices.first().price.toString()
                             } else { "" },
@@ -112,10 +111,6 @@ class MenuEditorViewModel(
         }
     }
 
-    fun toggleHidden() {
-        intent(registerIdling = false) { reduce { state.copy(isHidden = !state.isHidden) } }
-    }
-
     fun addImage(file: PlatformFile) {
         intent(registerIdling = false) { reduce { state.copy(pendingImages = state.pendingImages + file) } }
     }
@@ -161,13 +156,13 @@ class MenuEditorViewModel(
                     updateMenuUseCase(
                         storeId = storeId, menuId = state.menuId!!, name = state.name,
                         price = submittedPrice, description = state.description, imageUrls = allImageUrls,
-                        optionPrices = domainOptionPrices, categoryIds = state.selectedCategoryIds, isHidden = state.isHidden
+                        optionPrices = domainOptionPrices, categoryIds = state.selectedCategoryIds
                     )
                 } else {
                     registerMenuUseCase(
                         storeId = storeId, name = state.name, price = submittedPrice,
                         description = state.description, imageUrls = allImageUrls,
-                        optionPrices = domainOptionPrices, categoryIds = state.selectedCategoryIds, isHidden = state.isHidden
+                        optionPrices = domainOptionPrices, categoryIds = state.selectedCategoryIds
                     )
                 }
                 reduce { state.copy(isLoading = false) }
@@ -203,7 +198,6 @@ data class MenuEditorUiState(
     val isEditMode: Boolean = false,
     val name: String = "",
     val description: String = "",
-    val isHidden: Boolean = false,
     val singlePrice: String = "",
     val singlePriceError: String = "",
     val optionPrices: List<MenuOptionPriceDraft> = emptyList(),

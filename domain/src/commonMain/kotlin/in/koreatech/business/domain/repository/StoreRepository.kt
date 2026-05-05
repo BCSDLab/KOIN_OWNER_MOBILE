@@ -25,8 +25,7 @@ interface StoreRepository {
         description: String,
         imageUrls: List<String>,
         optionPrices: List<MenuOptionPrice>,
-        categoryIds: List<Int>,
-        isHidden: Boolean
+        categoryIds: List<Int>
     )
 
     suspend fun updateMenu(
@@ -37,8 +36,7 @@ interface StoreRepository {
         description: String,
         imageUrls: List<String>,
         optionPrices: List<MenuOptionPrice>,
-        categoryIds: List<Int>,
-        isHidden: Boolean
+        categoryIds: List<Int>
     )
 
     suspend fun registerEvent(

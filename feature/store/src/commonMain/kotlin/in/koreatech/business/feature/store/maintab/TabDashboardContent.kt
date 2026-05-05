@@ -30,7 +30,6 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Store
-import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
@@ -168,11 +167,10 @@ fun TabDashboardContent(
                 modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
             )
 
-            // 운영 요약 카드 3장
+            // 운영 요약 카드
             val today = remember { getCurrentDateString() }
             val liveEventCount = uiState.events.count { it.isLive(today) }
             val upcomingTitle = uiState.events.firstOrNull { it.isLive(today) }?.title
-            val hiddenMenuCount = uiState.menus.flatMap { it.menus }.count { it.isHidden }
             val operatingHoursLabel = formatOperatingHours(uiState.storeDetail?.operatingTimes)
 
             SummaryCard(
@@ -183,16 +181,6 @@ fun TabDashboardContent(
                 sub = upcomingTitle ?: "진행 중인 이벤트가 없습니다",
                 value = liveEventCount.toString(),
                 valueColor = if (liveEventCount > 0) KoinTheme.colors.primary500 else KoinTheme.colors.neutral800Variant
-            )
-            Spacer(Modifier.height(8.dp))
-            SummaryCard(
-                icon = Icons.Default.VisibilityOff,
-                iconBg = KoinTheme.colors.neutral200,
-                iconTint = KoinTheme.colors.neutral500,
-                title = "숨김 처리된 메뉴",
-                sub = "앱에 표시되지 않습니다",
-                value = hiddenMenuCount.toString(),
-                valueColor = KoinTheme.colors.neutral800Variant
             )
             Spacer(Modifier.height(8.dp))
             SummaryCard(

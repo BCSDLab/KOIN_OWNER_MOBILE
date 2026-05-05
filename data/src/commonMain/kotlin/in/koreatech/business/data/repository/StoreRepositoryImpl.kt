@@ -67,8 +67,7 @@ class StoreRepositoryImpl(
         description: String,
         imageUrls: List<String>,
         optionPrices: List<MenuOptionPrice>,
-        categoryIds: List<Int>,
-        isHidden: Boolean
+        categoryIds: List<Int>
     ) {
         try {
             val isSingle = optionPrices.isEmpty()
@@ -109,8 +108,7 @@ class StoreRepositoryImpl(
         description: String,
         imageUrls: List<String>,
         optionPrices: List<MenuOptionPrice>,
-        categoryIds: List<Int>,
-        isHidden: Boolean
+        categoryIds: List<Int>
     ) {
         try {
             val isSingle = optionPrices.isEmpty()

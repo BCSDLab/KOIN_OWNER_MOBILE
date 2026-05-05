@@ -38,8 +38,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -331,27 +329,6 @@ fun MenuEditorScreen(
                                     }
                                 }
 
-                                KoinCard(modifier = Modifier.fillMaxWidth()) {
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Column(modifier = Modifier.weight(1f)) {
-                                            Text(text = stringResource(Res.string.menu_hide_title), style = MaterialTheme.typography.titleSmall, color = KoinTheme.colors.neutral800, fontWeight = FontWeight.SemiBold)
-                                            Text(text = stringResource(Res.string.menu_hide_desc_desktop), style = MaterialTheme.typography.bodySmall, color = KoinTheme.colors.neutral500)
-                                        }
-                                        Switch(
-                                            checked = uiState.isHidden,
-                                            onCheckedChange = { viewModel.toggleHidden() },
-                                            colors = SwitchDefaults.colors(
-                                                checkedThumbColor = KoinTheme.colors.neutral50,
-                                                checkedTrackColor = KoinTheme.colors.primary500
-                                            )
-                                        )
-                                    }
-                                }
-
                                 if (uiState.errorMessage.isNotEmpty()) {
                                     KoinTextFieldAlert(message = uiState.errorMessage, type = KoinTextFieldAlertType.Error)
                                 }
@@ -498,38 +475,6 @@ fun MenuEditorScreen(
                                     )
                                 }
                             }
-                        }
-
-                        // Hidden toggle
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(KoinTheme.colors.neutral50)
-                                .padding(horizontal = 16.dp, vertical = 12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
-                                Text(
-                                    text = stringResource(Res.string.menu_hide_title),
-                                    style = MaterialTheme.typography.bodyLarge,
-                                    color = KoinTheme.colors.neutral800
-                                )
-                                Text(
-                                    text = stringResource(Res.string.menu_hide_desc_mobile),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = KoinTheme.colors.neutral500
-                                )
-                            }
-                            Switch(
-                                checked = uiState.isHidden,
-                                onCheckedChange = { viewModel.toggleHidden() },
-                                colors = SwitchDefaults.colors(
-                                    checkedThumbColor = KoinTheme.colors.neutral50,
-                                    checkedTrackColor = KoinTheme.colors.primary500
-                                )
-                            )
                         }
 
                         FieldSection(

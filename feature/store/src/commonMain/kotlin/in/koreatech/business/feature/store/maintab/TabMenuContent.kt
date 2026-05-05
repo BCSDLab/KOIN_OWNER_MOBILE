@@ -262,30 +262,12 @@ private fun MenuRow(menu: MenuItem, onClick: () -> Unit) {
         }
         Spacer(Modifier.width(12.dp))
         Column(modifier = Modifier.weight(1f)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(
-                    text = menu.name,
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = if (menu.isHidden) KoinTheme.colors.neutral500 else KoinTheme.colors.neutral800
-                )
-                if (menu.isHidden) {
-                    Spacer(Modifier.width(6.dp))
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(KoinTheme.colors.neutral200)
-                            .padding(horizontal = 6.dp, vertical = 1.dp)
-                    ) {
-                        Text(
-                            text = "숨김",
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = KoinTheme.colors.neutral500
-                        )
-                    }
-                }
-            }
+            Text(
+                text = menu.name,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = KoinTheme.colors.neutral800
+            )
             Text(
                 text = priceLabel,
                 fontSize = 13.sp,

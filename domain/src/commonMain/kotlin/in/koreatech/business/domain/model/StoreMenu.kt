@@ -15,8 +15,7 @@ data class MenuItem(
     val isSingle: Boolean,
     val singlePrice: Int? = null,
     val optionPrices: List<MenuOptionPrice>,
-    val categoryIds: List<Int> = emptyList(),
-    val isHidden: Boolean
+    val categoryIds: List<Int> = emptyList()
 )
 
 data class MenuOptionPrice(

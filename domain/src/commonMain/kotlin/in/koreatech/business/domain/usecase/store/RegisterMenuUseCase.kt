@@ -11,9 +11,8 @@ class RegisterMenuUseCase(private val repository: StoreRepository) {
         description: String,
         imageUrls: List<String>,
         optionPrices: List<MenuOptionPrice>,
-        categoryIds: List<Int>,
-        isHidden: Boolean
+        categoryIds: List<Int>
     ) = repository.registerMenu(
-        storeId, name, price, description, imageUrls, optionPrices, categoryIds, isHidden
+        storeId, name, price, description, imageUrls, optionPrices, categoryIds
     )
 }

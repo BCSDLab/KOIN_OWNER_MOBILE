@@ -12,9 +12,8 @@ class UpdateMenuUseCase(private val repository: StoreRepository) {
         description: String,
         imageUrls: List<String>,
         optionPrices: List<MenuOptionPrice>,
-        categoryIds: List<Int>,
-        isHidden: Boolean
+        categoryIds: List<Int>
     ) = repository.updateMenu(
-        storeId, menuId, name, price, description, imageUrls, optionPrices, categoryIds, isHidden
+        storeId, menuId, name, price, description, imageUrls, optionPrices, categoryIds
     )
 }
