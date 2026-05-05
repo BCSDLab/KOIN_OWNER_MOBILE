@@ -93,7 +93,7 @@ private fun SignupStepScaffold(
 ) {
     Scaffold(
         modifier = modifier,
-        containerColor = KoinTheme.colors.neutral0,
+        containerColor = KoinTheme.colors.neutral50,
         topBar = {
             TopAppBar(
                 title = {},
@@ -107,7 +107,7 @@ private fun SignupStepScaffold(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = KoinTheme.colors.neutral0
+                    containerColor = KoinTheme.colors.neutral50
                 )
             )
         },
@@ -257,7 +257,7 @@ private fun TermItemRow(
                 colors = CheckboxDefaults.colors(
                     checkedColor = KoinTheme.colors.primary500,
                     uncheckedColor = KoinTheme.colors.neutral400,
-                    checkmarkColor = KoinTheme.colors.neutral0
+                    checkmarkColor = KoinTheme.colors.neutral50
                 )
             )
             Text(

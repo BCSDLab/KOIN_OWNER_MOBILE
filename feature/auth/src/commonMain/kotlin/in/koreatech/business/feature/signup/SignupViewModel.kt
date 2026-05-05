@@ -2,8 +2,13 @@ package `in`.koreatech.business.feature.signup
 
 import androidx.lifecycle.ViewModel
 import `in`.koreatech.business.domain.model.signup.ShopSearchResult
-import `in`.koreatech.business.domain.repository.AuthRepository
-import `in`.koreatech.business.domain.repository.OwnerRepository
+import `in`.koreatech.business.domain.usecase.auth.CheckPhoneExistsUseCase
+import `in`.koreatech.business.domain.usecase.auth.RegisterUseCase
+import `in`.koreatech.business.domain.usecase.auth.SendSignupSmsUseCase
+import `in`.koreatech.business.domain.usecase.auth.SignOutUseCase
+import `in`.koreatech.business.domain.usecase.auth.VerifySignupSmsUseCase
+import `in`.koreatech.business.domain.usecase.owner.SearchShopsUseCase
+import `in`.koreatech.business.domain.usecase.owner.UploadFileUseCase
 import `in`.koreatech.business.platform.PlatformFile
 import `in`.koreatech.business.ui.util.BusinessFormatters
 import `in`.koreatech.business.ui.util.BusinessValidators
@@ -13,37 +18,18 @@ import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
 enum class SignupStep {
-    Terms,
-    AccountSetup,
-    SmsVerify,
-    EnterPassword,
-    BusinessNumber,
-    StoreName,
-    SearchStore,
-    AttachFile,
-    Complete;
-
-    val route: String
-        get() = when (this) {
-            Terms -> "terms"
-            AccountSetup -> "account"
-            SmsVerify -> "sms-verify"
-            EnterPassword -> "enter-password"
-            BusinessNumber -> "business-number"
-            StoreName -> "store-name"
-            SearchStore -> "search-store"
-            AttachFile -> "attach-file"
-            Complete -> "complete"
-        }
+    Terms, AccountSetup, SmsVerify, EnterPassword, BusinessNumber, StoreName, SearchStore, AttachFile, Complete;
+    val route: String get() = when (this) {
+        Terms -> "terms"; AccountSetup -> "account"; SmsVerify -> "sms-verify"
+        EnterPassword -> "enter-password"; BusinessNumber -> "business-number"
+        StoreName -> "store-name"; SearchStore -> "search-store"
+        AttachFile -> "attach-file"; Complete -> "complete"
+    }
 }
 
 data class TermItem(
-    val id: String,
-    val title: String,
-    val content: String,
-    val isRequired: Boolean,
-    val isAgreed: Boolean = false,
-    val isExpanded: Boolean = false
+    val id: String, val title: String, val content: String,
+    val isRequired: Boolean, val isAgreed: Boolean = false, val isExpanded: Boolean = false
 )
 
 data class SignupUiState(
@@ -52,65 +38,49 @@ data class SignupUiState(
         TermItem("service", "서비스 이용약관 (필수)", "", isRequired = true),
         TermItem("privacy", "개인정보 처리방침 (필수)", "", isRequired = true)
     ),
-    val phoneNumber: String = "",
-    val phoneError: String = "",
-    val smsCode: String = "",
-    val smsToken: String = "",
-    val smsError: String = "",
-    val name: String = "",
-    val password: String = "",
-    val passwordConfirm: String = "",
-    val isPasswordVisible: Boolean = false,
-    val isPasswordConfirmVisible: Boolean = false,
-    val passwordError: String = "",
-    val businessNumber: String = "",
-    val businessNumberError: String = "",
-    val storeName: String = "",
-    val storeNameError: String = "",
+    val phoneNumber: String = "", val phoneError: String = "",
+    val smsCode: String = "", val smsToken: String = "", val smsError: String = "",
+    val name: String = "", val password: String = "", val passwordConfirm: String = "",
+    val isPasswordVisible: Boolean = false, val isPasswordConfirmVisible: Boolean = false,
+    val passwordError: String = "", val businessNumber: String = "", val businessNumberError: String = "",
+    val storeName: String = "", val storeNameError: String = "",
     val searchResults: List<ShopSearchResult> = emptyList(),
-    val selectedShopId: Int? = null,
-    val selectedShopName: String = "",
+    val selectedShopId: Int? = null, val selectedShopName: String = "",
     val shopPhoneNumber: String = "",
-    val attachedFiles: List<PlatformFile> = emptyList(),
-    val attachFileError: String = "",
+    val attachedFiles: List<PlatformFile> = emptyList(), val attachFileError: String = "",
     val isLoading: Boolean = false
 ) {
-    val allTermsAgreed: Boolean
-        get() = terms.all { it.isAgreed }
-
-    val requiredTermsAgreed: Boolean
-        get() = terms.filter { it.isRequired }.all { it.isAgreed }
+    val allTermsAgreed: Boolean get() = terms.all { it.isAgreed }
+    val requiredTermsAgreed: Boolean get() = terms.filter { it.isRequired }.all { it.isAgreed }
 }
 
 class SignupViewModel(
-    private val authRepository: AuthRepository,
-    private val ownerRepository: OwnerRepository
-) : ViewModel(),
-    ContainerHost<SignupUiState, Nothing> {
+    private val checkPhoneExistsUseCase: CheckPhoneExistsUseCase,
+    private val sendSignupSmsUseCase: SendSignupSmsUseCase,
+    private val verifySignupSmsUseCase: VerifySignupSmsUseCase,
+    private val registerUseCase: RegisterUseCase,
+    private val signOutUseCase: SignOutUseCase,
+    private val searchShopsUseCase: SearchShopsUseCase,
+    private val uploadFileUseCase: UploadFileUseCase,
+) : ViewModel(), ContainerHost<SignupUiState, Nothing> {
     override val container = container<SignupUiState, Nothing>(SignupUiState())
 
-    init {
-        loadTermsContent()
-    }
+    init { loadTermsContent() }
 
     private fun loadTermsContent() = intent {
         try {
             val serviceText = Res.readBytes("files/Terms_koin_sign_up.txt").decodeToString()
             val privacyText = Res.readBytes("files/Terms_personal_information.txt").decodeToString()
             reduce {
-                state.copy(
-                    terms = state.terms.map { term ->
-                        when (term.id) {
-                            "service" -> term.copy(content = serviceText)
-                            "privacy" -> term.copy(content = privacyText)
-                            else -> term
-                        }
+                state.copy(terms = state.terms.map { term ->
+                    when (term.id) {
+                        "service" -> term.copy(content = serviceText)
+                        "privacy" -> term.copy(content = privacyText)
+                        else -> term
                     }
-                )
+                })
             }
-        } catch (_: Exception) {
-            // keep empty content if resource loading fails
-        }
+        } catch (_: Exception) { }
     }
 
     fun onToggleAllTerms() = intent(registerIdling = false) {
@@ -119,32 +89,15 @@ class SignupViewModel(
     }
 
     fun onToggleTerm(id: String) = intent(registerIdling = false) {
-        reduce {
-            state.copy(
-                terms = state.terms.map {
-                    if (it.id == id) it.copy(isAgreed = !it.isAgreed) else it
-                }
-            )
-        }
+        reduce { state.copy(terms = state.terms.map { if (it.id == id) it.copy(isAgreed = !it.isAgreed) else it }) }
     }
 
     fun onToggleTermExpand(id: String) = intent(registerIdling = false) {
-        reduce {
-            state.copy(
-                terms = state.terms.map {
-                    if (it.id == id) it.copy(isExpanded = !it.isExpanded) else it
-                }
-            )
-        }
+        reduce { state.copy(terms = state.terms.map { if (it.id == id) it.copy(isExpanded = !it.isExpanded) else it }) }
     }
 
     fun onPhoneNumberChanged(value: String) = blockingIntent {
-        reduce {
-            state.copy(
-                phoneNumber = BusinessFormatters.digitsOnly(value, 11),
-                phoneError = ""
-            )
-        }
+        reduce { state.copy(phoneNumber = BusinessFormatters.digitsOnly(value, 11), phoneError = "") }
     }
 
     fun onSmsCodeChanged(value: String) = blockingIntent {
@@ -172,12 +125,7 @@ class SignupViewModel(
     }
 
     fun onBusinessNumberChanged(value: String) = blockingIntent {
-        reduce {
-            state.copy(
-                businessNumber = BusinessFormatters.digitsOnly(value, 10),
-                businessNumberError = ""
-            )
-        }
+        reduce { state.copy(businessNumber = BusinessFormatters.digitsOnly(value, 10), businessNumberError = "") }
     }
 
     fun onStoreNameChanged(value: String) = blockingIntent {
@@ -185,38 +133,20 @@ class SignupViewModel(
     }
 
     fun onSelectShop(shop: ShopSearchResult) {
-        intent(registerIdling = false) {
-            reduce { state.copy(selectedShopId = shop.id, selectedShopName = shop.name) }
-        }
+        intent(registerIdling = false) { reduce { state.copy(selectedShopId = shop.id, selectedShopName = shop.name) } }
         navigateNext()
     }
 
     fun onEnterShopManually() = intent(registerIdling = false) {
-        reduce { state.copy(selectedShopId = null, selectedShopName = state.storeName) }
-        val target = when (state.step) {
-            SignupStep.StoreName -> SignupStep.AttachFile
-            else -> SignupStep.AttachFile
-        }
-        reduce { state.copy(step = target) }
+        reduce { state.copy(selectedShopId = null, selectedShopName = state.storeName, step = SignupStep.AttachFile) }
     }
 
     fun onShopPhoneNumberChanged(value: String) = blockingIntent {
-        reduce {
-            state.copy(
-                shopPhoneNumber = BusinessFormatters.digitsOnly(value, 11),
-                attachFileError = ""
-            )
-        }
+        reduce { state.copy(shopPhoneNumber = BusinessFormatters.digitsOnly(value, 11), attachFileError = "") }
     }
 
     fun onAddFile(file: PlatformFile) = intent(registerIdling = false) {
-        reduce {
-            if (state.attachedFiles.size < 5) {
-                state.copy(attachedFiles = state.attachedFiles + file)
-            } else {
-                state
-            }
-        }
+        reduce { if (state.attachedFiles.size < 5) state.copy(attachedFiles = state.attachedFiles + file) else state }
     }
 
     fun onRemoveFile(file: PlatformFile) = intent(registerIdling = false) {
@@ -254,9 +184,7 @@ class SignupViewModel(
         return true
     }
 
-    fun submitTerms() {
-        if (container.stateFlow.value.requiredTermsAgreed) navigateNext()
-    }
+    fun submitTerms() { if (container.stateFlow.value.requiredTermsAgreed) navigateNext() }
 
     fun submitPhone() = intent {
         val phone = state.phoneNumber
@@ -266,17 +194,12 @@ class SignupViewModel(
         }
         reduce { state.copy(isLoading = true, phoneError = "") }
         try {
-            val exists = authRepository.checkPhoneExists(phone)
+            val exists = checkPhoneExistsUseCase(phone)
             if (exists) {
-                reduce {
-                    state.copy(
-                        isLoading = false,
-                        phoneError = "이미 가입된 번호입니다."
-                    )
-                }
+                reduce { state.copy(isLoading = false, phoneError = "이미 가입된 번호입니다.") }
                 return@intent
             }
-            authRepository.sendSignupSms(phone)
+            sendSignupSmsUseCase(phone)
             reduce { state.copy(isLoading = false) }
             navigateNext()
         } catch (e: Exception) {
@@ -291,7 +214,7 @@ class SignupViewModel(
         }
         reduce { state.copy(isLoading = true, smsError = "") }
         try {
-            val token = authRepository.verifySmsCode(state.phoneNumber, state.smsCode)
+            val token = verifySignupSmsUseCase(state.phoneNumber, state.smsCode)
             reduce { state.copy(smsToken = token, isLoading = false) }
             navigateNext()
         } catch (e: Exception) {
@@ -306,10 +229,7 @@ class SignupViewModel(
                 state.copy(passwordError = "영문, 숫자, 특수문자를 포함한 6~18자 비밀번호를 입력해주세요.")
             }
             state.password != state.passwordConfirm -> reduce { state.copy(passwordError = "비밀번호가 일치하지 않습니다.") }
-            else -> {
-                reduce { state.copy(passwordError = "") }
-                navigateNext()
-            }
+            else -> { reduce { state.copy(passwordError = "") }; navigateNext() }
         }
     }
 
@@ -330,7 +250,7 @@ class SignupViewModel(
         }
         reduce { state.copy(isLoading = true, storeNameError = "", searchResults = emptyList()) }
         try {
-            val results = ownerRepository.searchShops(name)
+            val results = searchShopsUseCase(name)
             reduce { state.copy(searchResults = results, isLoading = false) }
         } catch (e: Exception) {
             reduce { state.copy(storeNameError = e.message ?: "검색 중 오류가 발생했습니다.", isLoading = false) }
@@ -345,13 +265,9 @@ class SignupViewModel(
         reduce { state.copy(isLoading = true, attachFileError = "") }
         try {
             val uploadedUrls = state.attachedFiles.map { file ->
-                ownerRepository.uploadFile(
-                    fileName = file.name,
-                    mimeType = file.mimeType,
-                    bytes = file.bytes
-                )
+                uploadFileUseCase(fileName = file.name, mimeType = file.mimeType, bytes = file.bytes)
             }
-            authRepository.register(
+            registerUseCase(
                 phoneNumber = state.phoneNumber,
                 password = state.password,
                 name = state.name,
@@ -361,8 +277,7 @@ class SignupViewModel(
                 shopName = state.selectedShopName,
                 attachmentUrls = uploadedUrls
             )
-            // SMS 인증 중 발급된 임시 토큰을 폐기해서 자동 로그인 상태가 되지 않도록 한다.
-            runCatching { authRepository.signOut() }
+            runCatching { signOutUseCase() }
             reduce { state.copy(isLoading = false) }
             navigateNext()
         } catch (e: Exception) {

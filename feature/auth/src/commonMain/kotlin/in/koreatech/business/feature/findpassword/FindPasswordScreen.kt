@@ -13,22 +13,13 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -36,134 +27,38 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import `in`.koreatech.business.ui.component.FilledActionButton
+import `in`.koreatech.business.ui.component.KoinButton
+import `in`.koreatech.business.ui.component.KoinButtonVariant
 import `in`.koreatech.business.ui.component.KoinTextField
 import `in`.koreatech.business.ui.component.KoinTextFieldAlert
 import `in`.koreatech.business.ui.component.KoinTextFieldAlertType
 import `in`.koreatech.business.ui.component.PhoneVisualTransformation
 import `in`.koreatech.business.ui.theme.KoinTheme
-import koreatech.business.designsystem.resources.*
 import koreatech.business.designsystem.resources.Res
+import koreatech.business.designsystem.resources.change_password_button
+import koreatech.business.designsystem.resources.confirm
+import koreatech.business.designsystem.resources.field_new_password
+import koreatech.business.designsystem.resources.field_new_password_confirm
+import koreatech.business.designsystem.resources.field_phone
+import koreatech.business.designsystem.resources.field_sms_code
+import koreatech.business.designsystem.resources.find_password_new_hint
+import koreatech.business.designsystem.resources.find_password_phone_hint
+import koreatech.business.designsystem.resources.go_to_login
+import koreatech.business.designsystem.resources.login_with_new_password
+import koreatech.business.designsystem.resources.password_changed
+import koreatech.business.designsystem.resources.password_hide
+import koreatech.business.designsystem.resources.password_show
+import koreatech.business.designsystem.resources.ph_new_password
+import koreatech.business.designsystem.resources.ph_password_confirm
+import koreatech.business.designsystem.resources.ph_sms_code
+import koreatech.business.designsystem.resources.resend_sms
+import koreatech.business.designsystem.resources.send_sms
+import koreatech.business.designsystem.resources.sms_sent_to_phone_findpw
 import org.jetbrains.compose.resources.stringResource
-import org.koin.compose.viewmodel.koinViewModel
-import org.orbitmvi.orbit.compose.collectAsState
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
-@Composable
-fun FindPasswordScreen(
-    onNavigateBack: () -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: FindPasswordViewModel = koinViewModel()
-) {
-    val uiState by viewModel.collectAsState()
-    val navController = rememberNavController()
-
-    LaunchedEffect(navController, uiState.step) {
-        syncFindPasswordRoute(
-            navController = navController,
-            route = uiState.step.route
-        )
-    }
-
-    BackHandler {
-        val navigated = viewModel.navigateBack()
-        if (!navigated) onNavigateBack()
-    }
-
-    Scaffold(
-        modifier = modifier,
-        topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        text = when (uiState.step) {
-                            FindPasswordStep.PhoneInput -> stringResource(Res.string.find_password_title)
-                            FindPasswordStep.SmsVerify -> stringResource(Res.string.find_password_step_sms)
-                            FindPasswordStep.NewPassword -> stringResource(Res.string.find_password_step_new)
-                            FindPasswordStep.Complete -> stringResource(Res.string.find_password_step_complete)
-                        },
-                        style = KoinTheme.typography.bold18
-                    )
-                },
-                navigationIcon = {
-                    if (uiState.step != FindPasswordStep.Complete) {
-                        IconButton(onClick = {
-                            val navigated = viewModel.navigateBack()
-                            if (!navigated) onNavigateBack()
-                        }) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = stringResource(Res.string.back_navigation)
-                            )
-                        }
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = KoinTheme.colors.neutral50
-                )
-            )
-        },
-        containerColor = KoinTheme.colors.neutral50
-    ) { paddingValues ->
-        NavHost(
-            navController = navController,
-            startDestination = FindPasswordStep.PhoneInput.route,
-            modifier = Modifier.padding(paddingValues)
-        ) {
-            composable(FindPasswordStep.PhoneInput.route) {
-                PhoneInputStep(
-                    uiState = uiState,
-                    onPhoneChanged = viewModel::onPhoneNumberChanged,
-                    onNext = viewModel::submitPhone
-                )
-            }
-            composable(FindPasswordStep.SmsVerify.route) {
-                SmsVerifyStep(
-                    uiState = uiState,
-                    onSmsCodeChanged = viewModel::onSmsCodeChanged,
-                    onNext = viewModel::submitSms
-                )
-            }
-            composable(FindPasswordStep.NewPassword.route) {
-                NewPasswordStep(
-                    uiState = uiState,
-                    onNewPasswordChanged = viewModel::onNewPasswordChanged,
-                    onNewPasswordConfirmChanged = viewModel::onNewPasswordConfirmChanged,
-                    onTogglePasswordVisibility = viewModel::onTogglePasswordVisibility,
-                    onTogglePasswordConfirmVisibility = viewModel::onTogglePasswordConfirmVisibility,
-                    onNext = viewModel::submitNewPassword
-                )
-            }
-            composable(FindPasswordStep.Complete.route) {
-                CompleteStep(
-                    onConfirm = onNavigateBack
-                )
-            }
-        }
-    }
-}
-
-private suspend fun syncFindPasswordRoute(
-    navController: NavHostController,
-    route: String
-) {
-    val currentRoute = navController.currentBackStackEntry?.destination?.route
-    if (currentRoute == route) return
-
-    val popped = navController.popBackStack(route, inclusive = false)
-    if (!popped) {
-        navController.navigate(route) {
-            launchSingleTop = true
-        }
-    }
-}
 
 @Composable
-internal fun PhoneInputStep(
+fun PhoneInputStep(
     uiState: FindPasswordUiState,
     onPhoneChanged: (String) -> Unit,
     onNext: () -> Unit,
@@ -224,10 +119,11 @@ internal fun PhoneInputStep(
 }
 
 @Composable
-internal fun SmsVerifyStep(
+fun SmsVerifyStep(
     uiState: FindPasswordUiState,
     onSmsCodeChanged: (String) -> Unit,
     onNext: () -> Unit,
+    onResendSms: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -272,7 +168,7 @@ internal fun SmsVerifyStep(
             Spacer(modifier = Modifier.height(6.dp))
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         FilledActionButton(
             text = stringResource(Res.string.confirm),
@@ -280,11 +176,21 @@ internal fun SmsVerifyStep(
             isLoading = uiState.isLoading,
             modifier = Modifier.fillMaxWidth()
         )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        KoinButton(
+            text = stringResource(Res.string.resend_sms),
+            onClick = onResendSms,
+            variant = KoinButtonVariant.Outlined,
+            isLoading = uiState.isLoading,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }
 
 @Composable
-internal fun NewPasswordStep(
+fun NewPasswordStep(
     uiState: FindPasswordUiState,
     onNewPasswordChanged: (String) -> Unit,
     onNewPasswordConfirmChanged: (String) -> Unit,
@@ -406,7 +312,7 @@ internal fun NewPasswordStep(
 }
 
 @Composable
-internal fun CompleteStep(
+fun CompleteStep(
     onConfirm: () -> Unit,
     modifier: Modifier = Modifier
 ) {
