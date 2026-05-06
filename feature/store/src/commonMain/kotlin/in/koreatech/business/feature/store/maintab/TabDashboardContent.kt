@@ -397,12 +397,12 @@ private fun StoreHeroCard(
         }
         if (address.isNotEmpty()) {
             Spacer(Modifier.height(4.dp))
-            Row(verticalAlignment = Alignment.Top) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     imageVector = Icons.Default.LocationOn,
                     contentDescription = null,
                     tint = Color.White.copy(alpha = 0.85f),
-                    modifier = Modifier.size(11.dp).padding(top = 2.dp)
+                    modifier = Modifier.size(11.dp)
                 )
                 Spacer(Modifier.width(6.dp))
                 Text(
