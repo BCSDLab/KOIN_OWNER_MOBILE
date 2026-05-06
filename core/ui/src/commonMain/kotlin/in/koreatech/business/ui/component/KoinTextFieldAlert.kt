@@ -1,7 +1,9 @@
 package `in`.koreatech.business.ui.component
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -39,22 +41,29 @@ fun KoinTextFieldAlert(
         KoinTextFieldAlertType.Warning -> Icons.Rounded.Warning
         KoinTextFieldAlertType.Success -> Icons.Rounded.CheckCircleOutline
     }
+    val textStyle = KoinTheme.typography.regular12.copy(color = color)
+    val firstLineHeight = textStyle.lineHeight.value.dp
 
     Row(
         modifier = modifier.padding(top = 6.dp),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.Top
     ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            modifier = Modifier.size(14.dp),
-            tint = color
-        )
+        Box(
+            modifier = Modifier.height(firstLineHeight),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                modifier = Modifier.size(14.dp),
+                tint = color
+            )
+        }
         Spacer(modifier = Modifier.width(4.dp))
         Text(
             text = message,
             color = color,
-            style = KoinTheme.typography.regular12.copy(color = color)
+            style = textStyle
         )
     }
 }
