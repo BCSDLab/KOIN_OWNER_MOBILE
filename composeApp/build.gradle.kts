@@ -1,3 +1,4 @@
+import org.gradle.api.tasks.JavaExec
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 
 plugins {
@@ -47,6 +48,12 @@ compose.desktop {
             }
         }
     }
+}
+
+// 로컬 개발 실행(`./gradlew run`)은 stage,
+// 패키징 배포본은 기본값 prod 유지
+tasks.matching { it.name == "run" }.configureEach {
+    if (this is JavaExec) systemProperty("app.debug", "true")
 }
 
 android {
