@@ -1,4 +1,7 @@
-@file:OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
+@file:OptIn(
+    androidx.compose.material3.ExperimentalMaterial3Api::class,
+    androidx.compose.ui.ExperimentalComposeUiApi::class,
+)
 
 package `in`.koreatech.business.feature.store.maintab
 
@@ -42,6 +45,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -71,6 +75,10 @@ fun TabEventContent(
     val uiState by viewModel.collectAsState()
     val storeId = uiState.storeId
     val snackbarHostState = remember { SnackbarHostState() }
+
+    BackHandler(enabled = uiState.isEditMode) {
+        viewModel.toggleEditMode()
+    }
 
     LaunchedEffect(uiState.errorMessage) {
         if (uiState.errorMessage.isNotEmpty()) {
