@@ -254,7 +254,9 @@ fun WriteEventScreen(
                                                 shape = RoundedCornerShape(14.dp),
                                                 color = KoinTheme.colors.neutral50,
                                                 border = BorderStroke(1.dp, KoinTheme.colors.neutral400),
-                                                modifier = Modifier.clickable { viewModel.applyDurationPreset(days) }
+                                                modifier = Modifier
+                                                    .clip(RoundedCornerShape(14.dp))
+                                                    .clickable { viewModel.applyDurationPreset(days) }
                                             ) {
                                                 Text(text = label, modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), style = MaterialTheme.typography.labelSmall, color = KoinTheme.colors.neutral800Variant)
                                             }
@@ -421,7 +423,9 @@ fun WriteEventScreen(
                                     shape = RoundedCornerShape(20.dp),
                                     color = KoinTheme.colors.neutral100,
                                     border = BorderStroke(1.dp, KoinTheme.colors.neutral300),
-                                    modifier = Modifier.clickable { viewModel.applyDurationPreset(days) }
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(20.dp))
+                                        .clickable { viewModel.applyDurationPreset(days) }
                                 ) {
                                     Text(
                                         text = label,
