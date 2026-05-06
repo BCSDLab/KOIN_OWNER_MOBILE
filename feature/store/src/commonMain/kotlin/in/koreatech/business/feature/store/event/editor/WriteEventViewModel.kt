@@ -123,7 +123,7 @@ class WriteEventViewModel(
 
     fun applyDurationPreset(days: Int) = intent(registerIdling = false) {
         val base = state.startDate.ifBlank { todayIsoString() }
-        reduce { state.copy(endDate = addDaysToIsoDate(base, days)) }
+        reduce { state.copy(startDate = base, endDate = addDaysToIsoDate(base, days)) }
     }
 
     fun clearError() { intent(registerIdling = false) { reduce { state.copy(errorMessage = "") } } }
