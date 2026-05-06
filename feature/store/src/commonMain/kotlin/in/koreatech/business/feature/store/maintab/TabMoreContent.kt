@@ -146,7 +146,6 @@ fun TabMoreContent(
                 initial = uiState.ownerName.take(1).ifBlank { "-" },
                 name = uiState.ownerName.ifBlank { "-" },
                 email = uiState.ownerEmail.ifBlank { "-" },
-                onClick = onNavigateToPasswordReset,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
             )
 
@@ -287,14 +286,12 @@ private fun OwnerHeaderCard(
     initial: String,
     name: String,
     email: String,
-    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     KoinCard(modifier = modifier.fillMaxWidth(), padding = PaddingValues(0.dp)) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clickable(onClick = onClick)
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -327,12 +324,6 @@ private fun OwnerHeaderCard(
                     modifier = Modifier.padding(top = 2.dp)
                 )
             }
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                contentDescription = null,
-                tint = KoinTheme.colors.neutral500,
-                modifier = Modifier.size(16.dp)
-            )
         }
     }
 }
