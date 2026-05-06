@@ -18,7 +18,12 @@ runs:
       shell: bash
       env:
         PROPERTIES: ${{ inputs.properties }}
-      run: echo "$PROPERTIES" | base64 -d > ./local.properties
+      run: |
+        if [ -n "$PROPERTIES" ]; then
+          echo "$PROPERTIES" | base64 -d > ./local.properties
+        else
+          echo "PROPERTIES secret is empty — skipping local.properties creation"
+        fi
 
     - name: Gradle cache
       uses: actions/cache@v4
