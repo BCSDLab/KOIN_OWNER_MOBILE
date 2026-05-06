@@ -20,7 +20,7 @@ runs:
         PROPERTIES: ${{ inputs.properties }}
       run: |
         if [ -n "$PROPERTIES" ]; then
-          printf '%s' "$PROPERTIES" | base64 -d > ./local.properties
+          printf '%s' "$PROPERTIES" | tr -d '\n\r ' | base64 -d > ./local.properties
         else
           echo "PROPERTIES secret is empty — skipping local.properties creation"
         fi
