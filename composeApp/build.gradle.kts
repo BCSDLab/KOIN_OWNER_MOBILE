@@ -35,7 +35,7 @@ compose.desktop {
             packageName = "KoinOwner"
             packageVersion = "1.0.0"
             vendor = "BCSDLab"
-            description = "KOIN 사장님 데스크톱 앱"
+            description = "KOIN Owner Desktop"
 
             macOS {
                 iconFile.set(project.file("icons/icon-mac.icns"))
