@@ -18,7 +18,7 @@ runs:
       shell: bash
       env:
         PROPERTIES: ${{ inputs.properties }}
-      run: echo "$PROPERTIES" | base64 -di > ./local.properties
+      run: echo "$PROPERTIES" | base64 -d > ./local.properties
 
     - name: Gradle cache
       uses: actions/cache@v4
