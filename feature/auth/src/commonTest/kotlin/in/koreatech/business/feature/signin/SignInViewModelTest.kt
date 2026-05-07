@@ -8,6 +8,8 @@ import `in`.koreatech.business.domain.repository.AuthRepository
 import `in`.koreatech.business.domain.repository.OwnerRepository
 import `in`.koreatech.business.domain.usecase.auth.SignInUseCase
 import `in`.koreatech.business.domain.usecase.owner.GetShopListUseCase
+import koreatech.business.designsystem.resources.*
+import koreatech.business.designsystem.resources.Res
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -55,7 +57,7 @@ class SignInViewModelTest {
             expectState {
                 copy(
                     notValidateField = true,
-                    errorMessage = "전화번호를 입력해주세요."
+                    errorMessageRes = Res.string.error_phone_required
                 )
             }
         }
@@ -72,7 +74,7 @@ class SignInViewModelTest {
             expectState {
                 copy(
                     notValidateField = true,
-                    errorMessage = "비밀번호를 입력해주세요."
+                    errorMessageRes = Res.string.error_password_required
                 )
             }
         }

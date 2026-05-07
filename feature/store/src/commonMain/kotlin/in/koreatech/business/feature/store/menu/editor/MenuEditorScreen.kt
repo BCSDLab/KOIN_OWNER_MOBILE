@@ -85,6 +85,7 @@ fun MenuEditorScreen(
     viewModel: MenuEditorViewModel = koinViewModel()
 ) {
     val uiState by viewModel.collectAsState()
+    val resolvedError = uiState.errorMessageRes?.let { stringResource(it) } ?: uiState.errorMessage
     val snackbarHostState = remember { SnackbarHostState() }
     val scrollState = rememberScrollState()
     val pickFile = rememberFilePicker(onFilePicked = viewModel::addImage)
@@ -134,9 +135,9 @@ fun MenuEditorScreen(
         )
     }
 
-    LaunchedEffect(uiState.errorMessage) {
-        if (uiState.errorMessage.isNotEmpty()) {
-            snackbarHostState.showSnackbar(uiState.errorMessage)
+    LaunchedEffect(resolvedError) {
+        if (resolvedError.isNotEmpty()) {
+            snackbarHostState.showSnackbar(resolvedError)
             viewModel.clearError()
         }
     }
@@ -329,8 +330,8 @@ fun MenuEditorScreen(
                                     }
                                 }
 
-                                if (uiState.errorMessage.isNotEmpty()) {
-                                    KoinTextFieldAlert(message = uiState.errorMessage, type = KoinTextFieldAlertType.Error)
+                                if (resolvedError.isNotEmpty()) {
+                                    KoinTextFieldAlert(message = resolvedError, type = KoinTextFieldAlertType.Error)
                                 }
                             }
 
@@ -489,8 +490,8 @@ fun MenuEditorScreen(
                             )
                         }
 
-                        if (uiState.errorMessage.isNotEmpty()) {
-                            KoinTextFieldAlert(message = uiState.errorMessage, type = KoinTextFieldAlertType.Error)
+                        if (resolvedError.isNotEmpty()) {
+                            KoinTextFieldAlert(message = resolvedError, type = KoinTextFieldAlertType.Error)
                         }
                     }
 

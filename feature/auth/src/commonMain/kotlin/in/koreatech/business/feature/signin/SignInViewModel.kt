@@ -3,6 +3,11 @@ package `in`.koreatech.business.feature.signin
 import androidx.lifecycle.ViewModel
 import `in`.koreatech.business.domain.usecase.auth.SignInUseCase
 import `in`.koreatech.business.domain.usecase.owner.GetShopListUseCase
+import koreatech.business.designsystem.resources.Res
+import koreatech.business.designsystem.resources.error_generic
+import koreatech.business.designsystem.resources.error_password_required
+import koreatech.business.designsystem.resources.error_phone_required
+import org.jetbrains.compose.resources.StringResource
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
@@ -17,13 +22,14 @@ class SignInViewModel(
         reduce {
             state.copy(
                 phoneNumber = phoneNumber.filter(Char::isDigit).take(11),
+                errorMessageRes = null,
                 errorMessage = ""
             )
         }
     }
 
     fun onPasswordChanged(password: String) = intent {
-        reduce { state.copy(password = password, errorMessage = "") }
+        reduce { state.copy(password = password, errorMessageRes = null, errorMessage = "") }
     }
 
     fun togglePasswordVisibility() = intent {
@@ -36,15 +42,34 @@ class SignInViewModel(
             val password = state.password.trim()
 
             if (phoneDigits.isEmpty()) {
-                reduce { state.copy(notValidateField = true, errorMessage = "전화번호를 입력해주세요.") }
+                reduce {
+                    state.copy(
+                        notValidateField = true,
+                        errorMessageRes = Res.string.error_phone_required,
+                        errorMessage = ""
+                    )
+                }
                 return@intent
             }
             if (password.isEmpty()) {
-                reduce { state.copy(notValidateField = true, errorMessage = "비밀번호를 입력해주세요.") }
+                reduce {
+                    state.copy(
+                        notValidateField = true,
+                        errorMessageRes = Res.string.error_password_required,
+                        errorMessage = ""
+                    )
+                }
                 return@intent
             }
 
-            reduce { state.copy(isLoading = true, notValidateField = false, errorMessage = "") }
+            reduce {
+                state.copy(
+                    isLoading = true,
+                    notValidateField = false,
+                    errorMessageRes = null,
+                    errorMessage = ""
+                )
+            }
             try {
                 signInUseCase(phoneNumber = phoneDigits, password = password)
                 val stores = getShopListUseCase()
@@ -57,11 +82,13 @@ class SignInViewModel(
                     }
                 )
             } catch (exception: Exception) {
+                val serverMessage = exception.message.orEmpty()
                 reduce {
                     state.copy(
                         isLoading = false,
                         notValidateField = true,
-                        errorMessage = exception.message ?: "오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+                        errorMessageRes = if (serverMessage.isBlank()) Res.string.error_generic else null,
+                        errorMessage = serverMessage
                     )
                 }
             }
@@ -72,6 +99,7 @@ class SignInViewModel(
 data class SignInUiState(
     val phoneNumber: String = "",
     val password: String = "",
+    val errorMessageRes: StringResource? = null,
     val errorMessage: String = "",
     val isLoading: Boolean = false,
     val notValidateField: Boolean = false,

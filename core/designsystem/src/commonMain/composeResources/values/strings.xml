@@ -365,4 +365,45 @@
     <string name="section_terms_policy">약관 및 정책</string>
     <string name="section_app">앱</string>
 
+    <!-- ViewModel validation / error messages (externalized in Phase 5) -->
+    <string name="error_generic">오류가 발생했습니다. 잠시 후 다시 시도해주세요.</string>
+    <string name="error_phone_required">전화번호를 입력해주세요.</string>
+    <string name="error_phone_invalid">올바른 전화번호를 입력해주세요.</string>
+    <string name="error_password_required">비밀번호를 입력해주세요.</string>
+    <string name="error_password_invalid">영문, 숫자, 특수문자를 포함한 6~18자 비밀번호를 입력해주세요.</string>
+    <string name="error_password_mismatch">비밀번호가 일치하지 않습니다.</string>
+    <string name="error_sms_code_required">인증번호 6자리를 입력해주세요.</string>
+    <string name="error_sms_code_invalid">인증번호가 올바르지 않습니다.</string>
+    <string name="category_select_required">카테고리를 선택해주세요.</string>
+
+    <string name="menu_editor_error_name_required">메뉴 이름을 입력해주세요.</string>
+    <string name="menu_editor_error_price_required">가격을 입력해주세요.</string>
+    <string name="menu_editor_error_option_required">옵션명과 가격을 모두 입력해주세요.</string>
+    <string name="menu_editor_error_categories_empty">카테고리를 먼저 생성해주세요.</string>
+
+    <string name="event_editor_error_not_found">이벤트를 찾을 수 없습니다.</string>
+    <string name="event_editor_error_title_required">제목을 입력해주세요.</string>
+    <string name="event_editor_error_content_required">내용을 입력해주세요.</string>
+    <string name="event_editor_error_period_required">이벤트 기간을 입력해주세요.</string>
+    <string name="event_editor_error_period_invalid">이벤트 기간을 올바르게 선택해주세요.</string>
+
+    <string name="store_info_error_operating_time_invalid">운영 시간을 올바르게 선택해주세요.</string>
+
+    <string name="find_password_error_change_failed">비밀번호 변경에 실패했습니다.</string>
+
+    <string name="insert_store_error_categories_load_failed">카테고리를 불러오지 못했습니다.</string>
+    <string name="insert_store_error_name_required">매장명을 입력해주세요.</string>
+    <string name="insert_store_error_address_required">주소를 입력해주세요.</string>
+    <string name="insert_store_error_description_required">소개글을 입력해주세요.</string>
+    <string name="insert_store_error_register_failed">매장 등록에 실패했습니다.</string>
+
+    <string name="signup_term_service_label">서비스 이용약관 (필수)</string>
+    <string name="signup_term_privacy_label">개인정보 처리방침 (필수)</string>
+    <string name="signup_error_phone_already_registered">이미 가입된 번호입니다.</string>
+    <string name="signup_error_name_required">이름을 입력해주세요.</string>
+    <string name="signup_error_business_number_invalid">올바른 사업자번호를 입력해주세요.</string>
+    <string name="signup_error_store_name_required">매장 이름을 입력해주세요.</string>
+    <string name="signup_error_search_failed">검색 중 오류가 발생했습니다.</string>
+    <string name="signup_error_attach_required">사업자 등록증을 첨부해주세요.</string>
+    <string name="signup_error_register_failed">회원가입에 실패했습니다.</string>
 </resources>

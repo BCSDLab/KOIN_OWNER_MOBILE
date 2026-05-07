@@ -11,6 +11,13 @@ import `in`.koreatech.business.domain.usecase.store.RegisterMenuUseCase
 import `in`.koreatech.business.domain.usecase.store.UpdateMenuUseCase
 import `in`.koreatech.business.platform.PlatformFile
 import `in`.koreatech.business.ui.util.BusinessFormatters
+import koreatech.business.designsystem.resources.Res
+import koreatech.business.designsystem.resources.category_select_required
+import koreatech.business.designsystem.resources.menu_editor_error_categories_empty
+import koreatech.business.designsystem.resources.menu_editor_error_name_required
+import koreatech.business.designsystem.resources.menu_editor_error_option_required
+import koreatech.business.designsystem.resources.menu_editor_error_price_required
+import org.jetbrains.compose.resources.StringResource
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
@@ -136,28 +143,28 @@ class MenuEditorViewModel(
     fun submit() {
         intent {
             if (state.name.isBlank()) {
-                reduce { state.copy(errorMessage = "메뉴 이름을 입력해주세요.") }
+                reduce { state.copy(errorMessageRes = Res.string.menu_editor_error_name_required, errorMessage = "") }
                 return@intent
             }
             val hasOptions = state.optionPrices.isNotEmpty()
             if (!hasOptions && state.singlePrice.isBlank()) {
-                reduce { state.copy(errorMessage = "가격을 입력해주세요.") }
+                reduce { state.copy(errorMessageRes = Res.string.menu_editor_error_price_required, errorMessage = "") }
                 return@intent
             }
             if (hasOptions && state.optionPrices.any { it.option.isBlank() || it.price.isBlank() }) {
-                reduce { state.copy(errorMessage = "옵션명과 가격을 모두 입력해주세요.") }
+                reduce { state.copy(errorMessageRes = Res.string.menu_editor_error_option_required, errorMessage = "") }
                 return@intent
             }
             if (state.menuCategories.isEmpty()) {
-                reduce { state.copy(errorMessage = "카테고리를 먼저 생성해주세요.") }
+                reduce { state.copy(errorMessageRes = Res.string.menu_editor_error_categories_empty, errorMessage = "") }
                 return@intent
             }
             if (state.selectedCategoryIds.isEmpty()) {
-                reduce { state.copy(errorMessage = "카테고리를 선택해주세요.") }
+                reduce { state.copy(errorMessageRes = Res.string.category_select_required, errorMessage = "") }
                 return@intent
             }
 
-            reduce { state.copy(isLoading = true, errorMessage = "") }
+            reduce { state.copy(isLoading = true, errorMessageRes = null, errorMessage = "") }
             try {
                 val storeId = state.storeId ?: return@intent
                 val uploadedUrls = state.pendingImages.map { uploadFileUseCase(it.name, it.mimeType, it.bytes) }
@@ -194,13 +201,13 @@ class MenuEditorViewModel(
                 reduce { state.copy(isLoading = false) }
                 postSideEffect(MenuEditorSideEffect.NavigateBack)
             } catch (exception: Exception) {
-                reduce { state.copy(isLoading = false, errorMessage = exception.message.orEmpty()) }
+                reduce { state.copy(isLoading = false, errorMessage = exception.message.orEmpty(), errorMessageRes = null) }
             }
         }
     }
 
     fun clearError() {
-        intent(registerIdling = false) { reduce { state.copy(errorMessage = "") } }
+        intent(registerIdling = false) { reduce { state.copy(errorMessage = "", errorMessageRes = null) } }
     }
 
     fun deleteMenu() {
@@ -233,7 +240,8 @@ data class MenuEditorUiState(
     val selectedCategoryIds: List<Int> = emptyList(),
     val existingImageUrls: List<String> = emptyList(),
     val pendingImages: List<PlatformFile> = emptyList(),
-    val errorMessage: String = ""
+    val errorMessage: String = "",
+    val errorMessageRes: StringResource? = null
 )
 
 data class MenuOptionPriceDraft(val option: String = "", val price: String = "")

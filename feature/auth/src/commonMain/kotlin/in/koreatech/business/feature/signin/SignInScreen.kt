@@ -329,10 +329,9 @@ fun AuthEntryPlaceholderScreen(
     }
 }
 
+@Composable
 private fun SignInUiState.signInErrorMessage(): String? {
     if (!notValidateField) return null
-    if (phoneDigits.isEmpty()) return "전화번호를 입력해주세요."
-    if (password.isEmpty()) return "비밀번호를 입력해주세요."
-    if (errorMessage.isNotEmpty()) return errorMessage
-    return null
+    errorMessageRes?.let { return stringResource(it) }
+    return errorMessage.takeIf { it.isNotEmpty() }
 }
