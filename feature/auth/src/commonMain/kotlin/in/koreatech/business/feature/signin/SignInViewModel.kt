@@ -9,8 +9,9 @@ import org.orbitmvi.orbit.viewmodel.container
 
 class SignInViewModel(
     private val signInUseCase: SignInUseCase,
-    private val getShopListUseCase: GetShopListUseCase,
-) : ViewModel(), ContainerHost<SignInUiState, SignInSideEffect> {
+    private val getShopListUseCase: GetShopListUseCase
+) : ViewModel(),
+    ContainerHost<SignInUiState, SignInSideEffect> {
     override val container = container<SignInUiState, SignInSideEffect>(SignInUiState())
 
     fun onPhoneNumberChanged(phoneNumber: String) = blockingIntent {
@@ -50,8 +51,11 @@ class SignInViewModel(
                 val stores = getShopListUseCase()
                 reduce { state.copy(isLoading = false) }
                 postSideEffect(
-                    if (stores.isEmpty()) SignInSideEffect.NavigateToStoreRegister
-                    else SignInSideEffect.NavigateToStoreMain
+                    if (stores.isEmpty()) {
+                        SignInSideEffect.NavigateToStoreRegister
+                    } else {
+                        SignInSideEffect.NavigateToStoreMain
+                    }
                 )
             } catch (exception: Exception) {
                 reduce {

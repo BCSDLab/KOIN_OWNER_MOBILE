@@ -10,5 +10,5 @@ data class UploadUrlRequest(
     @SerialName("content_type")
     val contentType: String,
     @SerialName("file_name")
-    val fileName: String,
+    val fileName: String
 )

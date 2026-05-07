@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
@@ -584,7 +583,12 @@ private fun epochMillisToIsoDate(millis: Long): String {
 private fun dateToEpochDay(year: Int, month: Int, day: Int): Int {
     var y = year
     var m = month
-    if (m <= 2) { y -= 1; m += 9 } else { m -= 3 }
+    if (m <= 2) {
+        y -= 1
+        m += 9
+    } else {
+        m -= 3
+    }
     val era = if (y >= 0) y / 400 else (y - 399) / 400
     val yoe = y - era * 400
     val doy = (153 * m + 2) / 5 + day - 1

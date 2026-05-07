@@ -28,8 +28,9 @@ data class EventTabUiState(
 class EventTabViewModel(
     private val getStoreEventsUseCase: GetStoreEventsUseCase,
     private val deleteEventUseCase: DeleteEventUseCase,
-    private val observeActiveStoreIdUseCase: ObserveActiveStoreIdUseCase,
-) : ViewModel(), ContainerHost<EventTabUiState, Nothing> {
+    private val observeActiveStoreIdUseCase: ObserveActiveStoreIdUseCase
+) : ViewModel(),
+    ContainerHost<EventTabUiState, Nothing> {
     override val container = container<EventTabUiState, Nothing>(EventTabUiState())
 
     init {
@@ -51,7 +52,10 @@ class EventTabViewModel(
         }
     }
 
-    fun refresh() { val storeId = container.stateFlow.value.storeId ?: return; load(storeId) }
+    fun refresh() {
+        val storeId = container.stateFlow.value.storeId ?: return
+        load(storeId)
+    }
 
     fun setFilter(filter: EventFilter) {
         intent(registerIdling = false) { reduce { state.copy(filter = filter) } }

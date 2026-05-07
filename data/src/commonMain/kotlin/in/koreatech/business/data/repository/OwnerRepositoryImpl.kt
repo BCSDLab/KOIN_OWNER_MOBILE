@@ -28,8 +28,7 @@ class OwnerRepositoryImpl(
         }
     }
 
-    override suspend fun getRequiredVersion(): String =
-        ownerRemoteDataSource.getRequiredVersion("android_owner").version
+    override suspend fun getRequiredVersion(): String = ownerRemoteDataSource.getRequiredVersion("android_owner").version
 
     override suspend fun uploadFile(fileName: String, mimeType: String, bytes: ByteArray): String {
         try {

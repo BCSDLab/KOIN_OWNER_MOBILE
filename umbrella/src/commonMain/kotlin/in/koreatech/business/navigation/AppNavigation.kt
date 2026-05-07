@@ -36,7 +36,7 @@ private const val NAV_ANIM_DURATION_MS = 280
 @Composable
 internal fun AppNavigation(
     rootNavController: NavHostController,
-    appViewModel: AppViewModel,
+    appViewModel: AppViewModel
 ) {
     NavHost(
         navController = rootNavController,

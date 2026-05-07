@@ -125,6 +125,6 @@ class NetworkModule {
 
     fun providePublicApi(
         httpClient: HttpClient,
-        s3HttpClient: HttpClient,
+        s3HttpClient: HttpClient
     ): PublicApi = PublicApi(httpClient, s3HttpClient)
 }

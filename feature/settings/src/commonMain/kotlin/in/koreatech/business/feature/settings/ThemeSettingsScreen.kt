@@ -39,7 +39,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import `in`.koreatech.business.domain.model.ThemeMode
 import `in`.koreatech.business.ui.component.DesktopTopBar
 import `in`.koreatech.business.ui.component.KoinCard

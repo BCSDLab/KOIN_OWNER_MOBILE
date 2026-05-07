@@ -11,10 +11,16 @@ import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
 enum class FindPasswordStep {
-    PhoneInput, SmsVerify, NewPassword, Complete;
+    PhoneInput,
+    SmsVerify,
+    NewPassword,
+    Complete;
+
     val route: String get() = when (this) {
-        PhoneInput -> "phone-input"; SmsVerify -> "sms-verify"
-        NewPassword -> "new-password"; Complete -> "complete"
+        PhoneInput -> "phone-input"
+        SmsVerify -> "sms-verify"
+        NewPassword -> "new-password"
+        Complete -> "complete"
     }
 }
 
@@ -35,8 +41,9 @@ data class FindPasswordUiState(
 class FindPasswordViewModel(
     private val sendFindPasswordSmsUseCase: SendFindPasswordSmsUseCase,
     private val verifyFindPasswordSmsUseCase: VerifyFindPasswordSmsUseCase,
-    private val changePasswordBySmsUseCase: ChangePasswordBySmsUseCase,
-) : ViewModel(), ContainerHost<FindPasswordUiState, Nothing> {
+    private val changePasswordBySmsUseCase: ChangePasswordBySmsUseCase
+) : ViewModel(),
+    ContainerHost<FindPasswordUiState, Nothing> {
     override val container = container<FindPasswordUiState, Nothing>(FindPasswordUiState())
 
     fun onPhoneNumberChanged(value: String) = blockingIntent {

@@ -15,8 +15,9 @@ class ManageCategoriesViewModel(
     private val getStoreMenusUseCase: GetStoreMenusUseCase,
     private val createMenuCategoryUseCase: CreateMenuCategoryUseCase,
     private val renameMenuCategoryUseCase: RenameMenuCategoryUseCase,
-    private val deleteMenuCategoryUseCase: DeleteMenuCategoryUseCase,
-) : ViewModel(), ContainerHost<ManageCategoriesUiState, ManageCategoriesSideEffect> {
+    private val deleteMenuCategoryUseCase: DeleteMenuCategoryUseCase
+) : ViewModel(),
+    ContainerHost<ManageCategoriesUiState, ManageCategoriesSideEffect> {
     override val container = container<ManageCategoriesUiState, ManageCategoriesSideEffect>(ManageCategoriesUiState())
 
     fun load(storeId: String) = intent {

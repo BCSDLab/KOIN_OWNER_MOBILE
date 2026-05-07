@@ -34,18 +34,16 @@ class OwnerAuthApi(private val httpClient: HttpClient) {
      * GET /owners/exists/account — 계정 존재 여부 확인.
      * @return true 이미 가입된 번호(409). false 아직 가입되지 않은 번호(200).
      */
-    suspend fun checkPhoneExists(phoneNumber: String): Boolean {
-        return try {
-            httpClient.get("/owners/exists/account") {
-                parameter("account", phoneNumber)
-            }
-            false
-        } catch (exception: ClientRequestException) {
-            if (exception.response.status == HttpStatusCode.Conflict) {
-                true
-            } else {
-                throw exception
-            }
+    suspend fun checkPhoneExists(phoneNumber: String): Boolean = try {
+        httpClient.get("/owners/exists/account") {
+            parameter("account", phoneNumber)
+        }
+        false
+    } catch (exception: ClientRequestException) {
+        if (exception.response.status == HttpStatusCode.Conflict) {
+            true
+        } else {
+            throw exception
         }
     }
 
@@ -54,11 +52,10 @@ class OwnerAuthApi(private val httpClient: HttpClient) {
         setBody(request)
     }
 
-    suspend fun verifySmsCode(request: VerifySmsRequest): VerifySmsResponse =
-        httpClient.post("/owners/verification/code/sms") {
-            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-            setBody(request)
-        }.body()
+    suspend fun verifySmsCode(request: VerifySmsRequest): VerifySmsResponse = httpClient.post("/owners/verification/code/sms") {
+        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+        setBody(request)
+    }.body()
 
     suspend fun register(request: OwnerRegisterRequest) = httpClient.post("/owners/register/phone") {
         header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
@@ -72,21 +69,18 @@ class OwnerAuthApi(private val httpClient: HttpClient) {
 
     suspend fun deleteAccount() = httpClient.delete("/user")
 
-    suspend fun sendFindPasswordSms(request: FindPasswordSendSmsRequest) =
-        httpClient.post("/owners/password/reset/verification/sms") {
-            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-            setBody(request)
-        }
+    suspend fun sendFindPasswordSms(request: FindPasswordSendSmsRequest) = httpClient.post("/owners/password/reset/verification/sms") {
+        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+        setBody(request)
+    }
 
-    suspend fun verifyFindPasswordSms(request: FindPasswordVerifySmsRequest) =
-        httpClient.post("/owners/password/reset/send/sms") {
-            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-            setBody(request)
-        }
+    suspend fun verifyFindPasswordSms(request: FindPasswordVerifySmsRequest) = httpClient.post("/owners/password/reset/send/sms") {
+        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+        setBody(request)
+    }
 
-    suspend fun changePasswordBySms(request: ChangePasswordRequest) =
-        httpClient.put("/owners/password/reset/sms") {
-            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-            setBody(request)
-        }
+    suspend fun changePasswordBySms(request: ChangePasswordRequest) = httpClient.put("/owners/password/reset/sms") {
+        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+        setBody(request)
+    }
 }

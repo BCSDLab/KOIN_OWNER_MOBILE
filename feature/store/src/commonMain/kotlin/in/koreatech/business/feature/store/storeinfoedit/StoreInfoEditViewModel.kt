@@ -16,8 +16,9 @@ import org.orbitmvi.orbit.viewmodel.container
 class StoreInfoEditViewModel(
     private val getStoreDetailUseCase: GetStoreDetailUseCase,
     private val updateStoreInfoUseCase: UpdateStoreInfoUseCase,
-    private val uploadFileUseCase: UploadFileUseCase,
-) : ViewModel(), ContainerHost<StoreInfoEditUiState, StoreInfoEditSideEffect> {
+    private val uploadFileUseCase: UploadFileUseCase
+) : ViewModel(),
+    ContainerHost<StoreInfoEditUiState, StoreInfoEditSideEffect> {
     override val container = container<StoreInfoEditUiState, StoreInfoEditSideEffect>(StoreInfoEditUiState())
 
     fun load(storeId: String) {
@@ -135,9 +136,13 @@ class StoreInfoEditViewModel(
         }
     }
 
-    fun clearError() { intent(registerIdling = false) { reduce { state.copy(errorMessage = "") } } }
+    fun clearError() {
+        intent(registerIdling = false) { reduce { state.copy(errorMessage = "") } }
+    }
 
-    companion object { private const val ROOT_CATEGORY_ID = 1 }
+    companion object {
+        private const val ROOT_CATEGORY_ID = 1
+    }
 }
 
 data class StoreInfoEditUiState(

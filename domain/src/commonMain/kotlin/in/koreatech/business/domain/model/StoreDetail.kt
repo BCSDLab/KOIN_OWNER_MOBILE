@@ -1,6 +1,5 @@
 package `in`.koreatech.business.domain.model
 
-
 data class StoreDetail(
     val id: Int,
     val name: String,

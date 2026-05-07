@@ -14,6 +14,13 @@ class UpdateMenuUseCase(private val repository: StoreRepository) {
         optionPrices: List<MenuOptionPrice>,
         categoryIds: List<Int>
     ) = repository.updateMenu(
-        storeId, menuId, name, price, description, imageUrls, optionPrices, categoryIds
+        storeId,
+        menuId,
+        name,
+        price,
+        description,
+        imageUrls,
+        optionPrices,
+        categoryIds
     )
 }

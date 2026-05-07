@@ -14,15 +14,13 @@ import io.ktor.http.contentType
 
 class PublicApi(
     private val httpClient: HttpClient,
-    private val s3HttpClient: HttpClient,
+    private val s3HttpClient: HttpClient
 ) {
-    suspend fun searchShops(query: String): ShopSearchResponse =
-        httpClient.get("/v2/shops") {
-            parameter("query", query)
-        }.body()
+    suspend fun searchShops(query: String): ShopSearchResponse = httpClient.get("/v2/shops") {
+        parameter("query", query)
+    }.body()
 
-    suspend fun getStoreCategories(): StoreCategoryListResponse =
-        httpClient.get("/shops/categories").body()
+    suspend fun getStoreCategories(): StoreCategoryListResponse = httpClient.get("/shops/categories").body()
 
     suspend fun uploadToS3(preSignedUrl: String, bytes: ByteArray, mimeType: String) {
         s3HttpClient.put(preSignedUrl) {
@@ -31,6 +29,5 @@ class PublicApi(
         }
     }
 
-    suspend fun getRequiredVersion(type: String): VersionResponse =
-        httpClient.get("/version/$type").body()
+    suspend fun getRequiredVersion(type: String): VersionResponse = httpClient.get("/version/$type").body()
 }

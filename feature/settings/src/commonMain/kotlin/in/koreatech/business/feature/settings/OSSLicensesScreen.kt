@@ -25,12 +25,12 @@ import com.mikepenz.aboutlibraries.ui.compose.LibraryDefaults
 import com.mikepenz.aboutlibraries.ui.compose.m3.LibrariesContainer
 import com.mikepenz.aboutlibraries.ui.compose.m3.libraryColors
 import com.mikepenz.aboutlibraries.ui.compose.produceLibraries
+import `in`.koreatech.business.feature.settings.resources.Res as SettingsRes
 import `in`.koreatech.business.ui.theme.KoinTheme
 import koreatech.business.designsystem.resources.Res
 import koreatech.business.designsystem.resources.back_navigation
 import koreatech.business.designsystem.resources.oss_licenses
 import org.jetbrains.compose.resources.stringResource
-import `in`.koreatech.business.feature.settings.resources.Res as SettingsRes
 
 @Composable
 fun OSSLicensesScreen(

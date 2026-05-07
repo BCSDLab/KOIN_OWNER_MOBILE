@@ -20,5 +20,4 @@ data class StoreCategoryItemResponse(
     }
 }
 
-fun StoreCategoryListResponse.toDomainList(): List<StoreCategory> =
-    shopCategories.mapNotNull { it.toDomain() }
+fun StoreCategoryListResponse.toDomainList(): List<StoreCategory> = shopCategories.mapNotNull { it.toDomain() }

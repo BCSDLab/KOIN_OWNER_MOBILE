@@ -32,20 +32,17 @@ class OwnerRemoteDataSource(
 ) {
     suspend fun signIn(request: OwnerLoginRequest): OwnerLoginResponse = ownerAuthApi.login(request)
 
-    suspend fun refreshToken(refreshToken: String): OwnerLoginResponse =
-        ownerAuthApi.refreshToken(refreshToken)
+    suspend fun refreshToken(refreshToken: String): OwnerLoginResponse = ownerAuthApi.refreshToken(refreshToken)
 
     suspend fun getMyShopList(): OwnerStoreListResponse = ownerApi.getMyShopList()
 
     suspend fun getOwnerProfile(): OwnerProfileResponse = ownerApi.getOwnerProfile()
 
-    suspend fun checkPhoneExists(phoneNumber: String): Boolean =
-        ownerAuthApi.checkPhoneExists(phoneNumber)
+    suspend fun checkPhoneExists(phoneNumber: String): Boolean = ownerAuthApi.checkPhoneExists(phoneNumber)
 
     suspend fun sendSignupSms(request: SendSignupSmsRequest) = ownerAuthApi.sendSignupSms(request)
 
-    suspend fun verifySmsCode(request: VerifySmsRequest): VerifySmsResponse =
-        ownerAuthApi.verifySmsCode(request)
+    suspend fun verifySmsCode(request: VerifySmsRequest): VerifySmsResponse = ownerAuthApi.verifySmsCode(request)
 
     suspend fun searchShops(query: String): ShopSearchResponse = publicApi.searchShops(query)
 
@@ -58,72 +55,54 @@ class OwnerRemoteDataSource(
             UploadUrlRequest(
                 contentLength = bytes.size.toLong(),
                 contentType = mimeType,
-                fileName = fileName,
+                fileName = fileName
             )
         )
         publicApi.uploadToS3(
             preSignedUrl = response.preSignedUrl,
             bytes = bytes,
-            mimeType = mimeType,
+            mimeType = mimeType
         )
         return response.fileUrl
     }
 
-    suspend fun getStoreDetail(storeId: String): StoreDetailResponse =
-        ownerApi.getStoreDetail(storeId)
+    suspend fun getStoreDetail(storeId: String): StoreDetailResponse = ownerApi.getStoreDetail(storeId)
 
-    suspend fun getStoreMenus(storeId: String): StoreMenusResponse =
-        ownerApi.getStoreMenus(storeId)
+    suspend fun getStoreMenus(storeId: String): StoreMenusResponse = ownerApi.getStoreMenus(storeId)
 
-    suspend fun getMenuCategories(storeId: String): `in`.koreatech.business.data.model.store.response.MenuCategoriesResponse =
-        ownerApi.getMenuCategories(storeId)
+    suspend fun getMenuCategories(storeId: String): `in`.koreatech.business.data.model.store.response.MenuCategoriesResponse = ownerApi.getMenuCategories(storeId)
 
-    suspend fun getStoreEvents(storeId: String): StoreEventsResponse =
-        ownerApi.getStoreEvents(storeId)
+    suspend fun getStoreEvents(storeId: String): StoreEventsResponse = ownerApi.getStoreEvents(storeId)
 
-    suspend fun deleteMenu(menuId: String) =
-        ownerApi.deleteMenu(menuId)
+    suspend fun deleteMenu(menuId: String) = ownerApi.deleteMenu(menuId)
 
-    suspend fun registerMenu(storeId: String, request: RegisterMenuRequest) =
-        ownerApi.registerMenu(storeId, request)
+    suspend fun registerMenu(storeId: String, request: RegisterMenuRequest) = ownerApi.registerMenu(storeId, request)
 
-    suspend fun updateMenu(menuId: String, request: RegisterMenuRequest) =
-        ownerApi.updateMenu(menuId, request)
+    suspend fun updateMenu(menuId: String, request: RegisterMenuRequest) = ownerApi.updateMenu(menuId, request)
 
-    suspend fun registerEvent(storeId: String, request: RegisterEventRequest) =
-        ownerApi.registerEvent(storeId, request)
+    suspend fun registerEvent(storeId: String, request: RegisterEventRequest) = ownerApi.registerEvent(storeId, request)
 
-    suspend fun deleteEvent(storeId: String, eventId: String) =
-        ownerApi.deleteEvent(storeId, eventId)
+    suspend fun deleteEvent(storeId: String, eventId: String) = ownerApi.deleteEvent(storeId, eventId)
 
-    suspend fun updateEvent(storeId: String, eventId: String, request: RegisterEventRequest) =
-        ownerApi.updateEvent(storeId, eventId, request)
+    suspend fun updateEvent(storeId: String, eventId: String, request: RegisterEventRequest) = ownerApi.updateEvent(storeId, eventId, request)
 
-    suspend fun updateStoreInfo(storeId: String, request: UpdateStoreInfoRequest) =
-        ownerApi.updateStoreInfo(storeId, request)
+    suspend fun updateStoreInfo(storeId: String, request: UpdateStoreInfoRequest) = ownerApi.updateStoreInfo(storeId, request)
 
-    suspend fun sendFindPasswordSms(phoneNumber: String) =
-        ownerAuthApi.sendFindPasswordSms(FindPasswordSendSmsRequest(phoneNumber))
+    suspend fun sendFindPasswordSms(phoneNumber: String) = ownerAuthApi.sendFindPasswordSms(FindPasswordSendSmsRequest(phoneNumber))
 
-    suspend fun verifyFindPasswordSms(phoneNumber: String, code: String) =
-        ownerAuthApi.verifyFindPasswordSms(FindPasswordVerifySmsRequest(phoneNumber, code))
+    suspend fun verifyFindPasswordSms(phoneNumber: String, code: String) = ownerAuthApi.verifyFindPasswordSms(FindPasswordVerifySmsRequest(phoneNumber, code))
 
-    suspend fun changePasswordBySms(phoneNumber: String, password: String) =
-        ownerAuthApi.changePasswordBySms(ChangePasswordRequest(phoneNumber, password))
+    suspend fun changePasswordBySms(phoneNumber: String, password: String) = ownerAuthApi.changePasswordBySms(ChangePasswordRequest(phoneNumber, password))
 
     suspend fun getStoreCategories() = publicApi.getStoreCategories()
 
     suspend fun registerStore(request: RegisterStoreRequest) = ownerApi.registerStore(request)
 
-    suspend fun getRequiredVersion(type: String): VersionResponse =
-        publicApi.getRequiredVersion(type)
+    suspend fun getRequiredVersion(type: String): VersionResponse = publicApi.getRequiredVersion(type)
 
-    suspend fun createMenuCategory(storeId: String, name: String) =
-        ownerApi.createMenuCategory(storeId, name)
+    suspend fun createMenuCategory(storeId: String, name: String) = ownerApi.createMenuCategory(storeId, name)
 
-    suspend fun renameMenuCategory(categoryId: Int, name: String) =
-        ownerApi.renameMenuCategory(categoryId, name)
+    suspend fun renameMenuCategory(categoryId: Int, name: String) = ownerApi.renameMenuCategory(categoryId, name)
 
-    suspend fun deleteMenuCategory(categoryId: Int) =
-        ownerApi.deleteMenuCategory(categoryId)
+    suspend fun deleteMenuCategory(categoryId: Int) = ownerApi.deleteMenuCategory(categoryId)
 }

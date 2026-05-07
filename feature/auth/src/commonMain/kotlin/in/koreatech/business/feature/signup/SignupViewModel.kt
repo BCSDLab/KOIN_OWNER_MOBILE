@@ -18,18 +18,36 @@ import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
 enum class SignupStep {
-    Terms, AccountSetup, SmsVerify, EnterPassword, BusinessNumber, StoreName, SearchStore, AttachFile, Complete;
+    Terms,
+    AccountSetup,
+    SmsVerify,
+    EnterPassword,
+    BusinessNumber,
+    StoreName,
+    SearchStore,
+    AttachFile,
+    Complete;
+
     val route: String get() = when (this) {
-        Terms -> "terms"; AccountSetup -> "account"; SmsVerify -> "sms-verify"
-        EnterPassword -> "enter-password"; BusinessNumber -> "business-number"
-        StoreName -> "store-name"; SearchStore -> "search-store"
-        AttachFile -> "attach-file"; Complete -> "complete"
+        Terms -> "terms"
+        AccountSetup -> "account"
+        SmsVerify -> "sms-verify"
+        EnterPassword -> "enter-password"
+        BusinessNumber -> "business-number"
+        StoreName -> "store-name"
+        SearchStore -> "search-store"
+        AttachFile -> "attach-file"
+        Complete -> "complete"
     }
 }
 
 data class TermItem(
-    val id: String, val title: String, val content: String,
-    val isRequired: Boolean, val isAgreed: Boolean = false, val isExpanded: Boolean = false
+    val id: String,
+    val title: String,
+    val content: String,
+    val isRequired: Boolean,
+    val isAgreed: Boolean = false,
+    val isExpanded: Boolean = false
 )
 
 data class SignupUiState(
@@ -38,16 +56,27 @@ data class SignupUiState(
         TermItem("service", "서비스 이용약관 (필수)", "", isRequired = true),
         TermItem("privacy", "개인정보 처리방침 (필수)", "", isRequired = true)
     ),
-    val phoneNumber: String = "", val phoneError: String = "",
-    val smsCode: String = "", val smsToken: String = "", val smsError: String = "",
-    val name: String = "", val password: String = "", val passwordConfirm: String = "",
-    val isPasswordVisible: Boolean = false, val isPasswordConfirmVisible: Boolean = false,
-    val passwordError: String = "", val businessNumber: String = "", val businessNumberError: String = "",
-    val storeName: String = "", val storeNameError: String = "",
+    val phoneNumber: String = "",
+    val phoneError: String = "",
+    val smsCode: String = "",
+    val smsToken: String = "",
+    val smsError: String = "",
+    val name: String = "",
+    val password: String = "",
+    val passwordConfirm: String = "",
+    val isPasswordVisible: Boolean = false,
+    val isPasswordConfirmVisible: Boolean = false,
+    val passwordError: String = "",
+    val businessNumber: String = "",
+    val businessNumberError: String = "",
+    val storeName: String = "",
+    val storeNameError: String = "",
     val searchResults: List<ShopSearchResult> = emptyList(),
-    val selectedShopId: Int? = null, val selectedShopName: String = "",
+    val selectedShopId: Int? = null,
+    val selectedShopName: String = "",
     val shopPhoneNumber: String = "",
-    val attachedFiles: List<PlatformFile> = emptyList(), val attachFileError: String = "",
+    val attachedFiles: List<PlatformFile> = emptyList(),
+    val attachFileError: String = "",
     val isLoading: Boolean = false
 ) {
     val allTermsAgreed: Boolean get() = terms.all { it.isAgreed }
@@ -61,24 +90,29 @@ class SignupViewModel(
     private val registerUseCase: RegisterUseCase,
     private val signOutUseCase: SignOutUseCase,
     private val searchShopsUseCase: SearchShopsUseCase,
-    private val uploadFileUseCase: UploadFileUseCase,
-) : ViewModel(), ContainerHost<SignupUiState, Nothing> {
+    private val uploadFileUseCase: UploadFileUseCase
+) : ViewModel(),
+    ContainerHost<SignupUiState, Nothing> {
     override val container = container<SignupUiState, Nothing>(SignupUiState())
 
-    init { loadTermsContent() }
+    init {
+        loadTermsContent()
+    }
 
     private fun loadTermsContent() = intent {
         try {
             val serviceText = Res.readBytes("files/Terms_koin_sign_up.txt").decodeToString()
             val privacyText = Res.readBytes("files/Terms_personal_information.txt").decodeToString()
             reduce {
-                state.copy(terms = state.terms.map { term ->
-                    when (term.id) {
-                        "service" -> term.copy(content = serviceText)
-                        "privacy" -> term.copy(content = privacyText)
-                        else -> term
+                state.copy(
+                    terms = state.terms.map { term ->
+                        when (term.id) {
+                            "service" -> term.copy(content = serviceText)
+                            "privacy" -> term.copy(content = privacyText)
+                            else -> term
+                        }
                     }
-                })
+                )
             }
         } catch (_: Exception) { }
     }
@@ -184,7 +218,9 @@ class SignupViewModel(
         return true
     }
 
-    fun submitTerms() { if (container.stateFlow.value.requiredTermsAgreed) navigateNext() }
+    fun submitTerms() {
+        if (container.stateFlow.value.requiredTermsAgreed) navigateNext()
+    }
 
     fun submitPhone() = intent {
         val phone = state.phoneNumber
@@ -229,7 +265,10 @@ class SignupViewModel(
                 state.copy(passwordError = "영문, 숫자, 특수문자를 포함한 6~18자 비밀번호를 입력해주세요.")
             }
             state.password != state.passwordConfirm -> reduce { state.copy(passwordError = "비밀번호가 일치하지 않습니다.") }
-            else -> { reduce { state.copy(passwordError = "") }; navigateNext() }
+            else -> {
+                reduce { state.copy(passwordError = "") }
+                navigateNext()
+            }
         }
     }
 

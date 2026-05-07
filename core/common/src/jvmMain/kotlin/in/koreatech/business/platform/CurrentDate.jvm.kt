@@ -4,5 +4,4 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-actual fun getCurrentDateString(): String =
-    SimpleDateFormat("yyyy-MM-dd", Locale.ROOT).format(Date())
+actual fun getCurrentDateString(): String = SimpleDateFormat("yyyy-MM-dd", Locale.ROOT).format(Date())

@@ -30,8 +30,9 @@ class StoreDashboardViewModel(
     private val getStoreEventsUseCase: GetStoreEventsUseCase,
     private val deleteEventUseCase: DeleteEventUseCase,
     private val setActiveStoreIdUseCase: SetActiveStoreIdUseCase,
-    private val observeActiveStoreIdUseCase: ObserveActiveStoreIdUseCase,
-) : ViewModel(), ContainerHost<StoreDashboardUiState, StoreDashboardSideEffect> {
+    private val observeActiveStoreIdUseCase: ObserveActiveStoreIdUseCase
+) : ViewModel(),
+    ContainerHost<StoreDashboardUiState, StoreDashboardSideEffect> {
     override val container = container<StoreDashboardUiState, StoreDashboardSideEffect>(StoreDashboardUiState())
 
     init {
@@ -85,7 +86,9 @@ class StoreDashboardViewModel(
         }
     }
 
-    fun refresh() { load(container.stateFlow.value.activeStore?.uid?.toString()) }
+    fun refresh() {
+        load(container.stateFlow.value.activeStore?.uid?.toString())
+    }
 
     fun toggleEventEditMode() {
         intent(registerIdling = false) {

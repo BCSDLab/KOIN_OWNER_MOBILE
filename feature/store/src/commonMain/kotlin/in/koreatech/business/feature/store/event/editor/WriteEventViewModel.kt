@@ -20,8 +20,9 @@ class WriteEventViewModel(
     private val registerEventUseCase: RegisterEventUseCase,
     private val updateEventUseCase: UpdateEventUseCase,
     private val deleteEventUseCase: DeleteEventUseCase,
-    private val uploadFileUseCase: UploadFileUseCase,
-) : ViewModel(), ContainerHost<WriteEventUiState, WriteEventSideEffect> {
+    private val uploadFileUseCase: UploadFileUseCase
+) : ViewModel(),
+    ContainerHost<WriteEventUiState, WriteEventSideEffect> {
     override val container = container<WriteEventUiState, WriteEventSideEffect>(WriteEventUiState())
 
     fun init(storeId: String, eventId: String? = null) {
@@ -79,13 +80,21 @@ class WriteEventViewModel(
 
     fun submit() {
         intent {
-            if (state.title.isBlank()) { reduce { state.copy(errorMessage = "제목을 입력해주세요.") }; return@intent }
-            if (state.content.isBlank()) { reduce { state.copy(errorMessage = "내용을 입력해주세요.") }; return@intent }
+            if (state.title.isBlank()) {
+                reduce { state.copy(errorMessage = "제목을 입력해주세요.") }
+                return@intent
+            }
+            if (state.content.isBlank()) {
+                reduce { state.copy(errorMessage = "내용을 입력해주세요.") }
+                return@intent
+            }
             if (state.startDate.isBlank() || state.endDate.isBlank()) {
-                reduce { state.copy(errorMessage = "이벤트 기간을 입력해주세요.") }; return@intent
+                reduce { state.copy(errorMessage = "이벤트 기간을 입력해주세요.") }
+                return@intent
             }
             if (!BusinessValidators.isValidDate(state.startDate) || !BusinessValidators.isValidDate(state.endDate)) {
-                reduce { state.copy(errorMessage = "이벤트 기간을 올바르게 선택해주세요.") }; return@intent
+                reduce { state.copy(errorMessage = "이벤트 기간을 올바르게 선택해주세요.") }
+                return@intent
             }
             reduce { state.copy(isLoading = true, errorMessage = "") }
             try {
@@ -126,7 +135,9 @@ class WriteEventViewModel(
         reduce { state.copy(startDate = base, endDate = addDaysToIsoDate(base, days)) }
     }
 
-    fun clearError() { intent(registerIdling = false) { reduce { state.copy(errorMessage = "") } } }
+    fun clearError() {
+        intent(registerIdling = false) { reduce { state.copy(errorMessage = "") } }
+    }
 }
 
 private fun todayIsoString(): String {
@@ -149,8 +160,14 @@ private fun isoToEpochDay(iso: String): Int? {
 }
 
 private fun dateToEpochDay(year: Int, month: Int, day: Int): Int {
-    var y = year; var m = month
-    if (m <= 2) { y -= 1; m += 9 } else { m -= 3 }
+    var y = year
+    var m = month
+    if (m <= 2) {
+        y -= 1
+        m += 9
+    } else {
+        m -= 3
+    }
     val era = if (y >= 0) y / 400 else (y - 399) / 400
     val yoe = y - era * 400
     val doy = (153 * m + 2) / 5 + day - 1

@@ -22,7 +22,7 @@ enum class LaunchState {
     Loading,
     RequiresUpdate,
     Authenticated,
-    Unauthenticated,
+    Unauthenticated
 }
 
 data class AppUiState(
@@ -35,8 +35,9 @@ class AppViewModel(
     private val getAccessTokenUseCase: GetAccessTokenUseCase,
     private val clearTokensUseCase: ClearTokensUseCase,
     private val setActiveStoreIdUseCase: SetActiveStoreIdUseCase,
-    private val observeThemeModeUseCase: ObserveThemeModeUseCase,
-) : ViewModel(), ContainerHost<AppUiState, Nothing> {
+    private val observeThemeModeUseCase: ObserveThemeModeUseCase
+) : ViewModel(),
+    ContainerHost<AppUiState, Nothing> {
     override val container = container<AppUiState, Nothing>(AppUiState())
 
     private val _launchState = MutableStateFlow(LaunchState.Loading)

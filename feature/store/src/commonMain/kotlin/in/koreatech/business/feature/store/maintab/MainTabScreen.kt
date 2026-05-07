@@ -25,8 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.BackHandler
 import androidx.compose.ui.graphics.vector.ImageVector
 import `in`.koreatech.business.ui.theme.KoinTheme
-import koreatech.business.designsystem.resources.Res
 import koreatech.business.designsystem.resources.*
+import koreatech.business.designsystem.resources.Res
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -62,20 +62,20 @@ fun MainTabScreen(
             selectedTextColor = selectedColor,
             indicatorColor = indicatorColor,
             unselectedIconColor = unselectedColor,
-            unselectedTextColor = unselectedColor,
+            unselectedTextColor = unselectedColor
         ),
         navigationRailItemColors = NavigationRailItemDefaults.colors(
             selectedIconColor = selectedColor,
             selectedTextColor = selectedColor,
             indicatorColor = indicatorColor,
             unselectedIconColor = unselectedColor,
-            unselectedTextColor = unselectedColor,
+            unselectedTextColor = unselectedColor
         ),
         navigationDrawerItemColors = NavigationDrawerItemDefaults.colors(
             selectedIconColor = selectedColor,
             selectedTextColor = selectedColor,
             unselectedIconColor = unselectedColor,
-            unselectedTextColor = unselectedColor,
+            unselectedTextColor = unselectedColor
         )
     )
 

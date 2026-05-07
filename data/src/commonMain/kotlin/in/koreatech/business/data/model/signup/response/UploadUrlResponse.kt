@@ -8,5 +8,5 @@ data class UploadUrlResponse(
     @SerialName("pre_signed_url")
     val preSignedUrl: String,
     @SerialName("file_url")
-    val fileUrl: String,
+    val fileUrl: String
 )

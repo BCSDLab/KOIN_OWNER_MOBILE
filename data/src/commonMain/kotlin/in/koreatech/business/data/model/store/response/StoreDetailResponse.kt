@@ -1,6 +1,5 @@
 package `in`.koreatech.business.data.model.store.response
 
-import `in`.koreatech.business.domain.model.OperatingTime
 import `in`.koreatech.business.domain.model.StoreDetail
 import `in`.koreatech.business.domain.model.defaultOperatingTimes
 import kotlinx.serialization.SerialName

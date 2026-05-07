@@ -21,8 +21,9 @@ class MenuEditorViewModel(
     private val registerMenuUseCase: RegisterMenuUseCase,
     private val updateMenuUseCase: UpdateMenuUseCase,
     private val deleteMenuUseCase: DeleteMenuUseCase,
-    private val uploadFileUseCase: UploadFileUseCase,
-) : ViewModel(), ContainerHost<MenuEditorUiState, MenuEditorSideEffect> {
+    private val uploadFileUseCase: UploadFileUseCase
+) : ViewModel(),
+    ContainerHost<MenuEditorUiState, MenuEditorSideEffect> {
     override val container = container<MenuEditorUiState, MenuEditorSideEffect>(MenuEditorUiState())
 
     fun init(storeId: String, menuId: String?) {
@@ -55,7 +56,9 @@ class MenuEditorViewModel(
                             existingImageUrls = menu.imageUrls,
                             singlePrice = if (menu.optionPrices.size == 1 && menu.optionPrices.first().option.isBlank()) {
                                 menu.optionPrices.first().price.toString()
-                            } else { "" },
+                            } else {
+                                ""
+                            },
                             optionPrices = if (menu.optionPrices.isEmpty() || (menu.optionPrices.size == 1 && menu.optionPrices.first().option.isBlank())) {
                                 emptyList()
                             } else {
@@ -133,14 +136,27 @@ class MenuEditorViewModel(
 
     fun submit() {
         intent {
-            if (state.name.isBlank()) { reduce { state.copy(errorMessage = "메뉴 이름을 입력해주세요.") }; return@intent }
-            val hasOptions = state.optionPrices.isNotEmpty()
-            if (!hasOptions && state.singlePrice.isBlank()) { reduce { state.copy(errorMessage = "가격을 입력해주세요.") }; return@intent }
-            if (hasOptions && state.optionPrices.any { it.option.isBlank() || it.price.isBlank() }) {
-                reduce { state.copy(errorMessage = "옵션명과 가격을 모두 입력해주세요.") }; return@intent
+            if (state.name.isBlank()) {
+                reduce { state.copy(errorMessage = "메뉴 이름을 입력해주세요.") }
+                return@intent
             }
-            if (state.menuCategories.isEmpty()) { reduce { state.copy(errorMessage = "카테고리를 먼저 생성해주세요.") }; return@intent }
-            if (state.selectedCategoryIds.isEmpty()) { reduce { state.copy(errorMessage = "카테고리를 선택해주세요.") }; return@intent }
+            val hasOptions = state.optionPrices.isNotEmpty()
+            if (!hasOptions && state.singlePrice.isBlank()) {
+                reduce { state.copy(errorMessage = "가격을 입력해주세요.") }
+                return@intent
+            }
+            if (hasOptions && state.optionPrices.any { it.option.isBlank() || it.price.isBlank() }) {
+                reduce { state.copy(errorMessage = "옵션명과 가격을 모두 입력해주세요.") }
+                return@intent
+            }
+            if (state.menuCategories.isEmpty()) {
+                reduce { state.copy(errorMessage = "카테고리를 먼저 생성해주세요.") }
+                return@intent
+            }
+            if (state.selectedCategoryIds.isEmpty()) {
+                reduce { state.copy(errorMessage = "카테고리를 선택해주세요.") }
+                return@intent
+            }
 
             reduce { state.copy(isLoading = true, errorMessage = "") }
             try {
@@ -150,19 +166,30 @@ class MenuEditorViewModel(
                 val submittedPrice = if (hasOptions) null else state.singlePrice.toIntOrNull()
                 val domainOptionPrices = if (hasOptions) {
                     state.optionPrices.map { MenuOptionPrice(option = it.option, price = it.price.toIntOrNull() ?: 0) }
-                } else { emptyList() }
+                } else {
+                    emptyList()
+                }
 
                 if (state.isEditMode && state.menuId != null) {
                     updateMenuUseCase(
-                        storeId = storeId, menuId = state.menuId!!, name = state.name,
-                        price = submittedPrice, description = state.description, imageUrls = allImageUrls,
-                        optionPrices = domainOptionPrices, categoryIds = state.selectedCategoryIds
+                        storeId = storeId,
+                        menuId = state.menuId!!,
+                        name = state.name,
+                        price = submittedPrice,
+                        description = state.description,
+                        imageUrls = allImageUrls,
+                        optionPrices = domainOptionPrices,
+                        categoryIds = state.selectedCategoryIds
                     )
                 } else {
                     registerMenuUseCase(
-                        storeId = storeId, name = state.name, price = submittedPrice,
-                        description = state.description, imageUrls = allImageUrls,
-                        optionPrices = domainOptionPrices, categoryIds = state.selectedCategoryIds
+                        storeId = storeId,
+                        name = state.name,
+                        price = submittedPrice,
+                        description = state.description,
+                        imageUrls = allImageUrls,
+                        optionPrices = domainOptionPrices,
+                        categoryIds = state.selectedCategoryIds
                     )
                 }
                 reduce { state.copy(isLoading = false) }
@@ -173,7 +200,9 @@ class MenuEditorViewModel(
         }
     }
 
-    fun clearError() { intent(registerIdling = false) { reduce { state.copy(errorMessage = "") } } }
+    fun clearError() {
+        intent(registerIdling = false) { reduce { state.copy(errorMessage = "") } }
+    }
 
     fun deleteMenu() {
         intent {

@@ -13,6 +13,12 @@ class RegisterMenuUseCase(private val repository: StoreRepository) {
         optionPrices: List<MenuOptionPrice>,
         categoryIds: List<Int>
     ) = repository.registerMenu(
-        storeId, name, price, description, imageUrls, optionPrices, categoryIds
+        storeId,
+        name,
+        price,
+        description,
+        imageUrls,
+        optionPrices,
+        categoryIds
     )
 }

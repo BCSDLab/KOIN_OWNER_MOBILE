@@ -268,12 +268,10 @@ class StoreRepositoryImpl(
         }
     }
 
-    override suspend fun getStoreCategories(): List<StoreCategory> {
-        return try {
-            ownerRemoteDataSource.getStoreCategories().categoryToDomainList()
-        } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
-        }
+    override suspend fun getStoreCategories(): List<StoreCategory> = try {
+        ownerRemoteDataSource.getStoreCategories().categoryToDomainList()
+    } catch (exception: Exception) {
+        throw IllegalStateException(exception.toUserMessage(), exception)
     }
 
     override suspend fun registerStore(

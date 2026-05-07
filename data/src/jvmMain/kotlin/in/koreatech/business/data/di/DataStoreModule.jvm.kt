@@ -6,15 +6,15 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import `in`.koreatech.business.data.utils.createDataStore
 import `in`.koreatech.business.data.utils.dataStoreFileName
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
-import org.koin.core.scope.Scope
 import java.io.File
 import java.util.Base64
 import javax.crypto.Cipher
 import javax.crypto.KeyGenerator
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
+import org.koin.core.scope.Scope
 
 private val appDataDir: File
     get() = File(System.getProperty("user.home"), ".koin_owner").also { it.mkdirs() }
@@ -22,11 +22,9 @@ private val appDataDir: File
 private var dataStoreInstance: DataStore<Preferences>? = null
 
 actual class DataStoreModule {
-    actual fun provideDataStore(scope: Scope): DataStore<Preferences> {
-        return dataStoreInstance ?: createDataStore(
-            producePath = { appDataDir.resolve(dataStoreFileName).absolutePath }
-        ).also { dataStoreInstance = it }
-    }
+    actual fun provideDataStore(scope: Scope): DataStore<Preferences> = dataStoreInstance ?: createDataStore(
+        producePath = { appDataDir.resolve(dataStoreFileName).absolutePath }
+    ).also { dataStoreInstance = it }
 }
 
 actual class EncryptedDataStore actual constructor(scope: Scope) {

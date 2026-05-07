@@ -1,6 +1,6 @@
 @file:OptIn(
     androidx.compose.material3.ExperimentalMaterial3Api::class,
-    androidx.compose.ui.ExperimentalComposeUiApi::class,
+    androidx.compose.ui.ExperimentalComposeUiApi::class
 )
 
 package `in`.koreatech.business.feature.store.maintab

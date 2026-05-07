@@ -24,9 +24,7 @@ fun termToPolicySection(termCategory: TermCategory): Pair<String, List<PolicySec
     return@runBlocking Pair(term.header, term.articles.map { it.toPolicySection() })
 }
 
-private fun TermArticle.toPolicySection(): PolicySection {
-    return PolicySection(
-        heading = article,
-        body = content.joinToString("\n")
-    )
-}
+private fun TermArticle.toPolicySection(): PolicySection = PolicySection(
+    heading = article,
+    body = content.joinToString("\n")
+)

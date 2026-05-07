@@ -31,82 +31,66 @@ class OwnerApi(private val httpClient: HttpClient) {
 
     suspend fun getMyShopList(): OwnerStoreListResponse = httpClient.get("/owner/shops").body()
 
-    suspend fun getUploadUrl(request: UploadUrlRequest): UploadUrlResponse =
-        httpClient.post("/market/upload/url") {
-            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-            setBody(request)
-        }.body()
+    suspend fun getUploadUrl(request: UploadUrlRequest): UploadUrlResponse = httpClient.post("/market/upload/url") {
+        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+        setBody(request)
+    }.body()
 
-    suspend fun getStoreDetail(storeId: String): StoreDetailResponse =
-        httpClient.get("/owner/shops/$storeId").body()
+    suspend fun getStoreDetail(storeId: String): StoreDetailResponse = httpClient.get("/owner/shops/$storeId").body()
 
-    suspend fun getStoreMenus(storeId: String): StoreMenusResponse =
-        httpClient.get("/owner/shops/menus") {
-            parameter("shopId", storeId)
-        }.body()
+    suspend fun getStoreMenus(storeId: String): StoreMenusResponse = httpClient.get("/owner/shops/menus") {
+        parameter("shopId", storeId)
+    }.body()
 
-    suspend fun getMenuCategories(storeId: String): MenuCategoriesResponse =
-        httpClient.get("/owner/shops/menus/categories") {
-            parameter("shopId", storeId)
-        }.body()
+    suspend fun getMenuCategories(storeId: String): MenuCategoriesResponse = httpClient.get("/owner/shops/menus/categories") {
+        parameter("shopId", storeId)
+    }.body()
 
-    suspend fun getStoreEvents(storeId: String): StoreEventsResponse =
-        httpClient.get("/owner/shops/$storeId/event").body()
+    suspend fun getStoreEvents(storeId: String): StoreEventsResponse = httpClient.get("/owner/shops/$storeId/event").body()
 
-    suspend fun deleteMenu(menuId: String) =
-        httpClient.delete("/owner/shops/menus/$menuId")
+    suspend fun deleteMenu(menuId: String) = httpClient.delete("/owner/shops/menus/$menuId")
 
-    suspend fun registerMenu(storeId: String, request: RegisterMenuRequest) =
-        httpClient.post("/owner/shops/$storeId/menus") {
-            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-            setBody(request)
-        }
+    suspend fun registerMenu(storeId: String, request: RegisterMenuRequest) = httpClient.post("/owner/shops/$storeId/menus") {
+        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+        setBody(request)
+    }
 
-    suspend fun updateMenu(menuId: String, request: RegisterMenuRequest) =
-        httpClient.put("/owner/shops/menus/$menuId") {
-            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-            setBody(request)
-        }
+    suspend fun updateMenu(menuId: String, request: RegisterMenuRequest) = httpClient.put("/owner/shops/menus/$menuId") {
+        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+        setBody(request)
+    }
 
-    suspend fun registerEvent(storeId: String, request: RegisterEventRequest) =
-        httpClient.post("/owner/shops/$storeId/event") {
-            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-            setBody(request)
-        }
+    suspend fun registerEvent(storeId: String, request: RegisterEventRequest) = httpClient.post("/owner/shops/$storeId/event") {
+        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+        setBody(request)
+    }
 
-    suspend fun deleteEvent(storeId: String, eventId: String) =
-        httpClient.delete("/owner/shops/$storeId/events/$eventId")
+    suspend fun deleteEvent(storeId: String, eventId: String) = httpClient.delete("/owner/shops/$storeId/events/$eventId")
 
-    suspend fun updateEvent(storeId: String, eventId: String, request: RegisterEventRequest) =
-        httpClient.put("/owner/shops/$storeId/events/$eventId") {
-            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-            setBody(request)
-        }
+    suspend fun updateEvent(storeId: String, eventId: String, request: RegisterEventRequest) = httpClient.put("/owner/shops/$storeId/events/$eventId") {
+        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+        setBody(request)
+    }
 
-    suspend fun updateStoreInfo(storeId: String, request: UpdateStoreInfoRequest) =
-        httpClient.put("/owner/shops/$storeId") {
-            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-            setBody(request)
-        }
+    suspend fun updateStoreInfo(storeId: String, request: UpdateStoreInfoRequest) = httpClient.put("/owner/shops/$storeId") {
+        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+        setBody(request)
+    }
 
-    suspend fun registerStore(request: RegisterStoreRequest) =
-        httpClient.post("/owner/shops") {
-            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-            setBody(request)
-        }
+    suspend fun registerStore(request: RegisterStoreRequest) = httpClient.post("/owner/shops") {
+        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+        setBody(request)
+    }
 
-    suspend fun createMenuCategory(storeId: String, name: String) =
-        httpClient.post("/owner/shops/$storeId/menus/categories") {
-            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-            setBody(CreateMenuCategoryRequest(name = name))
-        }
+    suspend fun createMenuCategory(storeId: String, name: String) = httpClient.post("/owner/shops/$storeId/menus/categories") {
+        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+        setBody(CreateMenuCategoryRequest(name = name))
+    }
 
-    suspend fun renameMenuCategory(categoryId: Int, name: String) =
-        httpClient.put("/owner/shops/menus/categories/$categoryId") {
-            header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
-            setBody(ModifyMenuCategoryRequest(id = categoryId, name = name))
-        }
+    suspend fun renameMenuCategory(categoryId: Int, name: String) = httpClient.put("/owner/shops/menus/categories/$categoryId") {
+        header(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+        setBody(ModifyMenuCategoryRequest(id = categoryId, name = name))
+    }
 
-    suspend fun deleteMenuCategory(categoryId: Int) =
-        httpClient.delete("/owner/shops/menus/categories/$categoryId")
+    suspend fun deleteMenuCategory(categoryId: Int) = httpClient.delete("/owner/shops/menus/categories/$categoryId")
 }

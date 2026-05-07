@@ -14,7 +14,7 @@ val defaultOperatingTimes: List<OperatingTime> = listOf(
     OperatingTime(dayOfWeek = "THURSDAY", openTime = "00:00", closeTime = "00:00"),
     OperatingTime(dayOfWeek = "FRIDAY", openTime = "00:00", closeTime = "00:00"),
     OperatingTime(dayOfWeek = "SATURDAY", openTime = "00:00", closeTime = "00:00"),
-    OperatingTime(dayOfWeek = "SUNDAY", openTime = "00:00", closeTime = "00:00"),
+    OperatingTime(dayOfWeek = "SUNDAY", openTime = "00:00", closeTime = "00:00")
 )
 
 val dayOfWeekLabels: Map<String, String> = mapOf(
@@ -24,5 +24,5 @@ val dayOfWeekLabels: Map<String, String> = mapOf(
     "THURSDAY" to "목",
     "FRIDAY" to "금",
     "SATURDAY" to "토",
-    "SUNDAY" to "일",
+    "SUNDAY" to "일"
 )

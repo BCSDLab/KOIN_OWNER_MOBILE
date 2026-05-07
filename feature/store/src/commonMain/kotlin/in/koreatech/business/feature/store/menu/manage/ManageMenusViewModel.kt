@@ -15,8 +15,9 @@ import org.orbitmvi.orbit.viewmodel.container
 class ManageMenusViewModel(
     private val getStoreMenusUseCase: GetStoreMenusUseCase,
     private val deleteMenuUseCase: DeleteMenuUseCase,
-    private val observeActiveStoreIdUseCase: ObserveActiveStoreIdUseCase,
-) : ViewModel(), ContainerHost<ManageMenusUiState, ManageMenusSideEffect> {
+    private val observeActiveStoreIdUseCase: ObserveActiveStoreIdUseCase
+) : ViewModel(),
+    ContainerHost<ManageMenusUiState, ManageMenusSideEffect> {
     override val container = container<ManageMenusUiState, ManageMenusSideEffect>(ManageMenusUiState())
 
     init {
@@ -52,7 +53,10 @@ class ManageMenusViewModel(
         }
     }
 
-    fun refresh() { val storeId = container.stateFlow.value.storeId ?: return; load(storeId) }
+    fun refresh() {
+        val storeId = container.stateFlow.value.storeId ?: return
+        load(storeId)
+    }
 
     fun clearError() {
         intent(registerIdling = false) { reduce { state.copy(errorMessage = "") } }

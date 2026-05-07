@@ -15,10 +15,20 @@ import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
 enum class InsertStoreStep {
-    Start, SelectCategory, BasicInfo, DetailInfo, FinalCheck, Complete;
+    Start,
+    SelectCategory,
+    BasicInfo,
+    DetailInfo,
+    FinalCheck,
+    Complete;
+
     val route: String get() = when (this) {
-        Start -> "start"; SelectCategory -> "select-category"; BasicInfo -> "basic-info"
-        DetailInfo -> "detail-info"; FinalCheck -> "final-check"; Complete -> "complete"
+        Start -> "start"
+        SelectCategory -> "select-category"
+        BasicInfo -> "basic-info"
+        DetailInfo -> "detail-info"
+        FinalCheck -> "final-check"
+        Complete -> "complete"
     }
 }
 
@@ -47,11 +57,14 @@ data class InsertStoreUiState(
 class InsertStoreViewModel(
     private val getStoreCategoriesUseCase: GetStoreCategoriesUseCase,
     private val registerStoreUseCase: RegisterStoreUseCase,
-    private val uploadFileUseCase: UploadFileUseCase,
-) : ViewModel(), ContainerHost<InsertStoreUiState, Nothing> {
+    private val uploadFileUseCase: UploadFileUseCase
+) : ViewModel(),
+    ContainerHost<InsertStoreUiState, Nothing> {
     override val container = container<InsertStoreUiState, Nothing>(InsertStoreUiState())
 
-    init { loadCategories() }
+    init {
+        loadCategories()
+    }
 
     private fun loadCategories() = intent {
         reduce { state.copy(isLoading = true) }
@@ -67,23 +80,44 @@ class InsertStoreViewModel(
         val next = when (state.step) {
             InsertStoreStep.Start -> InsertStoreStep.SelectCategory
             InsertStoreStep.SelectCategory -> {
-                if (state.selectedCategoryId == -1) { reduce { state.copy(errorMessage = "카테고리를 선택해주세요.") }; return@intent }
+                if (state.selectedCategoryId == -1) {
+                    reduce { state.copy(errorMessage = "카테고리를 선택해주세요.") }
+                    return@intent
+                }
                 InsertStoreStep.BasicInfo
             }
             InsertStoreStep.BasicInfo -> {
                 when {
-                    state.name.isBlank() -> { reduce { state.copy(errorMessage = "매장명을 입력해주세요.") }; return@intent }
-                    state.address.isBlank() -> { reduce { state.copy(errorMessage = "주소를 입력해주세요.") }; return@intent }
-                    state.phone.isBlank() -> { reduce { state.copy(errorMessage = "전화번호를 입력해주세요.") }; return@intent }
-                    !BusinessValidators.isValidPhone(state.phone) -> { reduce { state.copy(errorMessage = "올바른 전화번호를 입력해주세요.") }; return@intent }
+                    state.name.isBlank() -> {
+                        reduce { state.copy(errorMessage = "매장명을 입력해주세요.") }
+                        return@intent
+                    }
+                    state.address.isBlank() -> {
+                        reduce { state.copy(errorMessage = "주소를 입력해주세요.") }
+                        return@intent
+                    }
+                    state.phone.isBlank() -> {
+                        reduce { state.copy(errorMessage = "전화번호를 입력해주세요.") }
+                        return@intent
+                    }
+                    !BusinessValidators.isValidPhone(state.phone) -> {
+                        reduce { state.copy(errorMessage = "올바른 전화번호를 입력해주세요.") }
+                        return@intent
+                    }
                 }
                 InsertStoreStep.DetailInfo
             }
             InsertStoreStep.DetailInfo -> {
-                if (state.description.isBlank()) { reduce { state.copy(errorMessage = "소개글을 입력해주세요.") }; return@intent }
+                if (state.description.isBlank()) {
+                    reduce { state.copy(errorMessage = "소개글을 입력해주세요.") }
+                    return@intent
+                }
                 InsertStoreStep.FinalCheck
             }
-            InsertStoreStep.FinalCheck -> { submit(); return@intent }
+            InsertStoreStep.FinalCheck -> {
+                submit()
+                return@intent
+            }
             InsertStoreStep.Complete -> InsertStoreStep.Complete
         }
         reduce { state.copy(step = next, errorMessage = "") }

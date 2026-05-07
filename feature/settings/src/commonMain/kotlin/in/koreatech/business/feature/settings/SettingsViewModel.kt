@@ -22,8 +22,9 @@ data class SettingsUiState(
 class SettingsViewModel(
     private val observeThemeModeUseCase: ObserveThemeModeUseCase,
     private val setThemeModeUseCase: SetThemeModeUseCase,
-    private val getOwnerProfileUseCase: GetOwnerProfileUseCase,
-) : ViewModel(), ContainerHost<SettingsUiState, Nothing> {
+    private val getOwnerProfileUseCase: GetOwnerProfileUseCase
+) : ViewModel(),
+    ContainerHost<SettingsUiState, Nothing> {
     override val container = container<SettingsUiState, Nothing>(SettingsUiState())
 
     init {
