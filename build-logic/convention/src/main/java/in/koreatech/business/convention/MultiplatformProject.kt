@@ -41,6 +41,11 @@ internal fun Project.configureMultiplatformProject(
             commonMain.configure {
                 kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
             }
+            commonTest.dependencies {
+                implementation(libs.findLibrary("kotlin-test").get())
+                implementation(libs.findLibrary("kotlinx-coroutines-test").get())
+                implementation(libs.findLibrary("turbine").get())
+            }
         }
     }
 

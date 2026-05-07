@@ -19,6 +19,9 @@ kotlin {
             implementation(libs.androidx.navigation.compose)
             implementation(compose.materialIconsExtended)
         }
+        commonTest.dependencies {
+            implementation(libs.orbit.test)
+        }
     }
 }
 

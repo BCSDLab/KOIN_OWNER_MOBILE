@@ -81,6 +81,36 @@ jobs:
           path: '**/build/reports/ktlint/**'
           retention-days: 7
 
+  test:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/gradle-setup
+        with:
+          properties: ${{ secrets.PROPERTIES }}
+
+      - name: Run JVM tests
+        run: ./gradlew jvmTest
+
+      - name: Upload test reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-reports
+          path: '**/build/reports/tests/**'
+          retention-days: 7
+
+      - name: Upload test results (XML)
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: '**/build/test-results/**/*.xml'
+          retention-days: 7
+
   label:
     name: Add CI Label
     needs: [ lint ]
