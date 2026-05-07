@@ -84,7 +84,6 @@ jobs:
   test:
     name: Unit Tests
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - uses: actions/checkout@v4
 
@@ -111,9 +110,22 @@ jobs:
           path: '**/build/test-results/**/*.xml'
           retention-days: 7
 
+  android-build:
+    name: Android Debug Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/gradle-setup
+        with:
+          properties: ${{ secrets.PROPERTIES }}
+
+      - name: Assemble Android debug APK
+        run: ./gradlew :composeApp:assembleDebug
+
   label:
     name: Add CI Label
-    needs: [ lint ]
+    needs: [ lint, test, android-build ]
     runs-on: ubuntu-latest
     if: needs.lint.result == 'success'
     permissions:

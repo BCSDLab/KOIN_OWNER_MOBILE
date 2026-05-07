@@ -19,8 +19,9 @@ runs:
       env:
         PROPERTIES: ${{ inputs.properties }}
       run: |
+        # `--decode` (long form) is portable across GNU and BSD base64; `-d` is GNU-only.
         if [ -n "$PROPERTIES" ]; then
-          printf '%s' "$PROPERTIES" | tr -d '\n\r ' | base64 -d > ./local.properties
+          printf '%s' "$PROPERTIES" | tr -d '\n\r ' | base64 --decode > ./local.properties
         else
           echo "PROPERTIES secret is empty — skipping local.properties creation"
         fi
