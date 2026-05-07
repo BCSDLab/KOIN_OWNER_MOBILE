@@ -8,10 +8,6 @@ expect class DataStoreModule() {
     fun provideDataStore(scope: Scope): DataStore<Preferences>
 }
 
-class EncryptedDataStoreModule {
-    fun provideEncryptedDataStore(scope: Scope): EncryptedDataStore = EncryptedDataStore(scope)
-}
-
 expect class EncryptedDataStore(scope: Scope) {
     fun createData(key: String, value: String)
     fun readData(key: String): String?

@@ -27,12 +27,12 @@ import coil3.ImageLoader
 import coil3.PlatformContext
 import coil3.SingletonImageLoader
 import coil3.network.ktor3.KtorNetworkFetcherFactory
+import `in`.koreatech.business.data.di.dataSourceModule
+import `in`.koreatech.business.data.di.networkModule
+import `in`.koreatech.business.data.di.repositoryModule
 import `in`.koreatech.business.di.appModule
-import `in`.koreatech.business.di.dataSourceDslModule
 import `in`.koreatech.business.di.dataStoreModule
 import `in`.koreatech.business.di.encryptedDataStoreModule
-import `in`.koreatech.business.di.networkDslModule
-import `in`.koreatech.business.di.repositoryDslModule
 import `in`.koreatech.business.di.useCaseModule
 import `in`.koreatech.business.domain.model.ThemeMode
 import `in`.koreatech.business.feature.auth.di.authModule
@@ -175,9 +175,9 @@ fun businessAppDeclaration(additionalDeclaration: KoinApplication.() -> Unit = {
     modules(
         dataStoreModule,
         encryptedDataStoreModule,
-        networkDslModule,
-        dataSourceDslModule,
-        repositoryDslModule,
+        networkModule,
+        dataSourceModule,
+        repositoryModule,
         useCaseModule,
         appModule,
         authModule,
