@@ -10,12 +10,11 @@
     kotlinx.serialization.KSerializer serializer(...);
 }
 
-# Koin
--keep class org.koin.** { *; }
+# Koin runtime resolves bindings by qualified class name; keep names but
+# allow member shrinking and obfuscation of unused internals.
+-keepnames class org.koin.**
 
-# Ktor (consumer rules included in AAR, but explicit for safety)
--keep class io.ktor.** { *; }
-
-# Ktor references JVM-only classes not present on Android
+# Ktor 3.x ships consumer ProGuard rules in its AARs; we trust those.
+# Keep only the JVM-only references that Ktor pulls in but Android does not have.
 -dontwarn java.lang.management.ManagementFactory
 -dontwarn java.lang.management.RuntimeMXBean

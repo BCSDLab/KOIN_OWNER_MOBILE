@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.business.feature)
-    alias(libs.plugins.business.orbit)
 }
 
 kotlin {

@@ -2,7 +2,7 @@ root = true
 
 
 [*.{kt,kts}]
-ij_kotlin_packages_to_use_import_on_demand = koin_owner_mobile.composeapp.generated.resources
+ij_kotlin_packages_to_use_import_on_demand = koreatech.business.designsystem.resources
 ktlint_code_style = android_studio
 ktlint_standard_annotation = disabled
 ktlint_standard_package-name = disabled

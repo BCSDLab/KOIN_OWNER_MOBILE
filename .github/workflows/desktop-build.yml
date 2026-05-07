@@ -28,6 +28,11 @@ jobs:
             task: packageMsi
             artifact-name: KoinOwner-Windows-msi
             artifact-path: composeApp/build/compose/binaries/main/msi/*.msi
+          - os: ubuntu-latest
+            label: Linux (DEB)
+            task: packageDeb
+            artifact-name: KoinOwner-Linux-deb
+            artifact-path: composeApp/build/compose/binaries/main/deb/*.deb
 
     steps:
       - uses: actions/checkout@v4
