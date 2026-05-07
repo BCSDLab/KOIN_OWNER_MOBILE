@@ -17,8 +17,15 @@ import `in`.koreatech.business.LaunchState
 import `in`.koreatech.business.LoadingRouteScreen
 import `in`.koreatech.business.feature.auth.navigation.AuthGraph
 import `in`.koreatech.business.feature.auth.navigation.authGraph
+import `in`.koreatech.business.feature.findpassword.navigation.navigateToPasswordReset
+import `in`.koreatech.business.feature.findpassword.navigation.passwordResetGraph
+import `in`.koreatech.business.feature.insertstore.navigation.InsertStoreGraph
+import `in`.koreatech.business.feature.insertstore.navigation.insertStoreGraph
+import `in`.koreatech.business.feature.settings.navigation.navigateToOSSLicenses
+import `in`.koreatech.business.feature.settings.navigation.navigateToPrivacyPolicy
+import `in`.koreatech.business.feature.settings.navigation.navigateToServiceTerms
+import `in`.koreatech.business.feature.settings.navigation.settingsGraph
 import `in`.koreatech.business.feature.store.navigation.StoreGraph
-import `in`.koreatech.business.feature.store.navigation.navigateToStoreForRegister
 import `in`.koreatech.business.feature.store.navigation.storeGraph
 import kotlinx.serialization.Serializable
 
@@ -95,8 +102,26 @@ internal fun AppNavigation(
                 appViewModel.deleteAccount()
                 rootNavController.replaceRoot(AuthGraph)
             },
+            onNavigateToInsertStore = { rootNavController.navigate(InsertStoreGraph) },
+            onNavigateToPasswordReset = { rootNavController.navigateToPasswordReset() },
+            onNavigateToPrivacyPolicy = { rootNavController.navigateToPrivacyPolicy() },
+            onNavigateToServiceTerms = { rootNavController.navigateToServiceTerms() },
+            onNavigateToOSSLicenses = { rootNavController.navigateToOSSLicenses() }
+        )
+
+        insertStoreGraph(
+            navController = rootNavController,
+            onNavigateBack = {
+                if (!rootNavController.popBackStack()) {
+                    rootNavController.replaceRoot(StoreGraph)
+                }
+            },
             onNavigateToStoreMain = { rootNavController.replaceRoot(StoreGraph) }
         )
+
+        passwordResetGraph(navController = rootNavController)
+
+        settingsGraph(navController = rootNavController)
     }
 }
 
@@ -105,4 +130,12 @@ private fun NavController.replaceRoot(route: Any) {
         popUpTo(graph.id) { inclusive = true }
         launchSingleTop = true
     }
+}
+
+private fun NavController.navigateToStoreForRegister() {
+    navigate(StoreGraph) {
+        popUpTo(graph.id) { inclusive = true }
+        launchSingleTop = true
+    }
+    navigate(InsertStoreGraph)
 }

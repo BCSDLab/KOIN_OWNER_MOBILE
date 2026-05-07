@@ -12,11 +12,9 @@ kotlin {
             implementation(projects.core.ui)
             implementation(projects.domain)
             implementation(projects.data)
-            // Cross-feature: store renders settings screens (ThemeSettings/Privacy/Terms/OSS)
-            // and embeds findpassword/insertstore navigation graphs.
+            // Tab "More" surfaces theme + owner profile via SettingsViewModel.
+            // Decoupling further would need extracting that VM up the module graph.
             implementation(projects.feature.settings)
-            implementation(projects.feature.auth)
-            implementation(projects.feature.insertstore)
             implementation(libs.compose.ui.backhandler)
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
