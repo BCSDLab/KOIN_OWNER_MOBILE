@@ -1,5 +1,6 @@
 package `in`.koreatech.business.feature.signin
 
+import `in`.koreatech.business.domain.error.DomainError
 import `in`.koreatech.business.domain.model.owner.OwnerProfile
 import `in`.koreatech.business.domain.model.owner.OwnerStore
 import `in`.koreatech.business.domain.model.signup.ShopSearchResult
@@ -30,8 +31,10 @@ class SignInViewModelTest {
         Dispatchers.resetMain()
     }
 
-    private fun newViewModel(): SignInViewModel = SignInViewModel(
-        signInUseCase = SignInUseCase(FakeAuthRepository()),
+    private fun newViewModel(
+        signInError: DomainError? = null
+    ): SignInViewModel = SignInViewModel(
+        signInUseCase = SignInUseCase(FakeAuthRepository(signInError)),
         getShopListUseCase = GetShopListUseCase(FakeOwnerRepository())
     )
 
@@ -74,10 +77,34 @@ class SignInViewModelTest {
             }
         }
     }
+
+    @Test
+    fun submitSurfacesAuthErrorMessage() = runTest {
+        val authFailure = DomainError.Auth("전화번호 또는 비밀번호가 잘못되었습니다.")
+        newViewModel(signInError = authFailure).test(
+            this,
+            SignInUiState(phoneNumber = "01011113333", password = "wrongpass")
+        ) {
+            runOnCreate()
+            containerHost.submit()
+            expectState { copy(isLoading = true, notValidateField = false, errorMessage = "") }
+            expectState {
+                copy(
+                    isLoading = false,
+                    notValidateField = true,
+                    errorMessage = "전화번호 또는 비밀번호가 잘못되었습니다."
+                )
+            }
+        }
+    }
 }
 
-private class FakeAuthRepository : AuthRepository {
-    override suspend fun signIn(phoneNumber: String, password: String) = Unit
+private class FakeAuthRepository(
+    private val signInError: DomainError? = null
+) : AuthRepository {
+    override suspend fun signIn(phoneNumber: String, password: String) {
+        signInError?.let { throw it }
+    }
     override suspend fun signOut() = Unit
     override suspend fun deleteAccount() = Unit
     override suspend fun checkPhoneExists(phoneNumber: String): Boolean = false

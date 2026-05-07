@@ -12,7 +12,6 @@ import `in`.koreatech.business.domain.usecase.owner.UploadFileUseCase
 import `in`.koreatech.business.platform.PlatformFile
 import `in`.koreatech.business.ui.util.BusinessFormatters
 import `in`.koreatech.business.ui.util.BusinessValidators
-import `in`.koreatech.business.ui.util.blockingIntent
 import koreatech.business.designsystem.resources.Res
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
@@ -130,39 +129,39 @@ class SignupViewModel(
         reduce { state.copy(terms = state.terms.map { if (it.id == id) it.copy(isExpanded = !it.isExpanded) else it }) }
     }
 
-    fun onPhoneNumberChanged(value: String) = blockingIntent {
+    fun onPhoneNumberChanged(value: String) = intent {
         reduce { state.copy(phoneNumber = BusinessFormatters.digitsOnly(value, 11), phoneError = "") }
     }
 
-    fun onSmsCodeChanged(value: String) = blockingIntent {
+    fun onSmsCodeChanged(value: String) = intent {
         reduce { state.copy(smsCode = BusinessFormatters.digitsOnly(value, 6), smsError = "") }
     }
 
-    fun onNameChanged(value: String) = blockingIntent {
+    fun onNameChanged(value: String) = intent {
         reduce { state.copy(name = value, passwordError = "") }
     }
 
-    fun onPasswordChanged(value: String) = blockingIntent {
+    fun onPasswordChanged(value: String) = intent {
         reduce { state.copy(password = value, passwordError = "") }
     }
 
-    fun onPasswordConfirmChanged(value: String) = blockingIntent {
+    fun onPasswordConfirmChanged(value: String) = intent {
         reduce { state.copy(passwordConfirm = value, passwordError = "") }
     }
 
-    fun onTogglePasswordVisibility() = blockingIntent {
+    fun onTogglePasswordVisibility() = intent {
         reduce { state.copy(isPasswordVisible = !state.isPasswordVisible) }
     }
 
-    fun onTogglePasswordConfirmVisibility() = blockingIntent {
+    fun onTogglePasswordConfirmVisibility() = intent {
         reduce { state.copy(isPasswordConfirmVisible = !state.isPasswordConfirmVisible) }
     }
 
-    fun onBusinessNumberChanged(value: String) = blockingIntent {
+    fun onBusinessNumberChanged(value: String) = intent {
         reduce { state.copy(businessNumber = BusinessFormatters.digitsOnly(value, 10), businessNumberError = "") }
     }
 
-    fun onStoreNameChanged(value: String) = blockingIntent {
+    fun onStoreNameChanged(value: String) = intent {
         reduce { state.copy(storeName = value, storeNameError = "", searchResults = emptyList()) }
     }
 
@@ -175,7 +174,7 @@ class SignupViewModel(
         reduce { state.copy(selectedShopId = null, selectedShopName = state.storeName, step = SignupStep.AttachFile) }
     }
 
-    fun onShopPhoneNumberChanged(value: String) = blockingIntent {
+    fun onShopPhoneNumberChanged(value: String) = intent {
         reduce { state.copy(shopPhoneNumber = BusinessFormatters.digitsOnly(value, 11), attachFileError = "") }
     }
 

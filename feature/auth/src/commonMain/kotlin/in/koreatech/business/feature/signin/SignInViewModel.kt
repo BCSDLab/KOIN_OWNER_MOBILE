@@ -3,7 +3,6 @@ package `in`.koreatech.business.feature.signin
 import androidx.lifecycle.ViewModel
 import `in`.koreatech.business.domain.usecase.auth.SignInUseCase
 import `in`.koreatech.business.domain.usecase.owner.GetShopListUseCase
-import `in`.koreatech.business.ui.util.blockingIntent
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
@@ -14,7 +13,7 @@ class SignInViewModel(
     ContainerHost<SignInUiState, SignInSideEffect> {
     override val container = container<SignInUiState, SignInSideEffect>(SignInUiState())
 
-    fun onPhoneNumberChanged(phoneNumber: String) = blockingIntent {
+    fun onPhoneNumberChanged(phoneNumber: String) = intent {
         reduce {
             state.copy(
                 phoneNumber = phoneNumber.filter(Char::isDigit).take(11),
@@ -23,11 +22,11 @@ class SignInViewModel(
         }
     }
 
-    fun onPasswordChanged(password: String) = blockingIntent {
+    fun onPasswordChanged(password: String) = intent {
         reduce { state.copy(password = password, errorMessage = "") }
     }
 
-    fun togglePasswordVisibility() = blockingIntent {
+    fun togglePasswordVisibility() = intent {
         reduce { state.copy(isPasswordVisible = !state.isPasswordVisible) }
     }
 

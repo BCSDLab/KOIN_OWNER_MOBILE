@@ -11,7 +11,6 @@ import `in`.koreatech.business.domain.usecase.store.RegisterMenuUseCase
 import `in`.koreatech.business.domain.usecase.store.UpdateMenuUseCase
 import `in`.koreatech.business.platform.PlatformFile
 import `in`.koreatech.business.ui.util.BusinessFormatters
-import `in`.koreatech.business.ui.util.blockingIntent
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
@@ -75,26 +74,26 @@ class MenuEditorViewModel(
         }
     }
 
-    fun onNameChanged(value: String) = blockingIntent { reduce { state.copy(name = value) } }
-    fun onDescriptionChanged(value: String) = blockingIntent { reduce { state.copy(description = value) } }
+    fun onNameChanged(value: String) = intent { reduce { state.copy(name = value) } }
+    fun onDescriptionChanged(value: String) = intent { reduce { state.copy(description = value) } }
 
-    fun onCategoryToggled(categoryId: Int) = blockingIntent {
+    fun onCategoryToggled(categoryId: Int) = intent {
         val updated = state.selectedCategoryIds.toMutableList()
         if (categoryId in updated) updated.remove(categoryId) else updated.add(categoryId)
         reduce { state.copy(selectedCategoryIds = updated) }
     }
 
-    fun onSinglePriceChanged(value: String) = blockingIntent {
+    fun onSinglePriceChanged(value: String) = intent {
         reduce { state.copy(singlePrice = BusinessFormatters.digitsOnly(value), singlePriceError = "") }
     }
 
-    fun onOptionNameChanged(index: Int, value: String) = blockingIntent {
+    fun onOptionNameChanged(index: Int, value: String) = intent {
         val updated = state.optionPrices.toMutableList()
         if (index in updated.indices) updated[index] = updated[index].copy(option = value)
         reduce { state.copy(optionPrices = updated) }
     }
 
-    fun onPriceChanged(index: Int, value: String) = blockingIntent {
+    fun onPriceChanged(index: Int, value: String) = intent {
         val updated = state.optionPrices.toMutableList()
         if (index in updated.indices) updated[index] = updated[index].copy(price = BusinessFormatters.digitsOnly(value))
         reduce { state.copy(optionPrices = updated) }

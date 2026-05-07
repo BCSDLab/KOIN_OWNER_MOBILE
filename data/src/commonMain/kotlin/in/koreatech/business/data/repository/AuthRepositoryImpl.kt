@@ -6,10 +6,13 @@ import `in`.koreatech.business.data.model.signup.request.OwnerRegisterRequest
 import `in`.koreatech.business.data.model.signup.request.SendSignupSmsRequest
 import `in`.koreatech.business.data.model.signup.request.VerifySmsRequest
 import `in`.koreatech.business.data.source.remote.OwnerRemoteDataSource
+import `in`.koreatech.business.data.utils.logAsDomainError
 import `in`.koreatech.business.data.utils.sha256
 import `in`.koreatech.business.data.utils.toUserMessage
+import `in`.koreatech.business.domain.error.DomainError
 import `in`.koreatech.business.domain.repository.AuthRepository
 import `in`.koreatech.business.domain.repository.TokenRepository
+import io.github.aakira.napier.Napier
 import io.ktor.client.plugins.ClientRequestException
 
 class AuthRepositoryImpl(
@@ -27,7 +30,7 @@ class AuthRepositoryImpl(
             tokenRepository.saveAccessToken(response.token)
             tokenRepository.saveRefreshToken(response.refreshToken)
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("AuthRepository")
         }
     }
 
@@ -42,7 +45,7 @@ class AuthRepositoryImpl(
             tokenRepository.saveAccessToken("")
             tokenRepository.saveRefreshToken("")
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("AuthRepository")
         }
     }
 
@@ -50,7 +53,7 @@ class AuthRepositoryImpl(
         try {
             return ownerRemoteDataSource.checkPhoneExists(phoneNumber)
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("AuthRepository")
         }
     }
 
@@ -58,7 +61,7 @@ class AuthRepositoryImpl(
         try {
             ownerRemoteDataSource.sendSignupSms(SendSignupSmsRequest(phoneNumber = phoneNumber))
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("AuthRepository")
         }
     }
 
@@ -70,7 +73,7 @@ class AuthRepositoryImpl(
             tokenRepository.saveAccessToken(token)
             return token
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("AuthRepository")
         }
     }
 
@@ -98,7 +101,7 @@ class AuthRepositoryImpl(
                 )
             )
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("AuthRepository")
         }
     }
 
@@ -106,14 +109,15 @@ class AuthRepositoryImpl(
         try {
             ownerRemoteDataSource.sendFindPasswordSms(phoneNumber)
         } catch (exception: ClientRequestException) {
+            Napier.e(message = "AuthRepository.sendFindPasswordSms", throwable = exception)
             val message = when (exception.response.status.value) {
                 400 -> "올바른 전화번호 형식이 아닙니다."
                 404 -> "가입되지 않은 전화번호입니다."
                 else -> exception.toUserMessage()
             }
-            throw IllegalStateException(message, exception)
+            throw DomainError.Validation(message, exception)
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("AuthRepository")
         }
     }
 
@@ -121,7 +125,7 @@ class AuthRepositoryImpl(
         try {
             ownerRemoteDataSource.verifyFindPasswordSms(phoneNumber, code)
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("AuthRepository")
         }
     }
 
@@ -129,7 +133,7 @@ class AuthRepositoryImpl(
         try {
             ownerRemoteDataSource.changePasswordBySms(phoneNumber, sha256(password))
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("AuthRepository")
         }
     }
 }

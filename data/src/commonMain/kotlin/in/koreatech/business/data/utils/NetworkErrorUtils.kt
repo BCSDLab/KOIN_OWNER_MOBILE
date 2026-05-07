@@ -1,5 +1,7 @@
 package `in`.koreatech.business.data.utils
 
+import `in`.koreatech.business.domain.error.DomainError
+import io.github.aakira.napier.Napier
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.plugins.RedirectResponseException
 import io.ktor.client.plugins.ResponseException
@@ -15,6 +17,29 @@ suspend fun Exception.toUserMessage(): String = when (this) {
     is ServerResponseException -> response.toUserMessage()
     is ResponseException -> response.toUserMessage()
     else -> message?.takeIf { it.isNotBlank() } ?: DEFAULT_ERROR_MESSAGE
+}
+
+suspend fun Exception.toDomainError(): DomainError {
+    if (this is DomainError) return this
+    val message = toUserMessage()
+    return when (this) {
+        is ClientRequestException -> when (response.status.value) {
+            401 -> DomainError.Auth(message, this)
+            400, 409, 422 -> DomainError.Validation(message, this)
+            else -> DomainError.Network(message, this)
+        }
+
+        is ServerResponseException,
+        is RedirectResponseException,
+        is ResponseException -> DomainError.Network(message, this)
+
+        else -> DomainError.Unknown(message, this)
+    }
+}
+
+suspend fun Exception.logAsDomainError(tag: String): DomainError {
+    Napier.e(message = tag, throwable = this)
+    return toDomainError()
 }
 
 private suspend fun io.ktor.client.statement.HttpResponse.toUserMessage(): String {

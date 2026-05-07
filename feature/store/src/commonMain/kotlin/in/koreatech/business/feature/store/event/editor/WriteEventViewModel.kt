@@ -10,7 +10,6 @@ import `in`.koreatech.business.domain.usecase.store.RegisterEventUseCase
 import `in`.koreatech.business.domain.usecase.store.UpdateEventUseCase
 import `in`.koreatech.business.platform.PlatformFile
 import `in`.koreatech.business.ui.util.BusinessValidators
-import `in`.koreatech.business.ui.util.blockingIntent
 import kotlin.time.Clock
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
@@ -53,10 +52,10 @@ class WriteEventViewModel(
         }
     }
 
-    fun onTitleChanged(value: String) = blockingIntent { reduce { state.copy(title = value) } }
-    fun onContentChanged(value: String) = blockingIntent { reduce { state.copy(content = value) } }
-    fun onStartDateChanged(value: String) = blockingIntent { reduce { state.copy(startDate = value) } }
-    fun onEndDateChanged(value: String) = blockingIntent { reduce { state.copy(endDate = value) } }
+    fun onTitleChanged(value: String) = intent { reduce { state.copy(title = value) } }
+    fun onContentChanged(value: String) = intent { reduce { state.copy(content = value) } }
+    fun onStartDateChanged(value: String) = intent { reduce { state.copy(startDate = value) } }
+    fun onEndDateChanged(value: String) = intent { reduce { state.copy(endDate = value) } }
 
     fun addImage(file: PlatformFile) {
         intent(registerIdling = false) { reduce { state.copy(images = state.images + file) } }

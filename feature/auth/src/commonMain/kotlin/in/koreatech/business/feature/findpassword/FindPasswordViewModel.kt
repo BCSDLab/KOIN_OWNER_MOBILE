@@ -6,7 +6,6 @@ import `in`.koreatech.business.domain.usecase.auth.SendFindPasswordSmsUseCase
 import `in`.koreatech.business.domain.usecase.auth.VerifyFindPasswordSmsUseCase
 import `in`.koreatech.business.ui.util.BusinessFormatters
 import `in`.koreatech.business.ui.util.BusinessValidators
-import `in`.koreatech.business.ui.util.blockingIntent
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
@@ -46,27 +45,27 @@ class FindPasswordViewModel(
     ContainerHost<FindPasswordUiState, Nothing> {
     override val container = container<FindPasswordUiState, Nothing>(FindPasswordUiState())
 
-    fun onPhoneNumberChanged(value: String) = blockingIntent {
+    fun onPhoneNumberChanged(value: String) = intent {
         reduce { state.copy(phoneNumber = BusinessFormatters.digitsOnly(value, 11), phoneError = "") }
     }
 
-    fun onSmsCodeChanged(value: String) = blockingIntent {
+    fun onSmsCodeChanged(value: String) = intent {
         reduce { state.copy(smsCode = BusinessFormatters.digitsOnly(value, 6), smsError = "") }
     }
 
-    fun onNewPasswordChanged(value: String) = blockingIntent {
+    fun onNewPasswordChanged(value: String) = intent {
         reduce { state.copy(newPassword = value, passwordError = "") }
     }
 
-    fun onNewPasswordConfirmChanged(value: String) = blockingIntent {
+    fun onNewPasswordConfirmChanged(value: String) = intent {
         reduce { state.copy(newPasswordConfirm = value, passwordError = "") }
     }
 
-    fun onTogglePasswordVisibility() = blockingIntent {
+    fun onTogglePasswordVisibility() = intent {
         reduce { state.copy(isPasswordVisible = !state.isPasswordVisible) }
     }
 
-    fun onTogglePasswordConfirmVisibility() = blockingIntent {
+    fun onTogglePasswordConfirmVisibility() = intent {
         reduce { state.copy(isPasswordConfirmVisible = !state.isPasswordConfirmVisible) }
     }
 

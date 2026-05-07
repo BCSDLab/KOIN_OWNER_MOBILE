@@ -8,7 +8,7 @@ import `in`.koreatech.business.data.model.store.request.RegisterStoreRequest
 import `in`.koreatech.business.data.model.store.request.UpdateStoreInfoRequest
 import `in`.koreatech.business.data.model.store.response.toDomainList as categoryToDomainList
 import `in`.koreatech.business.data.source.remote.OwnerRemoteDataSource
-import `in`.koreatech.business.data.utils.toUserMessage
+import `in`.koreatech.business.data.utils.logAsDomainError
 import `in`.koreatech.business.domain.model.MenuCategory
 import `in`.koreatech.business.domain.model.MenuOptionPrice
 import `in`.koreatech.business.domain.model.OperatingTime
@@ -24,7 +24,7 @@ class StoreRepositoryImpl(
         try {
             return ownerRemoteDataSource.getStoreDetail(storeId).toDomain()
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("StoreRepository")
         }
     }
 
@@ -32,7 +32,7 @@ class StoreRepositoryImpl(
         try {
             return ownerRemoteDataSource.getStoreMenus(storeId).toDomainList()
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("StoreRepository")
         }
     }
 
@@ -40,7 +40,7 @@ class StoreRepositoryImpl(
         try {
             return ownerRemoteDataSource.getMenuCategories(storeId).toDomainList()
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("StoreRepository")
         }
     }
 
@@ -48,7 +48,7 @@ class StoreRepositoryImpl(
         try {
             return ownerRemoteDataSource.getStoreEvents(storeId).toDomainList()
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("StoreRepository")
         }
     }
 
@@ -56,7 +56,7 @@ class StoreRepositoryImpl(
         try {
             ownerRemoteDataSource.deleteMenu(menuId)
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("StoreRepository")
         }
     }
 
@@ -96,7 +96,7 @@ class StoreRepositoryImpl(
             }
             ownerRemoteDataSource.registerMenu(storeId = storeId, request = request)
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("StoreRepository")
         }
     }
 
@@ -137,7 +137,7 @@ class StoreRepositoryImpl(
             }
             ownerRemoteDataSource.updateMenu(menuId = menuId, request = request)
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("StoreRepository")
         }
     }
 
@@ -161,7 +161,7 @@ class StoreRepositoryImpl(
                 )
             )
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("StoreRepository")
         }
     }
 
@@ -169,7 +169,7 @@ class StoreRepositoryImpl(
         try {
             ownerRemoteDataSource.deleteEvent(storeId, eventId)
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("StoreRepository")
         }
     }
 
@@ -195,7 +195,7 @@ class StoreRepositoryImpl(
                 )
             )
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("StoreRepository")
         }
     }
 
@@ -240,7 +240,7 @@ class StoreRepositoryImpl(
                 )
             )
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("StoreRepository")
         }
     }
 
@@ -248,7 +248,7 @@ class StoreRepositoryImpl(
         try {
             ownerRemoteDataSource.createMenuCategory(storeId, name)
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("StoreRepository")
         }
     }
 
@@ -256,7 +256,7 @@ class StoreRepositoryImpl(
         try {
             ownerRemoteDataSource.renameMenuCategory(categoryId, name)
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("StoreRepository")
         }
     }
 
@@ -264,14 +264,14 @@ class StoreRepositoryImpl(
         try {
             ownerRemoteDataSource.deleteMenuCategory(categoryId)
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("StoreRepository")
         }
     }
 
     override suspend fun getStoreCategories(): List<StoreCategory> = try {
         ownerRemoteDataSource.getStoreCategories().categoryToDomainList()
     } catch (exception: Exception) {
-        throw IllegalStateException(exception.toUserMessage(), exception)
+        throw exception.logAsDomainError("StoreRepository")
     }
 
     override suspend fun registerStore(
@@ -313,7 +313,7 @@ class StoreRepositoryImpl(
                 )
             )
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("StoreRepository")
         }
     }
 }

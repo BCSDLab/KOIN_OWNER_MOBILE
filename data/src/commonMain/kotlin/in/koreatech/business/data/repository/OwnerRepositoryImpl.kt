@@ -3,7 +3,7 @@ package `in`.koreatech.business.data.repository
 import `in`.koreatech.business.data.model.owner.response.toDomain as ownerProfileToDomain
 import `in`.koreatech.business.data.model.shop.response.toDomain
 import `in`.koreatech.business.data.source.remote.OwnerRemoteDataSource
-import `in`.koreatech.business.data.utils.toUserMessage
+import `in`.koreatech.business.data.utils.logAsDomainError
 import `in`.koreatech.business.domain.model.owner.OwnerProfile
 import `in`.koreatech.business.domain.model.owner.OwnerStore
 import `in`.koreatech.business.domain.model.signup.ShopSearchResult
@@ -16,7 +16,7 @@ class OwnerRepositoryImpl(
         try {
             return ownerRemoteDataSource.getMyShopList().toDomainList()
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("OwnerRepository")
         }
     }
 
@@ -24,7 +24,7 @@ class OwnerRepositoryImpl(
         try {
             return ownerRemoteDataSource.getOwnerProfile().ownerProfileToDomain()
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("OwnerRepository")
         }
     }
 
@@ -34,7 +34,7 @@ class OwnerRepositoryImpl(
         try {
             return ownerRemoteDataSource.uploadFile(fileName, mimeType, bytes)
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("OwnerRepository")
         }
     }
 
@@ -42,7 +42,7 @@ class OwnerRepositoryImpl(
         try {
             return ownerRemoteDataSource.searchShops(query).shops.map { it.toDomain() }
         } catch (exception: Exception) {
-            throw IllegalStateException(exception.toUserMessage(), exception)
+            throw exception.logAsDomainError("OwnerRepository")
         }
     }
 }
