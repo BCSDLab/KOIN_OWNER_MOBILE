@@ -39,3 +39,15 @@ spotless {
         endWithNewline()
     }
 }
+
+// KSP의 AndroidTest classpath 직렬화가 Gradle configuration cache와 호환되지 않아
+// 이 task가 그래프에 포함되면 ktlintFormat/Check 등 다른 task의 캐시 저장 단계가
+// 실패한다. 영향 범위가 좁은 task 단위 마킹으로 우회.
+subprojects {
+    tasks.matching { it.name.startsWith("ksp") && it.name.contains("AndroidTest") }
+        .configureEach {
+            notCompatibleWithConfigurationCache(
+                "KSP AndroidTest classpath serialization fails under Gradle configuration cache"
+            )
+        }
+}
