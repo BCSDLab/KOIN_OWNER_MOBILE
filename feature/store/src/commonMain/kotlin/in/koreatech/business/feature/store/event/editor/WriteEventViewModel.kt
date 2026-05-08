@@ -10,7 +10,14 @@ import `in`.koreatech.business.domain.usecase.store.RegisterEventUseCase
 import `in`.koreatech.business.domain.usecase.store.UpdateEventUseCase
 import `in`.koreatech.business.platform.PlatformFile
 import `in`.koreatech.business.ui.util.BusinessValidators
+import koreatech.business.designsystem.resources.Res
+import koreatech.business.designsystem.resources.event_editor_error_content_required
+import koreatech.business.designsystem.resources.event_editor_error_not_found
+import koreatech.business.designsystem.resources.event_editor_error_period_invalid
+import koreatech.business.designsystem.resources.event_editor_error_period_required
+import koreatech.business.designsystem.resources.event_editor_error_title_required
 import kotlin.time.Clock
+import org.jetbrains.compose.resources.StringResource
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
@@ -28,7 +35,7 @@ class WriteEventViewModel(
         intent {
             reduce { state.copy(storeId = storeId, eventId = eventId, isEditMode = eventId != null) }
             if (eventId == null) return@intent
-            reduce { state.copy(isLoading = true, errorMessage = "") }
+            reduce { state.copy(isLoading = true, errorMessage = "", errorMessageRes = null) }
             try {
                 val events = getStoreEventsUseCase(storeId)
                 val target = events.firstOrNull { it.id.toString() == eventId }
@@ -44,10 +51,22 @@ class WriteEventViewModel(
                         )
                     }
                 } else {
-                    reduce { state.copy(isLoading = false, errorMessage = "이벤트를 찾을 수 없습니다.") }
+                    reduce {
+                        state.copy(
+                            isLoading = false,
+                            errorMessage = "",
+                            errorMessageRes = Res.string.event_editor_error_not_found
+                        )
+                    }
                 }
             } catch (e: Exception) {
-                reduce { state.copy(isLoading = false, errorMessage = e.message.orEmpty()) }
+                reduce {
+                    state.copy(
+                        isLoading = false,
+                        errorMessage = e.message.orEmpty(),
+                        errorMessageRes = null
+                    )
+                }
             }
         }
     }
@@ -80,22 +99,30 @@ class WriteEventViewModel(
     fun submit() {
         intent {
             if (state.title.isBlank()) {
-                reduce { state.copy(errorMessage = "제목을 입력해주세요.") }
+                reduce {
+                    state.copy(errorMessage = "", errorMessageRes = Res.string.event_editor_error_title_required)
+                }
                 return@intent
             }
             if (state.content.isBlank()) {
-                reduce { state.copy(errorMessage = "내용을 입력해주세요.") }
+                reduce {
+                    state.copy(errorMessage = "", errorMessageRes = Res.string.event_editor_error_content_required)
+                }
                 return@intent
             }
             if (state.startDate.isBlank() || state.endDate.isBlank()) {
-                reduce { state.copy(errorMessage = "이벤트 기간을 입력해주세요.") }
+                reduce {
+                    state.copy(errorMessage = "", errorMessageRes = Res.string.event_editor_error_period_required)
+                }
                 return@intent
             }
             if (!BusinessValidators.isValidDate(state.startDate) || !BusinessValidators.isValidDate(state.endDate)) {
-                reduce { state.copy(errorMessage = "이벤트 기간을 올바르게 선택해주세요.") }
+                reduce {
+                    state.copy(errorMessage = "", errorMessageRes = Res.string.event_editor_error_period_invalid)
+                }
                 return@intent
             }
-            reduce { state.copy(isLoading = true, errorMessage = "") }
+            reduce { state.copy(isLoading = true, errorMessage = "", errorMessageRes = null) }
             try {
                 val uploadedUrls = state.images.map { uploadFileUseCase(it.name, it.mimeType, it.bytes) }
                 val allImageUrls = state.existingImageUrls + uploadedUrls
@@ -109,7 +136,13 @@ class WriteEventViewModel(
                 reduce { state.copy(isLoading = false) }
                 postSideEffect(WriteEventSideEffect.NavigateBack)
             } catch (exception: Exception) {
-                reduce { state.copy(isLoading = false, errorMessage = exception.message.orEmpty()) }
+                reduce {
+                    state.copy(
+                        isLoading = false,
+                        errorMessage = exception.message.orEmpty(),
+                        errorMessageRes = null
+                    )
+                }
             }
         }
     }
@@ -118,13 +151,19 @@ class WriteEventViewModel(
         intent {
             val storeId = state.storeId ?: return@intent
             val eventId = state.eventId ?: return@intent
-            reduce { state.copy(isLoading = true, errorMessage = "") }
+            reduce { state.copy(isLoading = true, errorMessage = "", errorMessageRes = null) }
             try {
                 deleteEventUseCase(storeId, eventId)
                 reduce { state.copy(isLoading = false) }
                 postSideEffect(WriteEventSideEffect.NavigateBack)
             } catch (exception: Exception) {
-                reduce { state.copy(isLoading = false, errorMessage = exception.message.orEmpty()) }
+                reduce {
+                    state.copy(
+                        isLoading = false,
+                        errorMessage = exception.message.orEmpty(),
+                        errorMessageRes = null
+                    )
+                }
             }
         }
     }
@@ -135,7 +174,7 @@ class WriteEventViewModel(
     }
 
     fun clearError() {
-        intent(registerIdling = false) { reduce { state.copy(errorMessage = "") } }
+        intent(registerIdling = false) { reduce { state.copy(errorMessage = "", errorMessageRes = null) } }
     }
 }
 
@@ -199,5 +238,6 @@ data class WriteEventUiState(
     val endDate: String = "",
     val existingImageUrls: List<String> = emptyList(),
     val images: List<PlatformFile> = emptyList(),
-    val errorMessage: String = ""
+    val errorMessage: String = "",
+    val errorMessageRes: StringResource? = null
 )

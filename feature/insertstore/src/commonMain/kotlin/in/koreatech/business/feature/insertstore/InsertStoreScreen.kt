@@ -188,8 +188,9 @@ internal fun SelectCategoryStep(
                             }
                         }
                     }
-                    if (uiState.errorMessage.isNotEmpty()) {
-                        KoinTextFieldAlert(message = uiState.errorMessage, type = KoinTextFieldAlertType.Error)
+                    val errorMessage = uiState.errorMessageRes?.let { stringResource(it) } ?: uiState.errorMessage
+                    if (errorMessage.isNotEmpty()) {
+                        KoinTextFieldAlert(message = errorMessage, type = KoinTextFieldAlertType.Error)
                     }
                     GradientActionButton(
                         text = stringResource(Res.string.next),
@@ -278,8 +279,9 @@ internal fun BasicInfoStep(
                     onRemoveImage = onRemoveCoverImage
                 )
 
-                if (uiState.errorMessage.isNotEmpty()) {
-                    KoinTextFieldAlert(message = uiState.errorMessage, type = KoinTextFieldAlertType.Error)
+                val errorMessage = uiState.errorMessageRes?.let { stringResource(it) } ?: uiState.errorMessage
+                if (errorMessage.isNotEmpty()) {
+                    KoinTextFieldAlert(message = errorMessage, type = KoinTextFieldAlertType.Error)
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -413,8 +415,9 @@ internal fun DetailInfoStep(
                     }
                 }
 
-                if (uiState.errorMessage.isNotEmpty()) {
-                    KoinTextFieldAlert(message = uiState.errorMessage, type = KoinTextFieldAlertType.Error)
+                val errorMessage = uiState.errorMessageRes?.let { stringResource(it) } ?: uiState.errorMessage
+                if (errorMessage.isNotEmpty()) {
+                    KoinTextFieldAlert(message = errorMessage, type = KoinTextFieldAlertType.Error)
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -478,8 +481,9 @@ internal fun FinalCheckStep(
                             InfoRow(stringResource(Res.string.field_description), uiState.description)
                         }
                     }
-                    if (uiState.errorMessage.isNotEmpty()) {
-                        KoinTextFieldAlert(message = uiState.errorMessage, type = KoinTextFieldAlertType.Error)
+                    val errorMessage = uiState.errorMessageRes?.let { stringResource(it) } ?: uiState.errorMessage
+                    if (errorMessage.isNotEmpty()) {
+                        KoinTextFieldAlert(message = errorMessage, type = KoinTextFieldAlertType.Error)
                     }
                     GradientActionButton(
                         text = stringResource(Res.string.insert_store_submit_btn),

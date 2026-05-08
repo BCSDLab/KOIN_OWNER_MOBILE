@@ -100,9 +100,11 @@ fun WriteEventScreen(
         viewModel.init(storeId, eventId)
     }
 
-    LaunchedEffect(uiState.errorMessage) {
-        if (uiState.errorMessage.isNotEmpty()) {
-            snackbarHostState.showSnackbar(uiState.errorMessage)
+    val resolvedError = uiState.errorMessageRes?.let { stringResource(it) } ?: uiState.errorMessage
+
+    LaunchedEffect(resolvedError) {
+        if (resolvedError.isNotEmpty()) {
+            snackbarHostState.showSnackbar(resolvedError)
             viewModel.clearError()
         }
     }
@@ -263,8 +265,8 @@ fun WriteEventScreen(
                                     }
                                 }
 
-                                if (uiState.errorMessage.isNotEmpty()) {
-                                    KoinTextFieldAlert(message = uiState.errorMessage, type = KoinTextFieldAlertType.Error)
+                                if (resolvedError.isNotEmpty()) {
+                                    KoinTextFieldAlert(message = resolvedError, type = KoinTextFieldAlertType.Error)
                                 }
                             }
 
@@ -447,8 +449,8 @@ fun WriteEventScreen(
                             onRemove = viewModel::removeImage
                         )
 
-                        if (uiState.errorMessage.isNotEmpty()) {
-                            KoinTextFieldAlert(message = uiState.errorMessage, type = KoinTextFieldAlertType.Error)
+                        if (resolvedError.isNotEmpty()) {
+                            KoinTextFieldAlert(message = resolvedError, type = KoinTextFieldAlertType.Error)
                         }
                     }
 

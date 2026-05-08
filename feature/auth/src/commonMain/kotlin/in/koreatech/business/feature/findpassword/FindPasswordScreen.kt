@@ -98,9 +98,10 @@ fun PhoneInputStep(
             keyboardActions = KeyboardActions(onDone = { onNext() })
         )
 
-        if (uiState.phoneError.isNotEmpty()) {
+        val phoneErrorMessage = uiState.phoneErrorRes?.let { stringResource(it) } ?: uiState.phoneError
+        if (phoneErrorMessage.isNotEmpty()) {
             KoinTextFieldAlert(
-                message = uiState.phoneError,
+                message = phoneErrorMessage,
                 type = KoinTextFieldAlertType.Error
             )
         } else {
@@ -159,9 +160,10 @@ fun SmsVerifyStep(
             keyboardActions = KeyboardActions(onDone = { onNext() })
         )
 
-        if (uiState.smsError.isNotEmpty()) {
+        val smsErrorMessage = uiState.smsErrorRes?.let { stringResource(it) } ?: uiState.smsError
+        if (smsErrorMessage.isNotEmpty()) {
             KoinTextFieldAlert(
-                message = uiState.smsError,
+                message = smsErrorMessage,
                 type = KoinTextFieldAlertType.Error
             )
         } else {
@@ -291,9 +293,10 @@ fun NewPasswordStep(
             keyboardActions = KeyboardActions(onDone = { onNext() })
         )
 
-        if (uiState.passwordError.isNotEmpty()) {
+        val passwordErrorMessage = uiState.passwordErrorRes?.let { stringResource(it) } ?: uiState.passwordError
+        if (passwordErrorMessage.isNotEmpty()) {
             KoinTextFieldAlert(
-                message = uiState.passwordError,
+                message = passwordErrorMessage,
                 type = KoinTextFieldAlertType.Error
             )
         } else {

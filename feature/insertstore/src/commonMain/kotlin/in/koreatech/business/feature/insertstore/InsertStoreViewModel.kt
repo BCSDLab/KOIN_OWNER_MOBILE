@@ -10,6 +10,16 @@ import `in`.koreatech.business.domain.usecase.store.RegisterStoreUseCase
 import `in`.koreatech.business.platform.PlatformFile
 import `in`.koreatech.business.ui.util.BusinessFormatters
 import `in`.koreatech.business.ui.util.BusinessValidators
+import koreatech.business.designsystem.resources.Res
+import koreatech.business.designsystem.resources.category_select_required
+import koreatech.business.designsystem.resources.error_phone_invalid
+import koreatech.business.designsystem.resources.error_phone_required
+import koreatech.business.designsystem.resources.insert_store_error_address_required
+import koreatech.business.designsystem.resources.insert_store_error_categories_load_failed
+import koreatech.business.designsystem.resources.insert_store_error_description_required
+import koreatech.business.designsystem.resources.insert_store_error_name_required
+import koreatech.business.designsystem.resources.insert_store_error_register_failed
+import org.jetbrains.compose.resources.StringResource
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
@@ -35,6 +45,7 @@ data class InsertStoreUiState(
     val step: InsertStoreStep = InsertStoreStep.Start,
     val isLoading: Boolean = false,
     val errorMessage: String = "",
+    val errorMessageRes: StringResource? = null,
     val categories: List<StoreCategory> = emptyList(),
     val selectedCategoryId: Int = -1,
     val selectedCategoryName: String = "",
@@ -71,7 +82,14 @@ class InsertStoreViewModel(
             val categories = getStoreCategoriesUseCase()
             reduce { state.copy(categories = categories, isLoading = false) }
         } catch (e: Exception) {
-            reduce { state.copy(isLoading = false, errorMessage = e.message ?: "카테고리를 불러오지 못했습니다.") }
+            val msg = e.message.orEmpty()
+            reduce {
+                state.copy(
+                    isLoading = false,
+                    errorMessage = msg,
+                    errorMessageRes = if (msg.isEmpty()) Res.string.insert_store_error_categories_load_failed else null
+                )
+            }
         }
     }
 
@@ -80,7 +98,7 @@ class InsertStoreViewModel(
             InsertStoreStep.Start -> InsertStoreStep.SelectCategory
             InsertStoreStep.SelectCategory -> {
                 if (state.selectedCategoryId == -1) {
-                    reduce { state.copy(errorMessage = "카테고리를 선택해주세요.") }
+                    reduce { state.copy(errorMessage = "", errorMessageRes = Res.string.category_select_required) }
                     return@intent
                 }
                 InsertStoreStep.BasicInfo
@@ -88,19 +106,23 @@ class InsertStoreViewModel(
             InsertStoreStep.BasicInfo -> {
                 when {
                     state.name.isBlank() -> {
-                        reduce { state.copy(errorMessage = "매장명을 입력해주세요.") }
+                        reduce {
+                            state.copy(errorMessage = "", errorMessageRes = Res.string.insert_store_error_name_required)
+                        }
                         return@intent
                     }
                     state.address.isBlank() -> {
-                        reduce { state.copy(errorMessage = "주소를 입력해주세요.") }
+                        reduce {
+                            state.copy(errorMessage = "", errorMessageRes = Res.string.insert_store_error_address_required)
+                        }
                         return@intent
                     }
                     state.phone.isBlank() -> {
-                        reduce { state.copy(errorMessage = "전화번호를 입력해주세요.") }
+                        reduce { state.copy(errorMessage = "", errorMessageRes = Res.string.error_phone_required) }
                         return@intent
                     }
                     !BusinessValidators.isValidPhone(state.phone) -> {
-                        reduce { state.copy(errorMessage = "올바른 전화번호를 입력해주세요.") }
+                        reduce { state.copy(errorMessage = "", errorMessageRes = Res.string.error_phone_invalid) }
                         return@intent
                     }
                 }
@@ -108,7 +130,9 @@ class InsertStoreViewModel(
             }
             InsertStoreStep.DetailInfo -> {
                 if (state.description.isBlank()) {
-                    reduce { state.copy(errorMessage = "소개글을 입력해주세요.") }
+                    reduce {
+                        state.copy(errorMessage = "", errorMessageRes = Res.string.insert_store_error_description_required)
+                    }
                     return@intent
                 }
                 InsertStoreStep.FinalCheck
@@ -119,7 +143,7 @@ class InsertStoreViewModel(
             }
             InsertStoreStep.Complete -> InsertStoreStep.Complete
         }
-        reduce { state.copy(step = next, errorMessage = "") }
+        reduce { state.copy(step = next, errorMessage = "", errorMessageRes = null) }
     }
 
     fun navigateBack(): Boolean {
@@ -131,18 +155,37 @@ class InsertStoreViewModel(
             InsertStoreStep.FinalCheck -> InsertStoreStep.DetailInfo
             InsertStoreStep.Complete -> return false
         }
-        intent(registerIdling = false) { reduce { state.copy(step = previousStep, errorMessage = "") } }
+        intent(registerIdling = false) {
+            reduce { state.copy(step = previousStep, errorMessage = "", errorMessageRes = null) }
+        }
         return true
     }
 
     fun onCategorySelected(id: Int, name: String) = intent {
-        reduce { state.copy(selectedCategoryId = id, selectedCategoryName = name, errorMessage = "") }
+        reduce {
+            state.copy(
+                selectedCategoryId = id,
+                selectedCategoryName = name,
+                errorMessage = "",
+                errorMessageRes = null
+            )
+        }
     }
 
-    fun onNameChanged(value: String) = intent { reduce { state.copy(name = value, errorMessage = "") } }
-    fun onAddressChanged(value: String) = intent { reduce { state.copy(address = value, errorMessage = "") } }
+    fun onNameChanged(value: String) = intent {
+        reduce { state.copy(name = value, errorMessage = "", errorMessageRes = null) }
+    }
+    fun onAddressChanged(value: String) = intent {
+        reduce { state.copy(address = value, errorMessage = "", errorMessageRes = null) }
+    }
     fun onPhoneChanged(value: String) = intent {
-        reduce { state.copy(phone = BusinessFormatters.digitsOnly(value, 11), errorMessage = "") }
+        reduce {
+            state.copy(
+                phone = BusinessFormatters.digitsOnly(value, 11),
+                errorMessage = "",
+                errorMessageRes = null
+            )
+        }
     }
     fun onToggleCard() = intent { reduce { state.copy(isCardOk = !state.isCardOk) } }
     fun onToggleBank() = intent { reduce { state.copy(isBankOk = !state.isBankOk) } }
@@ -150,7 +193,9 @@ class InsertStoreViewModel(
     fun onDeliveryPriceChanged(value: String) = intent {
         reduce { state.copy(deliveryPrice = BusinessFormatters.digitsOnly(value)) }
     }
-    fun onDescriptionChanged(value: String) = intent { reduce { state.copy(description = value, errorMessage = "") } }
+    fun onDescriptionChanged(value: String) = intent {
+        reduce { state.copy(description = value, errorMessage = "", errorMessageRes = null) }
+    }
 
     fun onOperatingTimeToggle(index: Int) = intent {
         val times = state.operatingTimes.toMutableList()
@@ -181,7 +226,7 @@ class InsertStoreViewModel(
     }
 
     private fun submit() = intent {
-        reduce { state.copy(isLoading = true, errorMessage = "") }
+        reduce { state.copy(isLoading = true, errorMessage = "", errorMessageRes = null) }
         try {
             val imageUrls = state.coverImages.map { uploadFileUseCase(it.name, it.mimeType, it.bytes) }
             registerStoreUseCase(
@@ -195,9 +240,18 @@ class InsertStoreViewModel(
             )
             reduce { state.copy(isLoading = false, step = InsertStoreStep.Complete) }
         } catch (e: Exception) {
-            reduce { state.copy(isLoading = false, errorMessage = e.message ?: "매장 등록에 실패했습니다.") }
+            val msg = e.message.orEmpty()
+            reduce {
+                state.copy(
+                    isLoading = false,
+                    errorMessage = msg,
+                    errorMessageRes = if (msg.isEmpty()) Res.string.insert_store_error_register_failed else null
+                )
+            }
         }
     }
 
-    fun clearError() = intent(registerIdling = false) { reduce { state.copy(errorMessage = "") } }
+    fun clearError() = intent(registerIdling = false) {
+        reduce { state.copy(errorMessage = "", errorMessageRes = null) }
+    }
 }

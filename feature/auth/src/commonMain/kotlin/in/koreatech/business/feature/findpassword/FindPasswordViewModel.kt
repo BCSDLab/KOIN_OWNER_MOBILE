@@ -6,6 +6,16 @@ import `in`.koreatech.business.domain.usecase.auth.SendFindPasswordSmsUseCase
 import `in`.koreatech.business.domain.usecase.auth.VerifyFindPasswordSmsUseCase
 import `in`.koreatech.business.ui.util.BusinessFormatters
 import `in`.koreatech.business.ui.util.BusinessValidators
+import koreatech.business.designsystem.resources.Res
+import koreatech.business.designsystem.resources.error_password_invalid
+import koreatech.business.designsystem.resources.error_password_mismatch
+import koreatech.business.designsystem.resources.error_phone_invalid
+import koreatech.business.designsystem.resources.error_sms_code_invalid
+import koreatech.business.designsystem.resources.error_sms_code_required
+import koreatech.business.designsystem.resources.error_sms_resend_failed
+import koreatech.business.designsystem.resources.error_sms_send_failed
+import koreatech.business.designsystem.resources.find_password_error_change_failed
+import org.jetbrains.compose.resources.StringResource
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
@@ -27,13 +37,16 @@ data class FindPasswordUiState(
     val step: FindPasswordStep = FindPasswordStep.PhoneInput,
     val phoneNumber: String = "",
     val phoneError: String = "",
+    val phoneErrorRes: StringResource? = null,
     val smsCode: String = "",
     val smsError: String = "",
+    val smsErrorRes: StringResource? = null,
     val newPassword: String = "",
     val newPasswordConfirm: String = "",
     val isPasswordVisible: Boolean = false,
     val isPasswordConfirmVisible: Boolean = false,
     val passwordError: String = "",
+    val passwordErrorRes: StringResource? = null,
     val isLoading: Boolean = false
 )
 
@@ -46,19 +59,31 @@ class FindPasswordViewModel(
     override val container = container<FindPasswordUiState, Nothing>(FindPasswordUiState())
 
     fun onPhoneNumberChanged(value: String) = intent {
-        reduce { state.copy(phoneNumber = BusinessFormatters.digitsOnly(value, 11), phoneError = "") }
+        reduce {
+            state.copy(
+                phoneNumber = BusinessFormatters.digitsOnly(value, 11),
+                phoneError = "",
+                phoneErrorRes = null
+            )
+        }
     }
 
     fun onSmsCodeChanged(value: String) = intent {
-        reduce { state.copy(smsCode = BusinessFormatters.digitsOnly(value, 6), smsError = "") }
+        reduce {
+            state.copy(
+                smsCode = BusinessFormatters.digitsOnly(value, 6),
+                smsError = "",
+                smsErrorRes = null
+            )
+        }
     }
 
     fun onNewPasswordChanged(value: String) = intent {
-        reduce { state.copy(newPassword = value, passwordError = "") }
+        reduce { state.copy(newPassword = value, passwordError = "", passwordErrorRes = null) }
     }
 
     fun onNewPasswordConfirmChanged(value: String) = intent {
-        reduce { state.copy(newPasswordConfirm = value, passwordError = "") }
+        reduce { state.copy(newPasswordConfirm = value, passwordError = "", passwordErrorRes = null) }
     }
 
     fun onTogglePasswordVisibility() = intent {
@@ -72,60 +97,92 @@ class FindPasswordViewModel(
     fun submitPhone() = intent {
         val phone = state.phoneNumber
         if (!BusinessValidators.isValidPhone(phone)) {
-            reduce { state.copy(phoneError = "올바른 전화번호를 입력해주세요.") }
+            reduce { state.copy(phoneError = "", phoneErrorRes = Res.string.error_phone_invalid) }
             return@intent
         }
-        reduce { state.copy(isLoading = true, phoneError = "") }
+        reduce { state.copy(isLoading = true, phoneError = "", phoneErrorRes = null) }
         try {
             sendFindPasswordSmsUseCase(phone)
             reduce { state.copy(isLoading = false, step = FindPasswordStep.SmsVerify) }
         } catch (e: Exception) {
-            reduce { state.copy(phoneError = e.message ?: "SMS 발송에 실패했습니다.", isLoading = false) }
+            val msg = e.message.orEmpty()
+            reduce {
+                state.copy(
+                    phoneError = msg,
+                    phoneErrorRes = if (msg.isEmpty()) Res.string.error_sms_send_failed else null,
+                    isLoading = false
+                )
+            }
         }
     }
 
     fun resendSms() = intent {
         val phone = state.phoneNumber
-        reduce { state.copy(isLoading = true, smsError = "") }
+        reduce { state.copy(isLoading = true, smsError = "", smsErrorRes = null) }
         try {
             sendFindPasswordSmsUseCase(phone)
             reduce { state.copy(isLoading = false, smsCode = "") }
         } catch (e: Exception) {
-            reduce { state.copy(smsError = e.message ?: "SMS 재발송에 실패했습니다.", isLoading = false) }
+            val msg = e.message.orEmpty()
+            reduce {
+                state.copy(
+                    smsError = msg,
+                    smsErrorRes = if (msg.isEmpty()) Res.string.error_sms_resend_failed else null,
+                    isLoading = false
+                )
+            }
         }
     }
 
     fun submitSms() = intent {
         if (state.smsCode.length < 6) {
-            reduce { state.copy(smsError = "인증번호 6자리를 입력해주세요.") }
+            reduce { state.copy(smsError = "", smsErrorRes = Res.string.error_sms_code_required) }
             return@intent
         }
-        reduce { state.copy(isLoading = true, smsError = "") }
+        reduce { state.copy(isLoading = true, smsError = "", smsErrorRes = null) }
         try {
             verifyFindPasswordSmsUseCase(state.phoneNumber, state.smsCode)
             reduce { state.copy(isLoading = false, step = FindPasswordStep.NewPassword) }
         } catch (e: Exception) {
-            reduce { state.copy(smsError = e.message ?: "인증번호가 올바르지 않습니다.", isLoading = false) }
+            val msg = e.message.orEmpty()
+            reduce {
+                state.copy(
+                    smsError = msg,
+                    smsErrorRes = if (msg.isEmpty()) Res.string.error_sms_code_invalid else null,
+                    isLoading = false
+                )
+            }
         }
     }
 
     fun submitNewPassword() = intent {
         when {
             !BusinessValidators.isValidPassword(state.newPassword) -> {
-                reduce { state.copy(passwordError = "영문, 숫자, 특수문자를 포함한 6~18자 비밀번호를 입력해주세요.") }
+                reduce {
+                    state.copy(passwordError = "", passwordErrorRes = Res.string.error_password_invalid)
+                }
                 return@intent
             }
             state.newPassword != state.newPasswordConfirm -> {
-                reduce { state.copy(passwordError = "비밀번호가 일치하지 않습니다.") }
+                reduce {
+                    state.copy(passwordError = "", passwordErrorRes = Res.string.error_password_mismatch)
+                }
                 return@intent
             }
         }
-        reduce { state.copy(isLoading = true, passwordError = "") }
+        reduce { state.copy(isLoading = true, passwordError = "", passwordErrorRes = null) }
         try {
             changePasswordBySmsUseCase(state.phoneNumber, state.newPassword)
             reduce { state.copy(isLoading = false, step = FindPasswordStep.Complete) }
         } catch (e: Exception) {
-            reduce { state.copy(passwordError = e.message ?: "비밀번호 변경에 실패했습니다.", isLoading = false) }
+            val msg = e.message.orEmpty()
+            reduce {
+                state.copy(
+                    passwordError = msg,
+                    passwordErrorRes = if (msg.isEmpty()) Res.string.find_password_error_change_failed else null,
+                    isLoading = false
+                )
+            }
         }
     }
 

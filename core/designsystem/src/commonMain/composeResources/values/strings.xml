@@ -374,6 +374,8 @@
     <string name="error_password_mismatch">비밀번호가 일치하지 않습니다.</string>
     <string name="error_sms_code_required">인증번호 6자리를 입력해주세요.</string>
     <string name="error_sms_code_invalid">인증번호가 올바르지 않습니다.</string>
+    <string name="error_sms_send_failed">SMS 발송에 실패했습니다.</string>
+    <string name="error_sms_resend_failed">SMS 재발송에 실패했습니다.</string>
     <string name="category_select_required">카테고리를 선택해주세요.</string>
 
     <string name="menu_editor_error_name_required">메뉴 이름을 입력해주세요.</string>

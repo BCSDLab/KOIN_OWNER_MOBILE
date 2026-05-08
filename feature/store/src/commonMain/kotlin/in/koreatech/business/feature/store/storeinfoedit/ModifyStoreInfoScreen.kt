@@ -99,9 +99,11 @@ fun ModifyStoreInfoScreen(
         viewModel.load(storeId)
     }
 
-    LaunchedEffect(uiState.errorMessage) {
-        if (uiState.errorMessage.isNotEmpty()) {
-            snackbarHostState.showSnackbar(uiState.errorMessage)
+    val resolvedError = uiState.errorMessageRes?.let { stringResource(it) } ?: uiState.errorMessage
+
+    LaunchedEffect(resolvedError) {
+        if (resolvedError.isNotEmpty()) {
+            snackbarHostState.showSnackbar(resolvedError)
             viewModel.clearError()
         }
     }

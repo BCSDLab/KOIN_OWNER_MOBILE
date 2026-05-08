@@ -13,6 +13,22 @@ import `in`.koreatech.business.platform.PlatformFile
 import `in`.koreatech.business.ui.util.BusinessFormatters
 import `in`.koreatech.business.ui.util.BusinessValidators
 import koreatech.business.designsystem.resources.Res
+import koreatech.business.designsystem.resources.error_password_invalid
+import koreatech.business.designsystem.resources.error_password_mismatch
+import koreatech.business.designsystem.resources.error_phone_invalid
+import koreatech.business.designsystem.resources.error_sms_code_invalid
+import koreatech.business.designsystem.resources.error_sms_code_required
+import koreatech.business.designsystem.resources.error_sms_send_failed
+import koreatech.business.designsystem.resources.signup_error_attach_required
+import koreatech.business.designsystem.resources.signup_error_business_number_invalid
+import koreatech.business.designsystem.resources.signup_error_name_required
+import koreatech.business.designsystem.resources.signup_error_phone_already_registered
+import koreatech.business.designsystem.resources.signup_error_register_failed
+import koreatech.business.designsystem.resources.signup_error_search_failed
+import koreatech.business.designsystem.resources.signup_error_store_name_required
+import koreatech.business.designsystem.resources.signup_term_privacy_label
+import koreatech.business.designsystem.resources.signup_term_service_label
+import org.jetbrains.compose.resources.StringResource
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
@@ -42,7 +58,7 @@ enum class SignupStep {
 
 data class TermItem(
     val id: String,
-    val title: String,
+    val titleRes: StringResource,
     val content: String,
     val isRequired: Boolean,
     val isAgreed: Boolean = false,
@@ -52,30 +68,36 @@ data class TermItem(
 data class SignupUiState(
     val step: SignupStep = SignupStep.Terms,
     val terms: List<TermItem> = listOf(
-        TermItem("service", "서비스 이용약관 (필수)", "", isRequired = true),
-        TermItem("privacy", "개인정보 처리방침 (필수)", "", isRequired = true)
+        TermItem("service", Res.string.signup_term_service_label, "", isRequired = true),
+        TermItem("privacy", Res.string.signup_term_privacy_label, "", isRequired = true)
     ),
     val phoneNumber: String = "",
     val phoneError: String = "",
+    val phoneErrorRes: StringResource? = null,
     val smsCode: String = "",
     val smsToken: String = "",
     val smsError: String = "",
+    val smsErrorRes: StringResource? = null,
     val name: String = "",
     val password: String = "",
     val passwordConfirm: String = "",
     val isPasswordVisible: Boolean = false,
     val isPasswordConfirmVisible: Boolean = false,
     val passwordError: String = "",
+    val passwordErrorRes: StringResource? = null,
     val businessNumber: String = "",
     val businessNumberError: String = "",
+    val businessNumberErrorRes: StringResource? = null,
     val storeName: String = "",
     val storeNameError: String = "",
+    val storeNameErrorRes: StringResource? = null,
     val searchResults: List<ShopSearchResult> = emptyList(),
     val selectedShopId: Int? = null,
     val selectedShopName: String = "",
     val shopPhoneNumber: String = "",
     val attachedFiles: List<PlatformFile> = emptyList(),
     val attachFileError: String = "",
+    val attachFileErrorRes: StringResource? = null,
     val isLoading: Boolean = false
 ) {
     val allTermsAgreed: Boolean get() = terms.all { it.isAgreed }
@@ -130,23 +152,35 @@ class SignupViewModel(
     }
 
     fun onPhoneNumberChanged(value: String) = intent {
-        reduce { state.copy(phoneNumber = BusinessFormatters.digitsOnly(value, 11), phoneError = "") }
+        reduce {
+            state.copy(
+                phoneNumber = BusinessFormatters.digitsOnly(value, 11),
+                phoneError = "",
+                phoneErrorRes = null
+            )
+        }
     }
 
     fun onSmsCodeChanged(value: String) = intent {
-        reduce { state.copy(smsCode = BusinessFormatters.digitsOnly(value, 6), smsError = "") }
+        reduce {
+            state.copy(
+                smsCode = BusinessFormatters.digitsOnly(value, 6),
+                smsError = "",
+                smsErrorRes = null
+            )
+        }
     }
 
     fun onNameChanged(value: String) = intent {
-        reduce { state.copy(name = value, passwordError = "") }
+        reduce { state.copy(name = value, passwordError = "", passwordErrorRes = null) }
     }
 
     fun onPasswordChanged(value: String) = intent {
-        reduce { state.copy(password = value, passwordError = "") }
+        reduce { state.copy(password = value, passwordError = "", passwordErrorRes = null) }
     }
 
     fun onPasswordConfirmChanged(value: String) = intent {
-        reduce { state.copy(passwordConfirm = value, passwordError = "") }
+        reduce { state.copy(passwordConfirm = value, passwordError = "", passwordErrorRes = null) }
     }
 
     fun onTogglePasswordVisibility() = intent {
@@ -158,11 +192,24 @@ class SignupViewModel(
     }
 
     fun onBusinessNumberChanged(value: String) = intent {
-        reduce { state.copy(businessNumber = BusinessFormatters.digitsOnly(value, 10), businessNumberError = "") }
+        reduce {
+            state.copy(
+                businessNumber = BusinessFormatters.digitsOnly(value, 10),
+                businessNumberError = "",
+                businessNumberErrorRes = null
+            )
+        }
     }
 
     fun onStoreNameChanged(value: String) = intent {
-        reduce { state.copy(storeName = value, storeNameError = "", searchResults = emptyList()) }
+        reduce {
+            state.copy(
+                storeName = value,
+                storeNameError = "",
+                storeNameErrorRes = null,
+                searchResults = emptyList()
+            )
+        }
     }
 
     fun onSelectShop(shop: ShopSearchResult) {
@@ -175,7 +222,13 @@ class SignupViewModel(
     }
 
     fun onShopPhoneNumberChanged(value: String) = intent {
-        reduce { state.copy(shopPhoneNumber = BusinessFormatters.digitsOnly(value, 11), attachFileError = "") }
+        reduce {
+            state.copy(
+                shopPhoneNumber = BusinessFormatters.digitsOnly(value, 11),
+                attachFileError = "",
+                attachFileErrorRes = null
+            )
+        }
     }
 
     fun onAddFile(file: PlatformFile) = intent(registerIdling = false) {
@@ -224,48 +277,72 @@ class SignupViewModel(
     fun submitPhone() = intent {
         val phone = state.phoneNumber
         if (!BusinessValidators.isValidPhone(phone)) {
-            reduce { state.copy(phoneError = "올바른 전화번호를 입력해주세요.") }
+            reduce { state.copy(phoneError = "", phoneErrorRes = Res.string.error_phone_invalid) }
             return@intent
         }
-        reduce { state.copy(isLoading = true, phoneError = "") }
+        reduce { state.copy(isLoading = true, phoneError = "", phoneErrorRes = null) }
         try {
             val exists = checkPhoneExistsUseCase(phone)
             if (exists) {
-                reduce { state.copy(isLoading = false, phoneError = "이미 가입된 번호입니다.") }
+                reduce {
+                    state.copy(
+                        isLoading = false,
+                        phoneError = "",
+                        phoneErrorRes = Res.string.signup_error_phone_already_registered
+                    )
+                }
                 return@intent
             }
             sendSignupSmsUseCase(phone)
             reduce { state.copy(isLoading = false) }
             navigateNext()
         } catch (e: Exception) {
-            reduce { state.copy(phoneError = e.message ?: "SMS 발송에 실패했습니다.", isLoading = false) }
+            val msg = e.message.orEmpty()
+            reduce {
+                state.copy(
+                    phoneError = msg,
+                    phoneErrorRes = if (msg.isEmpty()) Res.string.error_sms_send_failed else null,
+                    isLoading = false
+                )
+            }
         }
     }
 
     fun submitSms() = intent {
         if (state.smsCode.length < 6) {
-            reduce { state.copy(smsError = "인증번호 6자리를 입력해주세요.") }
+            reduce { state.copy(smsError = "", smsErrorRes = Res.string.error_sms_code_required) }
             return@intent
         }
-        reduce { state.copy(isLoading = true, smsError = "") }
+        reduce { state.copy(isLoading = true, smsError = "", smsErrorRes = null) }
         try {
             val token = verifySignupSmsUseCase(state.phoneNumber, state.smsCode)
             reduce { state.copy(smsToken = token, isLoading = false) }
             navigateNext()
         } catch (e: Exception) {
-            reduce { state.copy(smsError = e.message ?: "인증번호가 올바르지 않습니다.", isLoading = false) }
+            val msg = e.message.orEmpty()
+            reduce {
+                state.copy(
+                    smsError = msg,
+                    smsErrorRes = if (msg.isEmpty()) Res.string.error_sms_code_invalid else null,
+                    isLoading = false
+                )
+            }
         }
     }
 
     fun submitPassword() = intent(registerIdling = false) {
         when {
-            state.name.isBlank() -> reduce { state.copy(passwordError = "이름을 입력해주세요.") }
-            !BusinessValidators.isValidPassword(state.password) -> reduce {
-                state.copy(passwordError = "영문, 숫자, 특수문자를 포함한 6~18자 비밀번호를 입력해주세요.")
+            state.name.isBlank() -> reduce {
+                state.copy(passwordError = "", passwordErrorRes = Res.string.signup_error_name_required)
             }
-            state.password != state.passwordConfirm -> reduce { state.copy(passwordError = "비밀번호가 일치하지 않습니다.") }
+            !BusinessValidators.isValidPassword(state.password) -> reduce {
+                state.copy(passwordError = "", passwordErrorRes = Res.string.error_password_invalid)
+            }
+            state.password != state.passwordConfirm -> reduce {
+                state.copy(passwordError = "", passwordErrorRes = Res.string.error_password_mismatch)
+            }
             else -> {
-                reduce { state.copy(passwordError = "") }
+                reduce { state.copy(passwordError = "", passwordErrorRes = null) }
                 navigateNext()
             }
         }
@@ -273,34 +350,63 @@ class SignupViewModel(
 
     fun submitBusinessNumber() = intent(registerIdling = false) {
         if (!BusinessValidators.isValidBusinessNumber(state.businessNumber)) {
-            reduce { state.copy(businessNumberError = "올바른 사업자번호를 입력해주세요.") }
+            reduce {
+                state.copy(
+                    businessNumberError = "",
+                    businessNumberErrorRes = Res.string.signup_error_business_number_invalid
+                )
+            }
             return@intent
         }
-        reduce { state.copy(businessNumberError = "") }
+        reduce { state.copy(businessNumberError = "", businessNumberErrorRes = null) }
         navigateNext()
     }
 
     fun submitStoreName() = intent {
         val name = state.storeName
         if (name.isBlank()) {
-            reduce { state.copy(storeNameError = "매장 이름을 입력해주세요.") }
+            reduce {
+                state.copy(
+                    storeNameError = "",
+                    storeNameErrorRes = Res.string.signup_error_store_name_required
+                )
+            }
             return@intent
         }
-        reduce { state.copy(isLoading = true, storeNameError = "", searchResults = emptyList()) }
+        reduce {
+            state.copy(
+                isLoading = true,
+                storeNameError = "",
+                storeNameErrorRes = null,
+                searchResults = emptyList()
+            )
+        }
         try {
             val results = searchShopsUseCase(name)
             reduce { state.copy(searchResults = results, isLoading = false) }
         } catch (e: Exception) {
-            reduce { state.copy(storeNameError = e.message ?: "검색 중 오류가 발생했습니다.", isLoading = false) }
+            val msg = e.message.orEmpty()
+            reduce {
+                state.copy(
+                    storeNameError = msg,
+                    storeNameErrorRes = if (msg.isEmpty()) Res.string.signup_error_search_failed else null,
+                    isLoading = false
+                )
+            }
         }
     }
 
     fun submitAttachFile() = intent {
         if (state.attachedFiles.isEmpty()) {
-            reduce { state.copy(attachFileError = "사업자 등록증을 첨부해주세요.") }
+            reduce {
+                state.copy(
+                    attachFileError = "",
+                    attachFileErrorRes = Res.string.signup_error_attach_required
+                )
+            }
             return@intent
         }
-        reduce { state.copy(isLoading = true, attachFileError = "") }
+        reduce { state.copy(isLoading = true, attachFileError = "", attachFileErrorRes = null) }
         try {
             val uploadedUrls = state.attachedFiles.map { file ->
                 uploadFileUseCase(fileName = file.name, mimeType = file.mimeType, bytes = file.bytes)
@@ -319,7 +425,14 @@ class SignupViewModel(
             reduce { state.copy(isLoading = false) }
             navigateNext()
         } catch (e: Exception) {
-            reduce { state.copy(attachFileError = e.message ?: "회원가입에 실패했습니다.", isLoading = false) }
+            val msg = e.message.orEmpty()
+            reduce {
+                state.copy(
+                    attachFileError = msg,
+                    attachFileErrorRes = if (msg.isEmpty()) Res.string.signup_error_register_failed else null,
+                    isLoading = false
+                )
+            }
         }
     }
 }

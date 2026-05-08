@@ -261,7 +261,7 @@ private fun TermItemRow(
                 )
             )
             Text(
-                text = term.title,
+                text = stringResource(term.titleRes),
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Medium,
                 color = KoinTheme.colors.neutral800,
@@ -354,8 +354,9 @@ internal fun AccountSetupStep(
             visualTransformation = PhoneVisualTransformation,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone, imeAction = ImeAction.Done)
         )
-        if (uiState.phoneError.isNotEmpty()) {
-            KoinTextFieldAlert(message = uiState.phoneError, type = KoinTextFieldAlertType.Error)
+        val phoneErrorMessage = uiState.phoneErrorRes?.let { stringResource(it) } ?: uiState.phoneError
+        if (phoneErrorMessage.isNotEmpty()) {
+            KoinTextFieldAlert(message = phoneErrorMessage, type = KoinTextFieldAlertType.Error)
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -406,8 +407,9 @@ internal fun SmsVerifyStep(
             placeholder = stringResource(Res.string.ph_sms_code),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number, imeAction = ImeAction.Done)
         )
-        if (uiState.smsError.isNotEmpty()) {
-            KoinTextFieldAlert(message = uiState.smsError, type = KoinTextFieldAlertType.Error)
+        val smsErrorMessage = uiState.smsErrorRes?.let { stringResource(it) } ?: uiState.smsError
+        if (smsErrorMessage.isNotEmpty()) {
+            KoinTextFieldAlert(message = smsErrorMessage, type = KoinTextFieldAlertType.Error)
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -505,8 +507,9 @@ internal fun EnterPasswordStep(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done)
         )
 
-        if (uiState.passwordError.isNotEmpty()) {
-            KoinTextFieldAlert(message = uiState.passwordError, type = KoinTextFieldAlertType.Error)
+        val passwordErrorMessage = uiState.passwordErrorRes?.let { stringResource(it) } ?: uiState.passwordError
+        if (passwordErrorMessage.isNotEmpty()) {
+            KoinTextFieldAlert(message = passwordErrorMessage, type = KoinTextFieldAlertType.Error)
         }
 
         Spacer(modifier = Modifier.height(40.dp))
@@ -554,8 +557,10 @@ internal fun BusinessNumberStep(
             fontSize = 12.sp,
             color = KoinTheme.colors.neutral500
         )
-        if (uiState.businessNumberError.isNotEmpty()) {
-            KoinTextFieldAlert(message = uiState.businessNumberError, type = KoinTextFieldAlertType.Error)
+        val businessNumberErrorMessage =
+            uiState.businessNumberErrorRes?.let { stringResource(it) } ?: uiState.businessNumberError
+        if (businessNumberErrorMessage.isNotEmpty()) {
+            KoinTextFieldAlert(message = businessNumberErrorMessage, type = KoinTextFieldAlertType.Error)
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -603,8 +608,10 @@ internal fun StoreNameStep(
             fontSize = 12.sp,
             color = KoinTheme.colors.neutral500
         )
-        if (uiState.storeNameError.isNotEmpty()) {
-            KoinTextFieldAlert(message = uiState.storeNameError, type = KoinTextFieldAlertType.Error)
+        val storeNameErrorMessage =
+            uiState.storeNameErrorRes?.let { stringResource(it) } ?: uiState.storeNameError
+        if (storeNameErrorMessage.isNotEmpty()) {
+            KoinTextFieldAlert(message = storeNameErrorMessage, type = KoinTextFieldAlertType.Error)
         }
 
         Spacer(modifier = Modifier.weight(1f))
@@ -819,9 +826,11 @@ internal fun AttachFileStep(
             }
         }
 
-        if (uiState.attachFileError.isNotEmpty()) {
+        val attachFileErrorMessage =
+            uiState.attachFileErrorRes?.let { stringResource(it) } ?: uiState.attachFileError
+        if (attachFileErrorMessage.isNotEmpty()) {
             Spacer(modifier = Modifier.height(8.dp))
-            KoinTextFieldAlert(message = uiState.attachFileError, type = KoinTextFieldAlertType.Error)
+            KoinTextFieldAlert(message = attachFileErrorMessage, type = KoinTextFieldAlertType.Error)
         }
 
         Spacer(modifier = Modifier.height(32.dp))

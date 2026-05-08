@@ -9,6 +9,10 @@ import `in`.koreatech.business.domain.usecase.store.UpdateStoreInfoUseCase
 import `in`.koreatech.business.platform.PlatformFile
 import `in`.koreatech.business.ui.util.BusinessFormatters
 import `in`.koreatech.business.ui.util.BusinessValidators
+import koreatech.business.designsystem.resources.Res
+import koreatech.business.designsystem.resources.error_phone_invalid
+import koreatech.business.designsystem.resources.store_info_error_operating_time_invalid
+import org.jetbrains.compose.resources.StringResource
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
@@ -22,7 +26,7 @@ class StoreInfoEditViewModel(
 
     fun load(storeId: String) {
         intent {
-            reduce { state.copy(storeId = storeId, isLoading = true, errorMessage = "") }
+            reduce { state.copy(storeId = storeId, isLoading = true, errorMessage = "", errorMessageRes = null) }
             try {
                 val detail = getStoreDetailUseCase(storeId)
                 val derivedMainCategoryId = detail.categoryIds.firstOrNull { it != ROOT_CATEGORY_ID } ?: ROOT_CATEGORY_ID
@@ -45,7 +49,13 @@ class StoreInfoEditViewModel(
                     )
                 }
             } catch (exception: Exception) {
-                reduce { state.copy(isLoading = false, errorMessage = exception.message.orEmpty()) }
+                reduce {
+                    state.copy(
+                        isLoading = false,
+                        errorMessage = exception.message.orEmpty(),
+                        errorMessageRes = null
+                    )
+                }
             }
         }
     }
@@ -84,14 +94,16 @@ class StoreInfoEditViewModel(
         intent {
             val storeId = state.storeId ?: return@intent
             if (!BusinessValidators.isValidPhone(state.phone)) {
-                reduce { state.copy(errorMessage = "올바른 전화번호를 입력해주세요.") }
+                reduce { state.copy(errorMessage = "", errorMessageRes = Res.string.error_phone_invalid) }
                 return@intent
             }
             if (state.operatingTimes.any { !it.isClosed && (!BusinessValidators.isValidTime(it.openTime.orEmpty()) || !BusinessValidators.isValidTime(it.closeTime.orEmpty())) }) {
-                reduce { state.copy(errorMessage = "운영 시간을 올바르게 선택해주세요.") }
+                reduce {
+                    state.copy(errorMessage = "", errorMessageRes = Res.string.store_info_error_operating_time_invalid)
+                }
                 return@intent
             }
-            reduce { state.copy(isLoading = true, errorMessage = "") }
+            reduce { state.copy(isLoading = true, errorMessage = "", errorMessageRes = null) }
             try {
                 val uploadedUrls = state.pendingImages.map { uploadFileUseCase(it.name, it.mimeType, it.bytes) }
                 val mainId = state.mainCategoryId.takeIf { it > 0 }
@@ -110,7 +122,13 @@ class StoreInfoEditViewModel(
                 reduce { state.copy(isLoading = false) }
                 postSideEffect(StoreInfoEditSideEffect.NavigateBack)
             } catch (exception: Exception) {
-                reduce { state.copy(isLoading = false, errorMessage = exception.message.orEmpty()) }
+                reduce {
+                    state.copy(
+                        isLoading = false,
+                        errorMessage = exception.message.orEmpty(),
+                        errorMessageRes = null
+                    )
+                }
             }
         }
     }
@@ -136,7 +154,7 @@ class StoreInfoEditViewModel(
     }
 
     fun clearError() {
-        intent(registerIdling = false) { reduce { state.copy(errorMessage = "") } }
+        intent(registerIdling = false) { reduce { state.copy(errorMessage = "", errorMessageRes = null) } }
     }
 
     companion object {
@@ -162,5 +180,6 @@ data class StoreInfoEditUiState(
     val existingImageUrls: List<String> = emptyList(),
     val pendingImages: List<PlatformFile> = emptyList(),
     val operatingTimes: List<OperatingTime> = defaultOperatingTimes,
-    val errorMessage: String = ""
+    val errorMessage: String = "",
+    val errorMessageRes: StringResource? = null
 )
