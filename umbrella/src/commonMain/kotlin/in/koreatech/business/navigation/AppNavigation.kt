@@ -5,6 +5,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
@@ -45,6 +46,14 @@ internal fun AppNavigation(
     rootNavController: NavHostController,
     appViewModel: AppViewModel
 ) {
+    // Bearer refresh가 영구 실패하면 AppViewModel이 sessionExpired를 emit한다.
+    // 어느 그래프에 있든 즉시 AuthGraph로 교체해 재로그인을 유도.
+    LaunchedEffect(Unit) {
+        appViewModel.sessionExpired.collect {
+            rootNavController.replaceRoot(AuthGraph)
+        }
+    }
+
     NavHost(
         navController = rootNavController,
         startDestination = AppRoute.Loading,
@@ -94,14 +103,13 @@ internal fun AppNavigation(
 
         storeGraph(
             navController = rootNavController,
-            onSignOut = {
-                appViewModel.clearSession()
-                rootNavController.replaceRoot(AuthGraph)
-            },
-            onDeleteAccount = {
-                appViewModel.deleteAccount()
-                rootNavController.replaceRoot(AuthGraph)
-            },
+            // clearSession/deleteAccount은 토큰을 비우고, 그 결과 observeAccessToken
+            // 흐름이 빈 값을 emit한다 → AppViewModel이 sessionExpired를 발사 →
+            // 위쪽 LaunchedEffect가 replaceRoot(AuthGraph) 한 번만 수행한다.
+            // 콜백에서 replaceRoot를 별도로 호출하면 AuthGraph가 재생성돼
+            // Auth 화면 상태/ViewModel이 리셋되므로 호출하지 않는다.
+            onSignOut = { appViewModel.clearSession() },
+            onDeleteAccount = { appViewModel.deleteAccount() },
             onNavigateToInsertStore = { rootNavController.navigate(InsertStoreGraph) },
             onNavigateToPasswordReset = { rootNavController.navigateToPasswordReset() },
             onNavigateToPrivacyPolicy = { rootNavController.navigateToPrivacyPolicy() },

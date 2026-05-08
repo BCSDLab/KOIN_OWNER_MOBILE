@@ -37,6 +37,7 @@ import `in`.koreatech.business.domain.usecase.store.UpdateMenuUseCase
 import `in`.koreatech.business.domain.usecase.store.UpdateStoreInfoUseCase
 import `in`.koreatech.business.domain.usecase.token.ClearTokensUseCase
 import `in`.koreatech.business.domain.usecase.token.GetAccessTokenUseCase
+import `in`.koreatech.business.domain.usecase.token.ObserveAccessTokenUseCase
 import org.koin.dsl.module
 
 val useCaseModule = module {
@@ -56,6 +57,7 @@ val useCaseModule = module {
     single { UploadFileUseCase(get()) }
     single { SearchShopsUseCase(get()) }
     single { GetAccessTokenUseCase(get()) }
+    single { ObserveAccessTokenUseCase(get()) }
     single { ClearTokensUseCase(get()) }
     single { ObserveThemeModeUseCase(get()) }
     single { SetThemeModeUseCase(get()) }

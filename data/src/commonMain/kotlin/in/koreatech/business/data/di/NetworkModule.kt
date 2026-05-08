@@ -82,20 +82,24 @@ private fun createAuthHttpClient(
             refreshTokens {
                 val currentRefreshToken = tokenLocalDataSource.getRefreshToken()
                 if (currentRefreshToken.isBlank()) {
+                    Napier.w("Refresh skipped: refresh token is blank — clearing session", tag = "Auth")
                     tokenLocalDataSource.saveAccessToken("")
                     tokenLocalDataSource.saveRefreshToken("")
                     return@refreshTokens null
                 }
 
+                Napier.i("Access token expired — attempting refresh", tag = "Auth")
                 runCatching {
                     ownerAuthApi.refreshToken(currentRefreshToken)
                 }.fold(
                     onSuccess = { response ->
+                        Napier.i("Token refresh succeeded", tag = "Auth")
                         tokenLocalDataSource.saveAccessToken(response.token)
                         tokenLocalDataSource.saveRefreshToken(response.refreshToken)
                         BearerTokens(response.token, response.refreshToken)
                     },
-                    onFailure = {
+                    onFailure = { error ->
+                        Napier.w("Token refresh failed: ${error.message} — clearing session", tag = "Auth")
                         tokenLocalDataSource.saveAccessToken("")
                         tokenLocalDataSource.saveRefreshToken("")
                         null
