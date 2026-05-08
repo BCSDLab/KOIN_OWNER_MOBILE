@@ -2,55 +2,28 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>CyclomaticComplexMethod:ManageMenusScreen.kt$@Composable fun ManageMenusScreen( storeId: String, onNavigateToMenuEditor: (menuId: String?) -&gt; Unit, onNavigateToCategories: () -&gt; Unit, onNavigateBack: () -&gt; Unit, modifier: Modifier = Modifier, sidebarActions: StoreSidebarActions = StoreSidebarActions(), viewModel: ManageMenusViewModel = koinViewModel() )</ID>
-    <ID>CyclomaticComplexMethod:MenuEditorScreen.kt$@Composable fun MenuEditorScreen( storeId: String, menuId: String?, onNavigateBack: () -&gt; Unit, modifier: Modifier = Modifier, sidebarActions: StoreSidebarActions = StoreSidebarActions(), viewModel: MenuEditorViewModel = koinViewModel() )</ID>
-    <ID>CyclomaticComplexMethod:MenuEditorViewModel.kt$MenuEditorViewModel$fun submit()</ID>
-    <ID>CyclomaticComplexMethod:StoreDashboardScreen.kt$@Composable fun StoreDashboardScreen( activeStoreContext: ActiveStoreContext?, onNavigateToMenuManage: (storeId: String) -&gt; Unit, onNavigateToMenuEditor: (storeId: String, menuId: String?) -&gt; Unit, onNavigateToEventEditor: (storeId: String) -&gt; Unit, onNavigateToStoreInfoEdit: (storeId: String) -&gt; Unit, onNavigateToInsertStore: () -&gt; Unit, onNavigateToSettings: () -&gt; Unit, onSignOut: () -&gt; Unit, onDeleteAccount: () -&gt; Unit, modifier: Modifier = Modifier, viewModel: StoreDashboardViewModel = koinViewModel() )</ID>
-    <ID>CyclomaticComplexMethod:StoreDashboardScreen.kt$@Composable private fun StoreHeroCard( storeName: String, address: String, isDelivery: Boolean, isCard: Boolean, isBank: Boolean, variant: HeroVariant, modifier: Modifier = Modifier, phone: String = "", onModifyStoreInfo: (() -&gt; Unit)? = null, onRefresh: (() -&gt; Unit)? = null )</ID>
-    <ID>FunctionNaming:MainViewController.kt$fun MainViewController()</ID>
-    <ID>LongMethod:MenuEditorViewModel.kt$MenuEditorViewModel$fun submit()</ID>
     <ID>LongMethod:OwnerCrypto.kt$fun sha256(value: String): String</ID>
     <ID>LongParameterList:AuthRepository.kt$AuthRepository$( phoneNumber: String, password: String, name: String, companyNumber: String, shopNumber: String, shopId: Int?, shopName: String, attachmentUrls: List&lt;String&gt; )</ID>
+    <ID>LongParameterList:RegisterEventUseCase.kt$RegisterEventUseCase$( storeId: String, title: String, content: String, imageUrls: List&lt;String&gt;, startDate: String, endDate: String )</ID>
+    <ID>LongParameterList:RegisterMenuUseCase.kt$RegisterMenuUseCase$( storeId: String, name: String, price: Int?, description: String, imageUrls: List&lt;String&gt;, optionPrices: List&lt;MenuOptionPrice&gt;, categoryIds: List&lt;Int&gt; )</ID>
+    <ID>LongParameterList:RegisterStoreUseCase.kt$RegisterStoreUseCase$( name: String, address: String, mainCategoryId: Int, categoryIds: List&lt;Int&gt;, phone: String, delivery: Boolean, deliveryPrice: Int, payCard: Boolean, payBank: Boolean, description: String, imageUrls: List&lt;String&gt;, operatingTimes: List&lt;OperatingTime&gt; )</ID>
+    <ID>LongParameterList:RegisterUseCase.kt$RegisterUseCase$( phoneNumber: String, password: String, name: String, companyNumber: String, shopNumber: String, shopId: Int?, shopName: String, attachmentUrls: List&lt;String&gt; )</ID>
     <ID>LongParameterList:StoreRepository.kt$StoreRepository$( name: String, address: String, mainCategoryId: Int, categoryIds: List&lt;Int&gt;, phone: String, delivery: Boolean, deliveryPrice: Int, payCard: Boolean, payBank: Boolean, description: String, imageUrls: List&lt;String&gt;, operatingTimes: List&lt;OperatingTime&gt; )</ID>
-    <ID>LongParameterList:StoreRepository.kt$StoreRepository$( storeId: String, menuId: String, name: String, price: Int?, description: String, imageUrls: List&lt;String&gt;, optionPrices: List&lt;MenuOptionPrice&gt;, categoryIds: List&lt;Int&gt;, isHidden: Boolean )</ID>
-    <ID>LongParameterList:StoreRepository.kt$StoreRepository$( storeId: String, name: String, phone: String, address: String, description: String, openTime: String, closeTime: String, categoryIds: List&lt;Int&gt;, isDelivery: Boolean, isCard: Boolean, isBank: Boolean, imageUrls: List&lt;String&gt;, operatingTimes: List&lt;OperatingTime&gt; )</ID>
-    <ID>LongParameterList:StoreRepository.kt$StoreRepository$( storeId: String, name: String, price: Int?, description: String, imageUrls: List&lt;String&gt;, optionPrices: List&lt;MenuOptionPrice&gt;, categoryIds: List&lt;Int&gt;, isHidden: Boolean )</ID>
+    <ID>LongParameterList:StoreRepository.kt$StoreRepository$( storeId: String, eventId: String, title: String, content: String, imageUrls: List&lt;String&gt;, startDate: String, endDate: String )</ID>
+    <ID>LongParameterList:StoreRepository.kt$StoreRepository$( storeId: String, menuId: String, name: String, price: Int?, description: String, imageUrls: List&lt;String&gt;, optionPrices: List&lt;MenuOptionPrice&gt;, categoryIds: List&lt;Int&gt; )</ID>
+    <ID>LongParameterList:StoreRepository.kt$StoreRepository$( storeId: String, name: String, phone: String, address: String, description: String, mainCategoryId: Int, categoryIds: List&lt;Int&gt;, isDelivery: Boolean, deliveryPrice: Int, isCard: Boolean, isBank: Boolean, imageUrls: List&lt;String&gt;, operatingTimes: List&lt;OperatingTime&gt; )</ID>
+    <ID>LongParameterList:StoreRepository.kt$StoreRepository$( storeId: String, name: String, price: Int?, description: String, imageUrls: List&lt;String&gt;, optionPrices: List&lt;MenuOptionPrice&gt;, categoryIds: List&lt;Int&gt; )</ID>
     <ID>LongParameterList:StoreRepository.kt$StoreRepository$( storeId: String, title: String, content: String, imageUrls: List&lt;String&gt;, startDate: String, endDate: String )</ID>
-    <ID>MatchingDeclarationName:AppNavigation.kt$AppRoute</ID>
-    <ID>MatchingDeclarationName:ColorPalette.kt$KoinColorPalette</ID>
-    <ID>MatchingDeclarationName:KoinTextFieldAlert.kt$KoinTextFieldAlertType</ID>
-    <ID>MatchingDeclarationName:Type.kt$KoinTypography</ID>
-    <ID>SwallowedException:AppViewModel.kt$AppViewModel$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:AppViewModel.kt$AppViewModel$e: Exception</ID>
+    <ID>LongParameterList:UpdateEventUseCase.kt$UpdateEventUseCase$( storeId: String, eventId: String, title: String, content: String, imageUrls: List&lt;String&gt;, startDate: String, endDate: String )</ID>
+    <ID>LongParameterList:UpdateMenuUseCase.kt$UpdateMenuUseCase$( storeId: String, menuId: String, name: String, price: Int?, description: String, imageUrls: List&lt;String&gt;, optionPrices: List&lt;MenuOptionPrice&gt;, categoryIds: List&lt;Int&gt; )</ID>
+    <ID>LongParameterList:UpdateStoreInfoUseCase.kt$UpdateStoreInfoUseCase$( storeId: String, name: String, phone: String, address: String, description: String, mainCategoryId: Int, categoryIds: List&lt;Int&gt;, isDelivery: Boolean, deliveryPrice: Int, isCard: Boolean, isBank: Boolean, imageUrls: List&lt;String&gt;, operatingTimes: List&lt;OperatingTime&gt; )</ID>
     <ID>TooGenericExceptionCaught:AuthRepositoryImpl.kt$AuthRepositoryImpl$exception: Exception</ID>
-    <ID>TooGenericExceptionCaught:FindPasswordViewModel.kt$FindPasswordViewModel$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:InsertStoreViewModel.kt$InsertStoreViewModel$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:ManageCategoriesViewModel.kt$ManageCategoriesViewModel$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:ManageMenusViewModel.kt$ManageMenusViewModel$exception: Exception</ID>
-    <ID>TooGenericExceptionCaught:MenuEditorViewModel.kt$MenuEditorViewModel$exception: Exception</ID>
     <ID>TooGenericExceptionCaught:OwnerRepositoryImpl.kt$OwnerRepositoryImpl$exception: Exception</ID>
-    <ID>TooGenericExceptionCaught:SettingsViewModel.kt$SettingsViewModel$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:SignInViewModel.kt$SignInViewModel$exception: Exception</ID>
-    <ID>TooGenericExceptionCaught:SignupViewModel.kt$SignupViewModel$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:StoreDashboardViewModel.kt$StoreDashboardViewModel$exception: Exception</ID>
-    <ID>TooGenericExceptionCaught:StoreInfoEditViewModel.kt$StoreInfoEditViewModel$exception: Exception</ID>
     <ID>TooGenericExceptionCaught:StoreRepositoryImpl.kt$StoreRepositoryImpl$exception: Exception</ID>
-    <ID>TooGenericExceptionCaught:WriteEventViewModel.kt$WriteEventViewModel$exception: Exception</ID>
-    <ID>TooManyFunctions:AppViewModel.kt$AppViewModel : ViewModelContainerHost</ID>
-    <ID>TooManyFunctions:InsertStoreScreen.kt$in.koreatech.business.feature.insertstore.InsertStoreScreen.kt</ID>
-    <ID>TooManyFunctions:InsertStoreViewModel.kt$InsertStoreViewModel : ViewModelContainerHost</ID>
-    <ID>TooManyFunctions:MenuEditorViewModel.kt$MenuEditorViewModel : ViewModelContainerHost</ID>
     <ID>TooManyFunctions:OwnerApi.kt$OwnerApi</ID>
     <ID>TooManyFunctions:OwnerRemoteDataSource.kt$OwnerRemoteDataSource</ID>
-    <ID>TooManyFunctions:SettingsScreen.kt$in.koreatech.business.feature.settings.SettingsScreen.kt</ID>
-    <ID>TooManyFunctions:SignupScreen.kt$in.koreatech.business.feature.signup.SignupScreen.kt</ID>
-    <ID>TooManyFunctions:SignupViewModel.kt$SignupViewModel : ViewModelContainerHost</ID>
-    <ID>TooManyFunctions:StoreDashboardScreen.kt$in.koreatech.business.feature.store.dashboard.StoreDashboardScreen.kt</ID>
-    <ID>TooManyFunctions:StoreDashboardViewModel.kt$StoreDashboardViewModel : ViewModelContainerHost</ID>
-    <ID>TooManyFunctions:StoreInfoEditViewModel.kt$StoreInfoEditViewModel : ViewModelContainerHost</ID>
     <ID>TooManyFunctions:StoreRepository.kt$StoreRepository</ID>
     <ID>TooManyFunctions:StoreRepositoryImpl.kt$StoreRepositoryImpl : StoreRepository</ID>
-    <ID>TooManyFunctions:Type.kt$in.koreatech.business.ui.theme.Type.kt</ID>
     <ID>TopLevelPropertyNaming:DataStoreUtils.kt$internal const val dataStoreFileName = "business.preferences_pb"</ID>
   </CurrentIssues>
 </SmellBaseline>
