@@ -22,6 +22,9 @@ kotlin {
             implementation(compose.materialIconsExtended)
             implementation(libs.aboutlibraries.compose.m3)
         }
+        commonTest.dependencies {
+            implementation(libs.orbit.test)
+        }
     }
 }
 

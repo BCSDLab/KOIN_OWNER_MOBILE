@@ -9,6 +9,7 @@ import `in`.koreatech.business.domain.usecase.preferences.SetThemeModeUseCase
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.syntax.Syntax
 import org.orbitmvi.orbit.viewmodel.container
 
 data class SettingsUiState(
@@ -25,16 +26,17 @@ class SettingsViewModel(
     private val getOwnerProfileUseCase: GetOwnerProfileUseCase
 ) : ViewModel(),
     ContainerHost<SettingsUiState, Nothing> {
-    override val container = container<SettingsUiState, Nothing>(SettingsUiState())
+    override val container = container<SettingsUiState, Nothing>(
+        initialState = SettingsUiState(),
+        onCreate = {
+            observeThemeModeUseCase()
+                .onEach { mode -> reduce { state.copy(themeMode = mode) } }
+                .launchIn(viewModelScope)
+            loadOwnerProfile()
+        }
+    )
 
-    init {
-        observeThemeModeUseCase()
-            .onEach { mode -> intent { reduce { state.copy(themeMode = mode) } } }
-            .launchIn(viewModelScope)
-        loadOwnerProfile()
-    }
-
-    private fun loadOwnerProfile() = intent {
+    private suspend fun Syntax<SettingsUiState, Nothing>.loadOwnerProfile() {
         reduce { state.copy(isProfileLoading = true, profileError = "") }
         try {
             val profile = getOwnerProfileUseCase()
