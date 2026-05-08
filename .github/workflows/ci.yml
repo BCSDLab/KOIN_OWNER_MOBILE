@@ -2,7 +2,7 @@ name: CI
 
 on:
   pull_request:
-    types: [opened, reopened, synchronize]
+    types: [opened, reopened, synchronize, ready_for_review]
 
 concurrency:
   group: ci-${{ github.event.pull_request.number }}
@@ -123,11 +123,25 @@ jobs:
       - name: Assemble Android debug APK
         run: ./gradlew :composeApp:assembleDebug
 
+  ios-framework:
+    name: iOS Framework Link
+    runs-on: macos-latest
+    if: github.event.pull_request.draft == false
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: ./.github/actions/gradle-setup
+        with:
+          properties: ${{ secrets.PROPERTIES }}
+
+      - name: Link iOS frameworks (Arm64 + Simulator)
+        run: ./gradlew :umbrella:linkDebugFrameworkIosArm64 :umbrella:linkDebugFrameworkIosSimulatorArm64
+
   label:
     name: Add CI Label
-    needs: [ lint, test, android-build ]
+    needs: [ lint, test, android-build, ios-framework ]
     runs-on: ubuntu-latest
-    if: needs.lint.result == 'success'
+    if: needs.lint.result == 'success' && (needs.ios-framework.result == 'success' || needs.ios-framework.result == 'skipped')
     permissions:
       pull-requests: write
     steps:
