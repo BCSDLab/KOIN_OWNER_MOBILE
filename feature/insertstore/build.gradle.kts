@@ -21,6 +21,9 @@ kotlin {
             implementation(libs.coil.network.ktor)
             implementation(compose.materialIconsExtended)
         }
+        commonTest.dependencies {
+            implementation(libs.orbit.test)
+        }
     }
 }
 

@@ -21,6 +21,7 @@ import koreatech.business.designsystem.resources.insert_store_error_name_require
 import koreatech.business.designsystem.resources.insert_store_error_register_failed
 import org.jetbrains.compose.resources.StringResource
 import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.syntax.Syntax
 import org.orbitmvi.orbit.viewmodel.container
 
 enum class InsertStoreStep {
@@ -70,13 +71,12 @@ class InsertStoreViewModel(
     private val uploadFileUseCase: UploadFileUseCase
 ) : ViewModel(),
     ContainerHost<InsertStoreUiState, Nothing> {
-    override val container = container<InsertStoreUiState, Nothing>(InsertStoreUiState())
+    override val container = container<InsertStoreUiState, Nothing>(
+        initialState = InsertStoreUiState(),
+        onCreate = { loadCategories() }
+    )
 
-    init {
-        loadCategories()
-    }
-
-    private fun loadCategories() = intent {
+    private suspend fun Syntax<InsertStoreUiState, Nothing>.loadCategories() {
         reduce { state.copy(isLoading = true) }
         try {
             val categories = getStoreCategoriesUseCase()
