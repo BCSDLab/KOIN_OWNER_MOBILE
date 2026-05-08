@@ -30,6 +30,7 @@ import koreatech.business.designsystem.resources.signup_term_privacy_label
 import koreatech.business.designsystem.resources.signup_term_service_label
 import org.jetbrains.compose.resources.StringResource
 import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.syntax.Syntax
 import org.orbitmvi.orbit.viewmodel.container
 
 enum class SignupStep {
@@ -114,13 +115,12 @@ class SignupViewModel(
     private val uploadFileUseCase: UploadFileUseCase
 ) : ViewModel(),
     ContainerHost<SignupUiState, Nothing> {
-    override val container = container<SignupUiState, Nothing>(SignupUiState())
+    override val container = container<SignupUiState, Nothing>(
+        initialState = SignupUiState(),
+        onCreate = { loadTermsContent() }
+    )
 
-    init {
-        loadTermsContent()
-    }
-
-    private fun loadTermsContent() = intent {
+    private suspend fun Syntax<SignupUiState, Nothing>.loadTermsContent() {
         try {
             val serviceText = Res.readBytes("files/Terms_koin_sign_up.txt").decodeToString()
             val privacyText = Res.readBytes("files/Terms_personal_information.txt").decodeToString()
