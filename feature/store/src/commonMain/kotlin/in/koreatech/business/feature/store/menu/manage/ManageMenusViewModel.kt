@@ -18,14 +18,15 @@ class ManageMenusViewModel(
     private val observeActiveStoreIdUseCase: ObserveActiveStoreIdUseCase
 ) : ViewModel(),
     ContainerHost<ManageMenusUiState, ManageMenusSideEffect> {
-    override val container = container<ManageMenusUiState, ManageMenusSideEffect>(ManageMenusUiState())
-
-    init {
-        observeActiveStoreIdUseCase()
-            .distinctUntilChanged()
-            .onEach { id -> if (!id.isNullOrBlank()) load(id) }
-            .launchIn(viewModelScope)
-    }
+    override val container = container<ManageMenusUiState, ManageMenusSideEffect>(
+        initialState = ManageMenusUiState(),
+        onCreate = {
+            observeActiveStoreIdUseCase()
+                .distinctUntilChanged()
+                .onEach { id -> if (!id.isNullOrBlank()) load(id) }
+                .launchIn(viewModelScope)
+        }
+    )
 
     fun load(storeId: String) {
         intent {

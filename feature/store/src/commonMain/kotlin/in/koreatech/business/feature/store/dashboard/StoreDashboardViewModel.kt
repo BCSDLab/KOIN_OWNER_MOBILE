@@ -33,14 +33,15 @@ class StoreDashboardViewModel(
     private val observeActiveStoreIdUseCase: ObserveActiveStoreIdUseCase
 ) : ViewModel(),
     ContainerHost<StoreDashboardUiState, StoreDashboardSideEffect> {
-    override val container = container<StoreDashboardUiState, StoreDashboardSideEffect>(StoreDashboardUiState())
-
-    init {
-        observeActiveStoreIdUseCase()
-            .distinctUntilChanged()
-            .onEach { id -> load(id) }
-            .launchIn(viewModelScope)
-    }
+    override val container = container<StoreDashboardUiState, StoreDashboardSideEffect>(
+        initialState = StoreDashboardUiState(),
+        onCreate = {
+            observeActiveStoreIdUseCase()
+                .distinctUntilChanged()
+                .onEach { id -> load(id) }
+                .launchIn(viewModelScope)
+        }
+    )
 
     fun load(initialStoreId: String?) {
         intent {

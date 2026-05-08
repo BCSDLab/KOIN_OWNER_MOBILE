@@ -31,14 +31,15 @@ class EventTabViewModel(
     private val observeActiveStoreIdUseCase: ObserveActiveStoreIdUseCase
 ) : ViewModel(),
     ContainerHost<EventTabUiState, Nothing> {
-    override val container = container<EventTabUiState, Nothing>(EventTabUiState())
-
-    init {
-        observeActiveStoreIdUseCase()
-            .distinctUntilChanged()
-            .onEach { id -> if (!id.isNullOrBlank()) load(id) }
-            .launchIn(viewModelScope)
-    }
+    override val container = container<EventTabUiState, Nothing>(
+        initialState = EventTabUiState(),
+        onCreate = {
+            observeActiveStoreIdUseCase()
+                .distinctUntilChanged()
+                .onEach { id -> if (!id.isNullOrBlank()) load(id) }
+                .launchIn(viewModelScope)
+        }
+    )
 
     fun load(storeId: String) {
         intent {

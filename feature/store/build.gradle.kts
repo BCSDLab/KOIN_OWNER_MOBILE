@@ -25,6 +25,9 @@ kotlin {
             implementation(compose.materialIconsExtended)
             implementation(libs.compose.material3.adaptive.navigation.suite)
         }
+        commonTest.dependencies {
+            implementation(libs.orbit.test)
+        }
     }
 }
 
