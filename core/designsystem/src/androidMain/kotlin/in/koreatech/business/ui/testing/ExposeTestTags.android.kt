@@ -1,7 +1,7 @@
-package `in`.koreatech.business
+package `in`.koreatech.business.ui.testing
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 
-internal actual fun Modifier.rootTestSemantics(): Modifier = semantics { testTagsAsResourceId = true }
+actual fun Modifier.exposeTestTags(): Modifier = semantics { testTagsAsResourceId = true }

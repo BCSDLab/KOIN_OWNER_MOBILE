@@ -42,6 +42,7 @@ import `in`.koreatech.business.feature.store.di.storeModule
 import `in`.koreatech.business.navigation.AppNavigation
 import `in`.koreatech.business.ui.component.FilledActionButton
 import `in`.koreatech.business.ui.component.KoinLogo
+import `in`.koreatech.business.ui.testing.exposeTestTags
 import `in`.koreatech.business.ui.theme.KoinTheme
 import koreatech.business.designsystem.resources.Res
 import koreatech.business.designsystem.resources.checking_login
@@ -77,7 +78,7 @@ fun App() {
         KoinTheme(darkTheme = darkTheme) {
             Surface(
                 color = KoinTheme.colors.neutral50,
-                modifier = Modifier.fillMaxSize().rootTestSemantics()
+                modifier = Modifier.fillMaxSize().exposeTestTags()
             ) {
                 AppNavigation(
                     rootNavController = rootNavController,

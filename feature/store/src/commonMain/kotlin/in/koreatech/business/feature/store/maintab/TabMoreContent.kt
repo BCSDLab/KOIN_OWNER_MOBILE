@@ -62,6 +62,7 @@ import `in`.koreatech.business.feature.settings.SettingsViewModel
 import `in`.koreatech.business.feature.store.dashboard.StoreDashboardViewModel
 import `in`.koreatech.business.platform.getAppVersion
 import `in`.koreatech.business.ui.component.KoinCard
+import `in`.koreatech.business.ui.testing.exposeTestTags
 import `in`.koreatech.business.ui.theme.KoinTheme
 import koreatech.business.designsystem.resources.*
 import koreatech.business.designsystem.resources.Res
@@ -520,7 +521,13 @@ private fun ConfirmDialog(
         confirmButton = {
             TextButton(
                 onClick = onConfirm,
-                modifier = if (confirmTestTag != null) Modifier.semantics { testTag = confirmTestTag } else Modifier
+                modifier = if (confirmTestTag != null) {
+                    Modifier
+                        .exposeTestTags()
+                        .semantics { testTag = confirmTestTag }
+                } else {
+                    Modifier
+                }
             ) {
                 Text(
                     text = confirmLabel,
