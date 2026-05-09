@@ -34,12 +34,10 @@ import androidx.compose.material.icons.filled.VpnKey
 import androidx.compose.material.icons.outlined.DarkMode
 import androidx.compose.material.icons.outlined.LightMode
 import androidx.compose.material.icons.outlined.Refresh
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -52,8 +50,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -62,7 +58,7 @@ import `in`.koreatech.business.feature.settings.SettingsViewModel
 import `in`.koreatech.business.feature.store.dashboard.StoreDashboardViewModel
 import `in`.koreatech.business.platform.getAppVersion
 import `in`.koreatech.business.ui.component.KoinCard
-import `in`.koreatech.business.ui.testing.exposeTestTags
+import `in`.koreatech.business.ui.component.KoinConfirmDialog
 import `in`.koreatech.business.ui.theme.KoinTheme
 import koreatech.business.designsystem.resources.*
 import koreatech.business.designsystem.resources.Res
@@ -254,7 +250,7 @@ fun TabMoreContent(
     }
 
     if (showLogoutDialog) {
-        ConfirmDialog(
+        KoinConfirmDialog(
             title = stringResource(Res.string.logout),
             message = stringResource(Res.string.logout_confirm),
             confirmLabel = stringResource(Res.string.logout),
@@ -268,7 +264,7 @@ fun TabMoreContent(
         )
     }
     if (showDeleteDialog) {
-        ConfirmDialog(
+        KoinConfirmDialog(
             title = stringResource(Res.string.delete_account),
             message = stringResource(Res.string.delete_account_confirm),
             confirmLabel = stringResource(Res.string.delete_account),
@@ -277,7 +273,8 @@ fun TabMoreContent(
                 showDeleteDialog = false
                 onDeleteAccount()
             },
-            onDismiss = { showDeleteDialog = false }
+            onDismiss = { showDeleteDialog = false },
+            confirmTestTag = "delete_account_confirm"
         )
     }
 }
@@ -492,57 +489,4 @@ private fun ThemePickerInline(
             }
         }
     }
-}
-
-@Composable
-private fun ConfirmDialog(
-    title: String,
-    message: String,
-    confirmLabel: String,
-    danger: Boolean,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit,
-    confirmTestTag: String? = null
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.headlineMedium
-            )
-        },
-        text = {
-            Text(
-                text = message,
-                style = MaterialTheme.typography.bodyMedium
-            )
-        },
-        confirmButton = {
-            TextButton(
-                onClick = onConfirm,
-                modifier = if (confirmTestTag != null) {
-                    Modifier
-                        .exposeTestTags()
-                        .semantics { testTag = confirmTestTag }
-                } else {
-                    Modifier
-                }
-            ) {
-                Text(
-                    text = confirmLabel,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = if (danger) KoinTheme.colors.danger700 else KoinTheme.colors.primary500
-                )
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text(
-                    text = stringResource(Res.string.cancel),
-                    style = MaterialTheme.typography.labelMedium
-                )
-            }
-        }
-    )
 }

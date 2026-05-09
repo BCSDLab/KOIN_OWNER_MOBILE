@@ -395,7 +395,7 @@ private fun SidebarAccountCard(
     }
 
     if (showLogoutDialog && onLogout != null) {
-        AccountConfirmDialog(
+        KoinConfirmDialog(
             title = stringResource(Res.string.logout),
             message = stringResource(Res.string.logout_confirm),
             confirmLabel = stringResource(Res.string.logout),
@@ -404,11 +404,12 @@ private fun SidebarAccountCard(
                 showLogoutDialog = false
                 onLogout()
             },
-            onDismiss = { showLogoutDialog = false }
+            onDismiss = { showLogoutDialog = false },
+            confirmTestTag = "logout_confirm"
         )
     }
     if (showDeleteDialog && onDeleteAccount != null) {
-        AccountConfirmDialog(
+        KoinConfirmDialog(
             title = stringResource(Res.string.delete_account),
             message = stringResource(Res.string.delete_account_confirm),
             confirmLabel = stringResource(Res.string.delete_account),
@@ -417,40 +418,8 @@ private fun SidebarAccountCard(
                 showDeleteDialog = false
                 onDeleteAccount()
             },
-            onDismiss = { showDeleteDialog = false }
+            onDismiss = { showDeleteDialog = false },
+            confirmTestTag = "delete_account_confirm"
         )
     }
-}
-
-@Composable
-private fun AccountConfirmDialog(
-    title: String,
-    message: String,
-    confirmLabel: String,
-    danger: Boolean,
-    onConfirm: () -> Unit,
-    onDismiss: () -> Unit
-) {
-    androidx.compose.material3.AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(text = title, style = MaterialTheme.typography.headlineMedium) },
-        text = { Text(text = message, style = MaterialTheme.typography.bodyMedium) },
-        confirmButton = {
-            androidx.compose.material3.TextButton(onClick = onConfirm) {
-                Text(
-                    text = confirmLabel,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = if (danger) KoinTheme.colors.danger700 else KoinTheme.colors.primary500
-                )
-            }
-        },
-        dismissButton = {
-            androidx.compose.material3.TextButton(onClick = onDismiss) {
-                Text(
-                    text = stringResource(Res.string.cancel),
-                    style = MaterialTheme.typography.labelMedium
-                )
-            }
-        }
-    )
 }
