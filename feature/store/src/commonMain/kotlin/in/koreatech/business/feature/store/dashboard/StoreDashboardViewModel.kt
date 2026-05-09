@@ -2,6 +2,9 @@ package `in`.koreatech.business.feature.store.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import `in`.koreatech.business.domain.model.MenuCategory
+import `in`.koreatech.business.domain.model.StoreDetail
+import `in`.koreatech.business.domain.model.StoreEvent
 import `in`.koreatech.business.domain.model.owner.OwnerStore
 import `in`.koreatech.business.domain.usecase.owner.GetOwnerProfileUseCase
 import `in`.koreatech.business.domain.usecase.owner.GetShopListUseCase
@@ -11,6 +14,7 @@ import `in`.koreatech.business.domain.usecase.store.GetStoreEventsUseCase
 import `in`.koreatech.business.domain.usecase.store.GetStoreMenusUseCase
 import `in`.koreatech.business.domain.usecase.store.ObserveActiveStoreIdUseCase
 import `in`.koreatech.business.domain.usecase.store.SetActiveStoreIdUseCase
+import `in`.koreatech.business.domain.util.runCatchingCancellable
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -43,45 +47,71 @@ class StoreDashboardViewModel(
     fun load(initialStoreId: String?) {
         intent {
             reduce { state.copy(isLoading = true, errorMessage = "") }
-            try {
-                val (stores, profile) = coroutineScope {
-                    val storesDeferred = async { getShopListUseCase() }
-                    val profileDeferred = async { runCatching { getOwnerProfileUseCase() }.getOrNull() }
-                    storesDeferred.await() to profileDeferred.await()
-                }
-                if (profile != null) reduce { state.copy(ownerName = profile.name) }
-                if (stores.isEmpty()) {
-                    setActiveStoreIdUseCase("")
-                    reduce { state.copy(isLoading = false, stores = emptyList()) }
-                    return@intent
-                }
-                val activeStore = initialStoreId?.let { id ->
-                    stores.firstOrNull { it.uid.toString() == id }
-                } ?: stores.first()
-                if (activeStore.uid.toString() != initialStoreId) {
-                    setActiveStoreIdUseCase(activeStore.uid.toString())
-                }
-                loadStoreData(activeStore, stores)
-            } catch (exception: Exception) {
-                val message = exception.message.orEmpty()
-                reduce { state.copy(isLoading = false, errorMessage = message) }
-                postSideEffect(StoreDashboardSideEffect(message))
-            }
+            fetchStoresAndProfile(initialStoreId)
         }
+    }
+
+    private fun fetchStoresAndProfile(initialStoreId: String?) = intent {
+        val (storesResult, profileResult) = coroutineScope {
+            val storesDeferred = async { getShopListUseCase() }
+            val profileDeferred = async { getOwnerProfileUseCase() }
+            storesDeferred.await() to profileDeferred.await()
+        }
+        storesResult
+            .onSuccess { stores -> handleStoresLoaded(stores, initialStoreId, profileResult.getOrNull()?.name) }
+            .onFailure { showLoadError(it.message.orEmpty()) }
+    }
+
+    private fun handleStoresLoaded(stores: List<OwnerStore>, initialStoreId: String?, ownerName: String?) = intent {
+        if (ownerName != null) reduce { state.copy(ownerName = ownerName) }
+        if (stores.isEmpty()) {
+            setActiveStoreIdUseCase("")
+            reduce { state.copy(isLoading = false, stores = emptyList()) }
+            return@intent
+        }
+        val activeStore = initialStoreId?.let { id ->
+            stores.firstOrNull { it.uid.toString() == id }
+        } ?: stores.first()
+        if (activeStore.uid.toString() != initialStoreId) {
+            setActiveStoreIdUseCase(activeStore.uid.toString())
+        }
+        loadStoreData(activeStore, stores)
+            .onSuccess { (detail, menus, events) -> applyStoreData(stores, activeStore, detail, menus, events) }
+            .onFailure { showLoadError(it.message.orEmpty()) }
     }
 
     fun selectStore(store: OwnerStore) {
         intent {
             reduce { state.copy(isLoading = true, errorMessage = "") }
             setActiveStoreIdUseCase(store.uid.toString())
-            try {
-                loadStoreData(store, state.stores)
-            } catch (exception: Exception) {
-                val message = exception.message.orEmpty()
-                reduce { state.copy(isLoading = false, errorMessage = message) }
-                postSideEffect(StoreDashboardSideEffect(message))
-            }
+            loadStoreData(store, state.stores)
+                .onSuccess { (detail, menus, events) -> applyStoreData(state.stores, store, detail, menus, events) }
+                .onFailure { showLoadError(it.message.orEmpty()) }
         }
+    }
+
+    private fun applyStoreData(
+        stores: List<OwnerStore>,
+        activeStore: OwnerStore,
+        detail: StoreDetail,
+        menus: List<MenuCategory>,
+        events: List<StoreEvent>
+    ) = intent {
+        reduce {
+            state.copy(
+                isLoading = false,
+                stores = stores,
+                activeStore = activeStore,
+                storeDetail = detail,
+                menus = menus,
+                events = events
+            )
+        }
+    }
+
+    private fun showLoadError(message: String) = intent {
+        reduce { state.copy(isLoading = false, errorMessage = message) }
+        postSideEffect(StoreDashboardSideEffect(message))
     }
 
     fun refresh() {
@@ -124,15 +154,39 @@ class StoreDashboardViewModel(
             val ids = state.selectedEventIds.toList()
             if (ids.isEmpty()) return@intent
             reduce { state.copy(isLoading = true, errorMessage = "") }
-            try {
-                ids.forEach { deleteEventUseCase(storeId, it.toString()) }
-                loadStoreData(activeStore, state.stores)
-                reduce { state.copy(selectedEventIds = emptySet(), isEventEditMode = false) }
-            } catch (exception: Exception) {
-                val message = exception.message.orEmpty()
-                reduce { state.copy(isLoading = false, errorMessage = message) }
-                postSideEffect(StoreDashboardSideEffect(message))
+            for (id in ids) {
+                val deleteResult = deleteEventUseCase(storeId, id.toString())
+                if (deleteResult.isFailure) {
+                    showLoadError(deleteResult.exceptionOrNull()?.message.orEmpty())
+                    return@intent
+                }
             }
+            loadStoreData(activeStore, state.stores)
+                .onSuccess { (detail, menus, events) ->
+                    applyStoreDataAndClearSelection(state.stores, activeStore, detail, menus, events)
+                }
+                .onFailure { showLoadError(it.message.orEmpty()) }
+        }
+    }
+
+    private fun applyStoreDataAndClearSelection(
+        stores: List<OwnerStore>,
+        activeStore: OwnerStore,
+        detail: StoreDetail,
+        menus: List<MenuCategory>,
+        events: List<StoreEvent>
+    ) = intent {
+        reduce {
+            state.copy(
+                isLoading = false,
+                stores = stores,
+                activeStore = activeStore,
+                storeDetail = detail,
+                menus = menus,
+                events = events,
+                selectedEventIds = emptySet(),
+                isEventEditMode = false
+            )
         }
     }
 
@@ -141,32 +195,36 @@ class StoreDashboardViewModel(
             val activeStore = state.activeStore ?: return@intent
             val storeId = activeStore.uid.toString()
             reduce { state.copy(isLoading = true, errorMessage = "") }
-            try {
-                deleteEventUseCase(storeId, eventId.toString())
-                loadStoreData(activeStore, state.stores)
-            } catch (exception: Exception) {
-                val message = exception.message.orEmpty()
-                reduce { state.copy(isLoading = false, errorMessage = message) }
-                postSideEffect(StoreDashboardSideEffect(message))
-            }
+            deleteEventUseCase(storeId, eventId.toString())
+                .onSuccess { reloadAfterDeleteSingleEvent(activeStore) }
+                .onFailure { showLoadError(it.message.orEmpty()) }
         }
+    }
+
+    private fun reloadAfterDeleteSingleEvent(activeStore: OwnerStore) = intent {
+        loadStoreData(activeStore, state.stores)
+            .onSuccess { (detail, menus, events) -> applyStoreData(state.stores, activeStore, detail, menus, events) }
+            .onFailure { showLoadError(it.message.orEmpty()) }
     }
 
     fun clearError() {
         intent(registerIdling = false) { reduce { state.copy(errorMessage = "") } }
     }
 
-    private suspend fun org.orbitmvi.orbit.syntax.Syntax<StoreDashboardState, StoreDashboardSideEffect>.loadStoreData(
+    private suspend fun loadStoreData(
         activeStore: OwnerStore,
-        stores: List<OwnerStore>
-    ) {
+        @Suppress("UNUSED_PARAMETER") stores: List<OwnerStore>
+    ): Result<Triple<StoreDetail, List<MenuCategory>, List<StoreEvent>>> = runCatchingCancellable {
         val storeId = activeStore.uid.toString()
-        val (detail, menus, events) = coroutineScope {
+        coroutineScope {
             val detailDeferred = async { getStoreDetailUseCase(storeId) }
             val menusDeferred = async { getStoreMenusUseCase(storeId) }
             val eventsDeferred = async { getStoreEventsUseCase(storeId) }
-            Triple(detailDeferred.await(), menusDeferred.await(), eventsDeferred.await())
+            Triple(
+                detailDeferred.await().getOrThrow(),
+                menusDeferred.await().getOrThrow(),
+                eventsDeferred.await().getOrThrow()
+            )
         }
-        reduce { state.copy(isLoading = false, stores = stores, activeStore = activeStore, storeDetail = detail, menus = menus, events = events) }
     }
 }

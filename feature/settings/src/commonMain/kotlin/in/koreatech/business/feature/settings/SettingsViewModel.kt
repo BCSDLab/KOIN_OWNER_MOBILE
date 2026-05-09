@@ -9,7 +9,6 @@ import `in`.koreatech.business.domain.usecase.preferences.SetThemeModeUseCase
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import org.orbitmvi.orbit.ContainerHost
-import org.orbitmvi.orbit.syntax.Syntax
 import org.orbitmvi.orbit.viewmodel.container
 
 class SettingsViewModel(
@@ -28,14 +27,19 @@ class SettingsViewModel(
         }
     )
 
-    private suspend fun Syntax<SettingsState, Nothing>.loadOwnerProfile() {
+    private fun loadOwnerProfile() = intent {
         reduce { state.copy(isProfileLoading = true, profileError = "") }
-        try {
-            val profile = getOwnerProfileUseCase()
-            reduce { state.copy(ownerName = profile.name, ownerEmail = profile.email, isProfileLoading = false) }
-        } catch (e: Exception) {
-            reduce { state.copy(isProfileLoading = false, profileError = e.message.orEmpty()) }
-        }
+        getOwnerProfileUseCase()
+            .onSuccess { profile -> applyProfile(profile.name, profile.email) }
+            .onFailure { showProfileError(it.message.orEmpty()) }
+    }
+
+    private fun applyProfile(name: String, email: String) = intent {
+        reduce { state.copy(ownerName = name, ownerEmail = email, isProfileLoading = false) }
+    }
+
+    private fun showProfileError(message: String) = intent {
+        reduce { state.copy(isProfileLoading = false, profileError = message) }
     }
 
     fun setThemeMode(mode: ThemeMode) = intent {

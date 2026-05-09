@@ -1,6 +1,7 @@
 package `in`.koreatech.business.feature.store.menu.editor
 
 import androidx.lifecycle.ViewModel
+import `in`.koreatech.business.domain.model.MenuCategory
 import `in`.koreatech.business.domain.model.MenuOptionPrice
 import `in`.koreatech.business.domain.usecase.owner.UploadFileUseCase
 import `in`.koreatech.business.domain.usecase.store.DeleteMenuUseCase
@@ -40,43 +41,53 @@ class MenuEditorViewModel(
     private fun loadMenuAndCategories(storeId: String, menuId: String?) {
         intent {
             reduce { state.copy(isLoading = true) }
-            try {
-                val allCategories = getMenuCategoriesUseCase(storeId)
-                if (menuId == null) {
-                    reduce { state.copy(isLoading = false, menuCategories = allCategories) }
-                    return@intent
-                }
-                val categories = getStoreMenusUseCase(storeId)
-                val menu = categories.flatMap { it.menus }.firstOrNull { it.id.toString() == menuId }
-                val restoredCategoryIds = categories.filter { c -> c.menus.any { it.id.toString() == menuId } }.map { it.id }
-                if (menu != null) {
-                    reduce {
-                        state.copy(
-                            isLoading = false,
-                            menuCategories = allCategories,
-                            selectedCategoryIds = restoredCategoryIds,
-                            name = menu.name,
-                            description = menu.description,
-                            existingImageUrls = menu.imageUrls,
-                            singlePrice = if (menu.optionPrices.size == 1 && menu.optionPrices.first().option.isBlank()) {
-                                menu.optionPrices.first().price.toString()
-                            } else {
-                                ""
-                            },
-                            optionPrices = if (menu.optionPrices.isEmpty() || (menu.optionPrices.size == 1 && menu.optionPrices.first().option.isBlank())) {
-                                emptyList()
-                            } else {
-                                menu.optionPrices.map { op -> MenuOptionPriceDraft(option = op.option, price = op.price.toString()) }
-                            }
-                        )
-                    }
-                } else {
-                    reduce { state.copy(isLoading = false, menuCategories = allCategories) }
-                }
-            } catch (exception: Exception) {
-                reduce { state.copy(isLoading = false, errorMessage = exception.message.orEmpty()) }
-            }
+            getMenuCategoriesUseCase(storeId)
+                .onSuccess { allCategories -> handleCategoriesLoaded(storeId, menuId, allCategories) }
+                .onFailure { showLoadError(it.message.orEmpty()) }
         }
+    }
+
+    private fun handleCategoriesLoaded(storeId: String, menuId: String?, allCategories: List<MenuCategory>) = intent {
+        if (menuId == null) {
+            reduce { state.copy(isLoading = false, menuCategories = allCategories) }
+            return@intent
+        }
+        getStoreMenusUseCase(storeId)
+            .onSuccess { categories -> applyMenuLoad(allCategories, categories, menuId) }
+            .onFailure { showLoadError(it.message.orEmpty()) }
+    }
+
+    private fun applyMenuLoad(allCategories: List<MenuCategory>, categories: List<MenuCategory>, menuId: String) = intent {
+        val menu = categories.flatMap { it.menus }.firstOrNull { it.id.toString() == menuId }
+        val restoredCategoryIds = categories.filter { c -> c.menus.any { it.id.toString() == menuId } }.map { it.id }
+        if (menu != null) {
+            reduce {
+                state.copy(
+                    isLoading = false,
+                    menuCategories = allCategories,
+                    selectedCategoryIds = restoredCategoryIds,
+                    name = menu.name,
+                    description = menu.description,
+                    existingImageUrls = menu.imageUrls,
+                    singlePrice = if (menu.optionPrices.size == 1 && menu.optionPrices.first().option.isBlank()) {
+                        menu.optionPrices.first().price.toString()
+                    } else {
+                        ""
+                    },
+                    optionPrices = if (menu.optionPrices.isEmpty() || (menu.optionPrices.size == 1 && menu.optionPrices.first().option.isBlank())) {
+                        emptyList()
+                    } else {
+                        menu.optionPrices.map { op -> MenuOptionPriceDraft(option = op.option, price = op.price.toString()) }
+                    }
+                )
+            }
+        } else {
+            reduce { state.copy(isLoading = false, menuCategories = allCategories) }
+        }
+    }
+
+    private fun showLoadError(message: String) = intent {
+        reduce { state.copy(isLoading = false, errorMessage = message) }
     }
 
     fun onNameChanged(value: String) = intent { reduce { state.copy(name = value) } }
@@ -163,45 +174,65 @@ class MenuEditorViewModel(
             }
 
             reduce { state.copy(isLoading = true, errorMessageRes = null, errorMessage = "") }
-            try {
-                val storeId = state.storeId ?: return@intent
-                val uploadedUrls = state.pendingImages.map { uploadFileUseCase(it.name, it.mimeType, it.bytes) }
-                val allImageUrls = state.existingImageUrls + uploadedUrls
-                val submittedPrice = if (hasOptions) null else state.singlePrice.toIntOrNull()
-                val domainOptionPrices = if (hasOptions) {
-                    state.optionPrices.map { MenuOptionPrice(option = it.option, price = it.price.toIntOrNull() ?: 0) }
-                } else {
-                    emptyList()
-                }
-
-                if (state.isEditMode && state.menuId != null) {
-                    updateMenuUseCase(
-                        storeId = storeId,
-                        menuId = state.menuId!!,
-                        name = state.name,
-                        price = submittedPrice,
-                        description = state.description,
-                        imageUrls = allImageUrls,
-                        optionPrices = domainOptionPrices,
-                        categoryIds = state.selectedCategoryIds
-                    )
-                } else {
-                    registerMenuUseCase(
-                        storeId = storeId,
-                        name = state.name,
-                        price = submittedPrice,
-                        description = state.description,
-                        imageUrls = allImageUrls,
-                        optionPrices = domainOptionPrices,
-                        categoryIds = state.selectedCategoryIds
-                    )
-                }
-                reduce { state.copy(isLoading = false) }
-                postSideEffect(MenuEditorSideEffect.NavigateBack)
-            } catch (exception: Exception) {
-                reduce { state.copy(isLoading = false, errorMessage = exception.message.orEmpty(), errorMessageRes = null) }
-            }
+            uploadAndSave(hasOptions)
         }
+    }
+
+    private fun uploadAndSave(hasOptions: Boolean) = intent {
+        val storeId = state.storeId ?: return@intent
+        val uploadedUrls = mutableListOf<String>()
+        for (img in state.pendingImages) {
+            val uploadResult = uploadFileUseCase(img.name, img.mimeType, img.bytes)
+            uploadResult.fold(
+                onSuccess = { uploadedUrls.add(it) },
+                onFailure = {
+                    showSubmitError(it.message.orEmpty())
+                    return@intent
+                }
+            )
+        }
+        val allImageUrls = state.existingImageUrls + uploadedUrls
+        val submittedPrice = if (hasOptions) null else state.singlePrice.toIntOrNull()
+        val domainOptionPrices = if (hasOptions) {
+            state.optionPrices.map { MenuOptionPrice(option = it.option, price = it.price.toIntOrNull() ?: 0) }
+        } else {
+            emptyList()
+        }
+
+        val saveResult = if (state.isEditMode && state.menuId != null) {
+            updateMenuUseCase(
+                storeId = storeId,
+                menuId = state.menuId!!,
+                name = state.name,
+                price = submittedPrice,
+                description = state.description,
+                imageUrls = allImageUrls,
+                optionPrices = domainOptionPrices,
+                categoryIds = state.selectedCategoryIds
+            )
+        } else {
+            registerMenuUseCase(
+                storeId = storeId,
+                name = state.name,
+                price = submittedPrice,
+                description = state.description,
+                imageUrls = allImageUrls,
+                optionPrices = domainOptionPrices,
+                categoryIds = state.selectedCategoryIds
+            )
+        }
+        saveResult
+            .onSuccess { completeSubmit() }
+            .onFailure { showSubmitError(it.message.orEmpty()) }
+    }
+
+    private fun completeSubmit() = intent {
+        reduce { state.copy(isLoading = false) }
+        postSideEffect(MenuEditorSideEffect.NavigateBack)
+    }
+
+    private fun showSubmitError(message: String) = intent {
+        reduce { state.copy(isLoading = false, errorMessage = message, errorMessageRes = null) }
     }
 
     fun clearError() {
@@ -213,13 +244,13 @@ class MenuEditorViewModel(
             val storeId = state.storeId ?: return@intent
             val menuId = state.menuId ?: return@intent
             reduce { state.copy(isLoading = true, errorMessage = "") }
-            try {
-                deleteMenuUseCase(storeId, menuId)
-                reduce { state.copy(isLoading = false) }
-                postSideEffect(MenuEditorSideEffect.NavigateBack)
-            } catch (exception: Exception) {
-                reduce { state.copy(isLoading = false, errorMessage = exception.message.orEmpty()) }
-            }
+            deleteMenuUseCase(storeId, menuId)
+                .onSuccess { completeSubmit() }
+                .onFailure { showDeleteError(it.message.orEmpty()) }
         }
+    }
+
+    private fun showDeleteError(message: String) = intent {
+        reduce { state.copy(isLoading = false, errorMessage = message) }
     }
 }

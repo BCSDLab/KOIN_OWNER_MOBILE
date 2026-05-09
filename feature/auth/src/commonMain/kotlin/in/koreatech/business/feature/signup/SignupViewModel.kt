@@ -206,30 +206,39 @@ class SignupViewModel(
             return@intent
         }
         reduce { state.copy(isLoading = true, phoneError = "", phoneErrorRes = null) }
-        try {
-            val exists = checkPhoneExistsUseCase(phone)
-            if (exists) {
-                reduce {
-                    state.copy(
-                        isLoading = false,
-                        phoneError = "",
-                        phoneErrorRes = Res.string.signup_error_phone_already_registered
-                    )
-                }
-                return@intent
-            }
-            sendSignupSmsUseCase(phone)
-            reduce { state.copy(isLoading = false) }
-            navigateNext()
-        } catch (e: Exception) {
-            val msg = e.message.orEmpty()
+        checkPhoneExistsUseCase(phone)
+            .onSuccess { exists -> handlePhoneExistsResult(phone, exists) }
+            .onFailure { showPhoneError(it.message.orEmpty()) }
+    }
+
+    private fun handlePhoneExistsResult(phone: String, exists: Boolean) = intent {
+        if (exists) {
             reduce {
                 state.copy(
-                    phoneError = msg,
-                    phoneErrorRes = if (msg.isEmpty()) Res.string.error_sms_send_failed else null,
-                    isLoading = false
+                    isLoading = false,
+                    phoneError = "",
+                    phoneErrorRes = Res.string.signup_error_phone_already_registered
                 )
             }
+            return@intent
+        }
+        sendSignupSmsUseCase(phone)
+            .onSuccess { advanceAfterPhoneSubmit() }
+            .onFailure { showPhoneError(it.message.orEmpty()) }
+    }
+
+    private fun advanceAfterPhoneSubmit() = intent {
+        reduce { state.copy(isLoading = false) }
+        navigateNext()
+    }
+
+    private fun showPhoneError(message: String) = intent {
+        reduce {
+            state.copy(
+                phoneError = message,
+                phoneErrorRes = if (message.isEmpty()) Res.string.error_sms_send_failed else null,
+                isLoading = false
+            )
         }
     }
 
@@ -239,19 +248,23 @@ class SignupViewModel(
             return@intent
         }
         reduce { state.copy(isLoading = true, smsError = "", smsErrorRes = null) }
-        try {
-            val token = verifySignupSmsUseCase(state.phoneNumber, state.smsCode)
-            reduce { state.copy(smsToken = token, isLoading = false) }
-            navigateNext()
-        } catch (e: Exception) {
-            val msg = e.message.orEmpty()
-            reduce {
-                state.copy(
-                    smsError = msg,
-                    smsErrorRes = if (msg.isEmpty()) Res.string.error_sms_code_invalid else null,
-                    isLoading = false
-                )
-            }
+        verifySignupSmsUseCase(state.phoneNumber, state.smsCode)
+            .onSuccess { token -> applySmsToken(token) }
+            .onFailure { showSmsError(it.message.orEmpty()) }
+    }
+
+    private fun applySmsToken(token: String) = intent {
+        reduce { state.copy(smsToken = token, isLoading = false) }
+        navigateNext()
+    }
+
+    private fun showSmsError(message: String) = intent {
+        reduce {
+            state.copy(
+                smsError = message,
+                smsErrorRes = if (message.isEmpty()) Res.string.error_sms_code_invalid else null,
+                isLoading = false
+            )
         }
     }
 
@@ -306,18 +319,22 @@ class SignupViewModel(
                 searchResults = emptyList()
             )
         }
-        try {
-            val results = searchShopsUseCase(name)
-            reduce { state.copy(searchResults = results, isLoading = false) }
-        } catch (e: Exception) {
-            val msg = e.message.orEmpty()
-            reduce {
-                state.copy(
-                    storeNameError = msg,
-                    storeNameErrorRes = if (msg.isEmpty()) Res.string.signup_error_search_failed else null,
-                    isLoading = false
-                )
-            }
+        searchShopsUseCase(name)
+            .onSuccess { results -> applySearchResults(results) }
+            .onFailure { showStoreNameError(it.message.orEmpty()) }
+    }
+
+    private fun applySearchResults(results: List<ShopSearchResult>) = intent {
+        reduce { state.copy(searchResults = results, isLoading = false) }
+    }
+
+    private fun showStoreNameError(message: String) = intent {
+        reduce {
+            state.copy(
+                storeNameError = message,
+                storeNameErrorRes = if (message.isEmpty()) Res.string.signup_error_search_failed else null,
+                isLoading = false
+            )
         }
     }
 
@@ -332,32 +349,48 @@ class SignupViewModel(
             return@intent
         }
         reduce { state.copy(isLoading = true, attachFileError = "", attachFileErrorRes = null) }
-        try {
-            val uploadedUrls = state.attachedFiles.map { file ->
-                uploadFileUseCase(fileName = file.name, mimeType = file.mimeType, bytes = file.bytes)
-            }
-            registerUseCase(
-                phoneNumber = state.phoneNumber,
-                password = state.password,
-                name = state.name,
-                companyNumber = BusinessFormatters.formatBusinessNumber(state.businessNumber),
-                shopNumber = state.shopPhoneNumber,
-                shopId = state.selectedShopId,
-                shopName = state.selectedShopName,
-                attachmentUrls = uploadedUrls
+        uploadAllFilesAndRegister()
+    }
+
+    private fun uploadAllFilesAndRegister() = intent {
+        val uploadedUrls = mutableListOf<String>()
+        for (file in state.attachedFiles) {
+            val uploadResult = uploadFileUseCase(fileName = file.name, mimeType = file.mimeType, bytes = file.bytes)
+            uploadResult.fold(
+                onSuccess = { uploadedUrls.add(it) },
+                onFailure = {
+                    showAttachFileError(it.message.orEmpty())
+                    return@intent
+                }
             )
-            runCatching { signOutUseCase() }
-            reduce { state.copy(isLoading = false) }
-            navigateNext()
-        } catch (e: Exception) {
-            val msg = e.message.orEmpty()
-            reduce {
-                state.copy(
-                    attachFileError = msg,
-                    attachFileErrorRes = if (msg.isEmpty()) Res.string.signup_error_register_failed else null,
-                    isLoading = false
-                )
-            }
+        }
+        registerUseCase(
+            phoneNumber = state.phoneNumber,
+            password = state.password,
+            name = state.name,
+            companyNumber = BusinessFormatters.formatBusinessNumber(state.businessNumber),
+            shopNumber = state.shopPhoneNumber,
+            shopId = state.selectedShopId,
+            shopName = state.selectedShopName,
+            attachmentUrls = uploadedUrls
+        )
+            .onSuccess { signOutAndComplete() }
+            .onFailure { showAttachFileError(it.message.orEmpty()) }
+    }
+
+    private fun signOutAndComplete() = intent {
+        signOutUseCase()
+        reduce { state.copy(isLoading = false) }
+        navigateNext()
+    }
+
+    private fun showAttachFileError(message: String) = intent {
+        reduce {
+            state.copy(
+                attachFileError = message,
+                attachFileErrorRes = if (message.isEmpty()) Res.string.signup_error_register_failed else null,
+                isLoading = false
+            )
         }
     }
 }

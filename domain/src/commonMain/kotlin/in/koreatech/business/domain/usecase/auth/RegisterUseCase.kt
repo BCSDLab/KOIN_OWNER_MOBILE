@@ -1,6 +1,7 @@
 package `in`.koreatech.business.domain.usecase.auth
 
 import `in`.koreatech.business.domain.repository.AuthRepository
+import `in`.koreatech.business.domain.util.runCatchingCancellable
 
 class RegisterUseCase(private val repository: AuthRepository) {
     suspend operator fun invoke(
@@ -12,14 +13,16 @@ class RegisterUseCase(private val repository: AuthRepository) {
         shopId: Int?,
         shopName: String,
         attachmentUrls: List<String>
-    ) = repository.register(
-        phoneNumber = phoneNumber,
-        password = password,
-        name = name,
-        companyNumber = companyNumber,
-        shopNumber = shopNumber,
-        shopId = shopId,
-        shopName = shopName,
-        attachmentUrls = attachmentUrls
-    )
+    ): Result<Unit> = runCatchingCancellable {
+        repository.register(
+            phoneNumber = phoneNumber,
+            password = password,
+            name = name,
+            companyNumber = companyNumber,
+            shopNumber = shopNumber,
+            shopId = shopId,
+            shopName = shopName,
+            attachmentUrls = attachmentUrls
+        )
+    }
 }

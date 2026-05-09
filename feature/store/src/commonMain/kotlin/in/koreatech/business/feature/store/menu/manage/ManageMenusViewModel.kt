@@ -2,6 +2,7 @@ package `in`.koreatech.business.feature.store.menu.manage
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import `in`.koreatech.business.domain.model.MenuCategory
 import `in`.koreatech.business.domain.usecase.store.DeleteMenuUseCase
 import `in`.koreatech.business.domain.usecase.store.GetStoreMenusUseCase
 import `in`.koreatech.business.domain.usecase.store.ObserveActiveStoreIdUseCase
@@ -30,27 +31,42 @@ class ManageMenusViewModel(
     fun load(storeId: String) {
         intent {
             reduce { state.copy(storeId = storeId, isLoading = true, errorMessage = "") }
-            try {
-                val categories = getStoreMenusUseCase(storeId)
-                reduce { state.copy(isLoading = false, categories = categories, deletingMenuId = null) }
-            } catch (exception: Exception) {
-                reduce { state.copy(isLoading = false, errorMessage = exception.message.orEmpty()) }
-            }
+            getStoreMenusUseCase(storeId)
+                .onSuccess { categories -> applyCategories(categories) }
+                .onFailure { showLoadError(it.message.orEmpty()) }
         }
+    }
+
+    private fun applyCategories(categories: List<MenuCategory>) = intent {
+        reduce { state.copy(isLoading = false, categories = categories, deletingMenuId = null) }
+    }
+
+    private fun showLoadError(message: String) = intent {
+        reduce { state.copy(isLoading = false, errorMessage = message) }
     }
 
     fun deleteMenu(menuId: String) {
         intent {
             val storeId = state.storeId ?: return@intent
             reduce { state.copy(deletingMenuId = menuId) }
-            try {
-                deleteMenuUseCase(storeId, menuId)
-                val categories = getStoreMenusUseCase(storeId)
-                reduce { state.copy(categories = categories, deletingMenuId = null, errorMessage = "") }
-            } catch (exception: Exception) {
-                reduce { state.copy(deletingMenuId = null, errorMessage = exception.message.orEmpty()) }
-            }
+            deleteMenuUseCase(storeId, menuId)
+                .onSuccess { reloadAfterDelete(storeId) }
+                .onFailure { showDeleteError(it.message.orEmpty()) }
         }
+    }
+
+    private fun reloadAfterDelete(storeId: String) = intent {
+        getStoreMenusUseCase(storeId)
+            .onSuccess { categories -> applyCategoriesAfterDelete(categories) }
+            .onFailure { showDeleteError(it.message.orEmpty()) }
+    }
+
+    private fun applyCategoriesAfterDelete(categories: List<MenuCategory>) = intent {
+        reduce { state.copy(categories = categories, deletingMenuId = null, errorMessage = "") }
+    }
+
+    private fun showDeleteError(message: String) = intent {
+        reduce { state.copy(deletingMenuId = null, errorMessage = message) }
     }
 
     fun refresh() {

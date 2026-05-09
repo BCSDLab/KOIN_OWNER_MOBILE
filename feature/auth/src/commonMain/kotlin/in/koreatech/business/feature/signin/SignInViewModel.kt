@@ -35,62 +35,69 @@ class SignInViewModel(
         reduce { state.copy(isPasswordVisible = !state.isPasswordVisible) }
     }
 
-    fun submit() {
-        intent {
-            val phoneDigits = state.phoneDigits
-            val password = state.password.trim()
+    fun submit() = intent {
+        val phoneDigits = state.phoneDigits
+        val password = state.password.trim()
 
-            if (phoneDigits.isEmpty()) {
-                reduce {
-                    state.copy(
-                        notValidateField = true,
-                        errorMessageRes = Res.string.error_phone_required,
-                        errorMessage = ""
-                    )
-                }
-                return@intent
-            }
-            if (password.isEmpty()) {
-                reduce {
-                    state.copy(
-                        notValidateField = true,
-                        errorMessageRes = Res.string.error_password_required,
-                        errorMessage = ""
-                    )
-                }
-                return@intent
-            }
-
+        if (phoneDigits.isEmpty()) {
             reduce {
                 state.copy(
-                    isLoading = true,
-                    notValidateField = false,
-                    errorMessageRes = null,
+                    notValidateField = true,
+                    errorMessageRes = Res.string.error_phone_required,
                     errorMessage = ""
                 )
             }
-            try {
-                signInUseCase(phoneNumber = phoneDigits, password = password)
-                val stores = getShopListUseCase()
-                reduce { state.copy(isLoading = false) }
-                postSideEffect(
-                    if (stores.isEmpty()) {
-                        SignInSideEffect.NavigateToStoreRegister
-                    } else {
-                        SignInSideEffect.NavigateToStoreMain
-                    }
+            return@intent
+        }
+        if (password.isEmpty()) {
+            reduce {
+                state.copy(
+                    notValidateField = true,
+                    errorMessageRes = Res.string.error_password_required,
+                    errorMessage = ""
                 )
-            } catch (exception: Exception) {
-                val serverMessage = exception.message.orEmpty()
-                reduce {
-                    state.copy(
-                        isLoading = false,
-                        notValidateField = true,
-                        errorMessageRes = if (serverMessage.isBlank()) Res.string.error_generic else null,
-                        errorMessage = serverMessage
-                    )
-                }
             }
+            return@intent
+        }
+
+        reduce {
+            state.copy(
+                isLoading = true,
+                notValidateField = false,
+                errorMessageRes = null,
+                errorMessage = ""
+            )
+        }
+        signInUseCase(phoneNumber = phoneDigits, password = password)
+            .onSuccess { fetchStoresAfterSignIn() }
+            .onFailure { showSubmitError(it.message.orEmpty()) }
+    }
+
+    private fun fetchStoresAfterSignIn() = intent {
+        getShopListUseCase()
+            .onSuccess { stores -> navigateAfterSignIn(stores.isEmpty()) }
+            .onFailure { showSubmitError(it.message.orEmpty()) }
+    }
+
+    private fun navigateAfterSignIn(isFirstLogin: Boolean) = intent {
+        reduce { state.copy(isLoading = false) }
+        postSideEffect(
+            if (isFirstLogin) {
+                SignInSideEffect.NavigateToStoreRegister
+            } else {
+                SignInSideEffect.NavigateToStoreMain
+            }
+        )
+    }
+
+    private fun showSubmitError(serverMessage: String) = intent {
+        reduce {
+            state.copy(
+                isLoading = false,
+                notValidateField = true,
+                errorMessageRes = if (serverMessage.isBlank()) Res.string.error_generic else null,
+                errorMessage = serverMessage
+            )
         }
     }
 }

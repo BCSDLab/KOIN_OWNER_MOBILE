@@ -7,6 +7,7 @@ import `in`.koreatech.business.domain.usecase.store.DeleteMenuCategoryUseCase
 import `in`.koreatech.business.domain.usecase.store.GetMenuCategoriesUseCase
 import `in`.koreatech.business.domain.usecase.store.GetStoreMenusUseCase
 import `in`.koreatech.business.domain.usecase.store.RenameMenuCategoryUseCase
+import `in`.koreatech.business.domain.util.runCatchingCancellable
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
@@ -22,58 +23,61 @@ class ManageCategoriesViewModel(
 
     fun load(storeId: String) = intent {
         reduce { state.copy(storeId = storeId, isLoading = true) }
-        try {
-            val updated = loadCategoriesWithMenus(storeId)
-            reduce { state.copy(isLoading = false, categories = updated) }
-        } catch (e: Exception) {
-            reduce { state.copy(isLoading = false, errorMessage = e.message.orEmpty()) }
-        }
+        loadCategoriesWithMenus(storeId)
+            .onSuccess { applyCategories(it) }
+            .onFailure { showError(it.message.orEmpty()) }
     }
 
     fun addCategory(name: String) = intent {
         val storeId = state.storeId ?: return@intent
         if (name.isBlank()) return@intent
         reduce { state.copy(isLoading = true) }
-        try {
-            createMenuCategoryUseCase(storeId, name.trim())
-            val updated = loadCategoriesWithMenus(storeId)
-            reduce { state.copy(isLoading = false, categories = updated) }
-        } catch (e: Exception) {
-            reduce { state.copy(isLoading = false, errorMessage = e.message.orEmpty()) }
-        }
+        createMenuCategoryUseCase(storeId, name.trim())
+            .onSuccess { reloadAfterMutation(storeId) }
+            .onFailure { showError(it.message.orEmpty()) }
     }
 
     fun renameCategory(categoryId: Int, name: String) = intent {
         val storeId = state.storeId ?: return@intent
         if (name.isBlank()) return@intent
         reduce { state.copy(isLoading = true) }
-        try {
-            renameMenuCategoryUseCase(categoryId, name.trim())
-            val updated = loadCategoriesWithMenus(storeId)
-            reduce { state.copy(isLoading = false, categories = updated) }
-        } catch (e: Exception) {
-            reduce { state.copy(isLoading = false, errorMessage = e.message.orEmpty()) }
-        }
+        renameMenuCategoryUseCase(categoryId, name.trim())
+            .onSuccess { reloadAfterMutation(storeId) }
+            .onFailure { showError(it.message.orEmpty()) }
     }
 
     fun deleteCategory(categoryId: Int) = intent {
         val storeId = state.storeId ?: return@intent
         val cat = state.categories.find { it.id == categoryId } ?: return@intent
         reduce { state.copy(isLoading = true) }
-        try {
-            deleteMenuCategoryUseCase(categoryId)
-            val updated = loadCategoriesWithMenus(storeId)
-            reduce { state.copy(isLoading = false, categories = updated) }
-        } catch (e: Exception) {
-            reduce { state.copy(isLoading = false, blockDeleteCategory = cat, errorMessage = "") }
-        }
+        deleteMenuCategoryUseCase(categoryId)
+            .onSuccess { reloadAfterMutation(storeId) }
+            .onFailure { showBlockDelete(cat) }
     }
 
-    private suspend fun loadCategoriesWithMenus(storeId: String): List<MenuCategory> {
-        val allCategories = getMenuCategoriesUseCase(storeId)
-        val categoriesWithMenus = runCatching { getStoreMenusUseCase(storeId) }.getOrDefault(emptyList())
+    private fun reloadAfterMutation(storeId: String) = intent {
+        loadCategoriesWithMenus(storeId)
+            .onSuccess { applyCategories(it) }
+            .onFailure { showError(it.message.orEmpty()) }
+    }
+
+    private fun applyCategories(categories: List<MenuCategory>) = intent {
+        reduce { state.copy(isLoading = false, categories = categories) }
+    }
+
+    private fun showError(message: String) = intent {
+        reduce { state.copy(isLoading = false, errorMessage = message) }
+    }
+
+    private fun showBlockDelete(cat: MenuCategory) = intent {
+        reduce { state.copy(isLoading = false, blockDeleteCategory = cat, errorMessage = "") }
+    }
+
+    private suspend fun loadCategoriesWithMenus(storeId: String): Result<List<MenuCategory>> = runCatchingCancellable {
+        val allCategories = getMenuCategoriesUseCase(storeId).getOrThrow()
+        val categoriesWithMenus = getStoreMenusUseCase(storeId).getOrDefault(emptyList())
         val menusByCategoryId = categoriesWithMenus.associateBy { it.id }
-        return allCategories.map { cat -> cat.copy(menus = menusByCategoryId[cat.id]?.menus.orEmpty()) }
+        allCategories.map { cat -> cat.copy(menus = menusByCategoryId[cat.id]?.menus.orEmpty()) }
     }
 
     fun clearBlockDelete() = intent(registerIdling = false) {

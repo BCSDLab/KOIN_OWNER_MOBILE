@@ -3,6 +3,7 @@
 package `in`.koreatech.business.feature.store.event.editor
 
 import androidx.lifecycle.ViewModel
+import `in`.koreatech.business.domain.model.StoreEvent
 import `in`.koreatech.business.domain.usecase.owner.UploadFileUseCase
 import `in`.koreatech.business.domain.usecase.store.DeleteEventUseCase
 import `in`.koreatech.business.domain.usecase.store.GetStoreEventsUseCase
@@ -35,38 +36,43 @@ class WriteEventViewModel(
             reduce { state.copy(storeId = storeId, eventId = eventId, isEditMode = eventId != null) }
             if (eventId == null) return@intent
             reduce { state.copy(isLoading = true, errorMessage = "", errorMessageRes = null) }
-            try {
-                val events = getStoreEventsUseCase(storeId)
-                val target = events.firstOrNull { it.id.toString() == eventId }
-                if (target != null) {
-                    reduce {
-                        state.copy(
-                            isLoading = false,
-                            title = target.title,
-                            content = target.content,
-                            startDate = target.startDate.take(10),
-                            endDate = target.endDate.take(10),
-                            existingImageUrls = target.thumbnailUrls
-                        )
-                    }
-                } else {
-                    reduce {
-                        state.copy(
-                            isLoading = false,
-                            errorMessage = "",
-                            errorMessageRes = Res.string.event_editor_error_not_found
-                        )
-                    }
-                }
-            } catch (e: Exception) {
-                reduce {
-                    state.copy(
-                        isLoading = false,
-                        errorMessage = e.message.orEmpty(),
-                        errorMessageRes = null
-                    )
-                }
+            getStoreEventsUseCase(storeId)
+                .onSuccess { events -> applyLoadedEvent(events, eventId) }
+                .onFailure { showLoadError(it.message.orEmpty()) }
+        }
+    }
+
+    private fun applyLoadedEvent(events: List<StoreEvent>, eventId: String) = intent {
+        val target = events.firstOrNull { it.id.toString() == eventId }
+        if (target != null) {
+            reduce {
+                state.copy(
+                    isLoading = false,
+                    title = target.title,
+                    content = target.content,
+                    startDate = target.startDate.take(10),
+                    endDate = target.endDate.take(10),
+                    existingImageUrls = target.thumbnailUrls
+                )
             }
+        } else {
+            reduce {
+                state.copy(
+                    isLoading = false,
+                    errorMessage = "",
+                    errorMessageRes = Res.string.event_editor_error_not_found
+                )
+            }
+        }
+    }
+
+    private fun showLoadError(message: String) = intent {
+        reduce {
+            state.copy(
+                isLoading = false,
+                errorMessage = message,
+                errorMessageRes = null
+            )
         }
     }
 
@@ -122,27 +128,47 @@ class WriteEventViewModel(
                 return@intent
             }
             reduce { state.copy(isLoading = true, errorMessage = "", errorMessageRes = null) }
-            try {
-                val uploadedUrls = state.images.map { uploadFileUseCase(it.name, it.mimeType, it.bytes) }
-                val allImageUrls = state.existingImageUrls + uploadedUrls
-                val storeId = state.storeId ?: return@intent
-                val eventId = state.eventId
-                if (state.isEditMode && eventId != null) {
-                    updateEventUseCase(storeId, eventId, state.title, state.content, allImageUrls, state.startDate, state.endDate)
-                } else {
-                    registerEventUseCase(storeId, state.title, state.content, allImageUrls, state.startDate, state.endDate)
+            uploadImagesAndSubmit()
+        }
+    }
+
+    private fun uploadImagesAndSubmit() = intent {
+        val storeId = state.storeId ?: return@intent
+        val uploadedUrls = mutableListOf<String>()
+        for (img in state.images) {
+            val uploadResult = uploadFileUseCase(img.name, img.mimeType, img.bytes)
+            uploadResult.fold(
+                onSuccess = { uploadedUrls.add(it) },
+                onFailure = {
+                    showSubmitError(it.message.orEmpty())
+                    return@intent
                 }
-                reduce { state.copy(isLoading = false) }
-                postSideEffect(WriteEventSideEffect.NavigateBack)
-            } catch (exception: Exception) {
-                reduce {
-                    state.copy(
-                        isLoading = false,
-                        errorMessage = exception.message.orEmpty(),
-                        errorMessageRes = null
-                    )
-                }
-            }
+            )
+        }
+        val allImageUrls = state.existingImageUrls + uploadedUrls
+        val eventId = state.eventId
+        val saveResult = if (state.isEditMode && eventId != null) {
+            updateEventUseCase(storeId, eventId, state.title, state.content, allImageUrls, state.startDate, state.endDate)
+        } else {
+            registerEventUseCase(storeId, state.title, state.content, allImageUrls, state.startDate, state.endDate)
+        }
+        saveResult
+            .onSuccess { completeSubmit() }
+            .onFailure { showSubmitError(it.message.orEmpty()) }
+    }
+
+    private fun completeSubmit() = intent {
+        reduce { state.copy(isLoading = false) }
+        postSideEffect(WriteEventSideEffect.NavigateBack)
+    }
+
+    private fun showSubmitError(message: String) = intent {
+        reduce {
+            state.copy(
+                isLoading = false,
+                errorMessage = message,
+                errorMessageRes = null
+            )
         }
     }
 
@@ -151,19 +177,9 @@ class WriteEventViewModel(
             val storeId = state.storeId ?: return@intent
             val eventId = state.eventId ?: return@intent
             reduce { state.copy(isLoading = true, errorMessage = "", errorMessageRes = null) }
-            try {
-                deleteEventUseCase(storeId, eventId)
-                reduce { state.copy(isLoading = false) }
-                postSideEffect(WriteEventSideEffect.NavigateBack)
-            } catch (exception: Exception) {
-                reduce {
-                    state.copy(
-                        isLoading = false,
-                        errorMessage = exception.message.orEmpty(),
-                        errorMessageRes = null
-                    )
-                }
-            }
+            deleteEventUseCase(storeId, eventId)
+                .onSuccess { completeSubmit() }
+                .onFailure { showSubmitError(it.message.orEmpty()) }
         }
     }
 

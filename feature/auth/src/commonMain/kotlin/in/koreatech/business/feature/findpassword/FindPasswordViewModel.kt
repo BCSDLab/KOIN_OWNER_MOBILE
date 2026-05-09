@@ -69,36 +69,44 @@ class FindPasswordViewModel(
             return@intent
         }
         reduce { state.copy(isLoading = true, phoneError = "", phoneErrorRes = null) }
-        try {
-            sendFindPasswordSmsUseCase(phone)
-            reduce { state.copy(isLoading = false, step = FindPasswordStep.SmsVerify) }
-        } catch (e: Exception) {
-            val msg = e.message.orEmpty()
-            reduce {
-                state.copy(
-                    phoneError = msg,
-                    phoneErrorRes = if (msg.isEmpty()) Res.string.error_sms_send_failed else null,
-                    isLoading = false
-                )
-            }
+        sendFindPasswordSmsUseCase(phone)
+            .onSuccess { advanceToSmsVerify() }
+            .onFailure { showPhoneError(it.message.orEmpty()) }
+    }
+
+    private fun advanceToSmsVerify() = intent {
+        reduce { state.copy(isLoading = false, step = FindPasswordStep.SmsVerify) }
+    }
+
+    private fun showPhoneError(message: String) = intent {
+        reduce {
+            state.copy(
+                phoneError = message,
+                phoneErrorRes = if (message.isEmpty()) Res.string.error_sms_send_failed else null,
+                isLoading = false
+            )
         }
     }
 
     fun resendSms() = intent {
         val phone = state.phoneNumber
         reduce { state.copy(isLoading = true, smsError = "", smsErrorRes = null) }
-        try {
-            sendFindPasswordSmsUseCase(phone)
-            reduce { state.copy(isLoading = false, smsCode = "") }
-        } catch (e: Exception) {
-            val msg = e.message.orEmpty()
-            reduce {
-                state.copy(
-                    smsError = msg,
-                    smsErrorRes = if (msg.isEmpty()) Res.string.error_sms_resend_failed else null,
-                    isLoading = false
-                )
-            }
+        sendFindPasswordSmsUseCase(phone)
+            .onSuccess { resetSmsAfterResend() }
+            .onFailure { showResendSmsError(it.message.orEmpty()) }
+    }
+
+    private fun resetSmsAfterResend() = intent {
+        reduce { state.copy(isLoading = false, smsCode = "") }
+    }
+
+    private fun showResendSmsError(message: String) = intent {
+        reduce {
+            state.copy(
+                smsError = message,
+                smsErrorRes = if (message.isEmpty()) Res.string.error_sms_resend_failed else null,
+                isLoading = false
+            )
         }
     }
 
@@ -108,18 +116,22 @@ class FindPasswordViewModel(
             return@intent
         }
         reduce { state.copy(isLoading = true, smsError = "", smsErrorRes = null) }
-        try {
-            verifyFindPasswordSmsUseCase(state.phoneNumber, state.smsCode)
-            reduce { state.copy(isLoading = false, step = FindPasswordStep.NewPassword) }
-        } catch (e: Exception) {
-            val msg = e.message.orEmpty()
-            reduce {
-                state.copy(
-                    smsError = msg,
-                    smsErrorRes = if (msg.isEmpty()) Res.string.error_sms_code_invalid else null,
-                    isLoading = false
-                )
-            }
+        verifyFindPasswordSmsUseCase(state.phoneNumber, state.smsCode)
+            .onSuccess { advanceToNewPassword() }
+            .onFailure { showSmsError(it.message.orEmpty()) }
+    }
+
+    private fun advanceToNewPassword() = intent {
+        reduce { state.copy(isLoading = false, step = FindPasswordStep.NewPassword) }
+    }
+
+    private fun showSmsError(message: String) = intent {
+        reduce {
+            state.copy(
+                smsError = message,
+                smsErrorRes = if (message.isEmpty()) Res.string.error_sms_code_invalid else null,
+                isLoading = false
+            )
         }
     }
 
@@ -139,18 +151,22 @@ class FindPasswordViewModel(
             }
         }
         reduce { state.copy(isLoading = true, passwordError = "", passwordErrorRes = null) }
-        try {
-            changePasswordBySmsUseCase(state.phoneNumber, state.newPassword)
-            reduce { state.copy(isLoading = false, step = FindPasswordStep.Complete) }
-        } catch (e: Exception) {
-            val msg = e.message.orEmpty()
-            reduce {
-                state.copy(
-                    passwordError = msg,
-                    passwordErrorRes = if (msg.isEmpty()) Res.string.find_password_error_change_failed else null,
-                    isLoading = false
-                )
-            }
+        changePasswordBySmsUseCase(state.phoneNumber, state.newPassword)
+            .onSuccess { advanceToComplete() }
+            .onFailure { showPasswordError(it.message.orEmpty()) }
+    }
+
+    private fun advanceToComplete() = intent {
+        reduce { state.copy(isLoading = false, step = FindPasswordStep.Complete) }
+    }
+
+    private fun showPasswordError(message: String) = intent {
+        reduce {
+            state.copy(
+                passwordError = message,
+                passwordErrorRes = if (message.isEmpty()) Res.string.find_password_error_change_failed else null,
+                isLoading = false
+            )
         }
     }
 

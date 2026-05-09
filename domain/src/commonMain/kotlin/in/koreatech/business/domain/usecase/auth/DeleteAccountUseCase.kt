@@ -1,7 +1,10 @@
 package `in`.koreatech.business.domain.usecase.auth
 
 import `in`.koreatech.business.domain.repository.AuthRepository
+import `in`.koreatech.business.domain.util.runCatchingCancellable
 
 class DeleteAccountUseCase(private val repository: AuthRepository) {
-    suspend operator fun invoke() = repository.deleteAccount()
+    suspend operator fun invoke(): Result<Unit> = runCatchingCancellable {
+        repository.deleteAccount()
+    }
 }

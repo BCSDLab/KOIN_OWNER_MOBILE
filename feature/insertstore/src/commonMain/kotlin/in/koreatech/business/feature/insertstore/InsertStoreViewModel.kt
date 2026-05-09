@@ -1,6 +1,7 @@
 package `in`.koreatech.business.feature.insertstore
 
 import androidx.lifecycle.ViewModel
+import `in`.koreatech.business.domain.model.StoreCategory
 import `in`.koreatech.business.domain.usecase.owner.UploadFileUseCase
 import `in`.koreatech.business.domain.usecase.store.GetStoreCategoriesUseCase
 import `in`.koreatech.business.domain.usecase.store.RegisterStoreUseCase
@@ -17,7 +18,6 @@ import koreatech.business.designsystem.resources.insert_store_error_description_
 import koreatech.business.designsystem.resources.insert_store_error_name_required
 import koreatech.business.designsystem.resources.insert_store_error_register_failed
 import org.orbitmvi.orbit.ContainerHost
-import org.orbitmvi.orbit.syntax.Syntax
 import org.orbitmvi.orbit.viewmodel.container
 
 class InsertStoreViewModel(
@@ -31,20 +31,24 @@ class InsertStoreViewModel(
         onCreate = { loadCategories() }
     )
 
-    private suspend fun Syntax<InsertStoreState, Nothing>.loadCategories() {
+    private fun loadCategories() = intent {
         reduce { state.copy(isLoading = true) }
-        try {
-            val categories = getStoreCategoriesUseCase()
-            reduce { state.copy(categories = categories, isLoading = false) }
-        } catch (e: Exception) {
-            val msg = e.message.orEmpty()
-            reduce {
-                state.copy(
-                    isLoading = false,
-                    errorMessage = msg,
-                    errorMessageRes = if (msg.isEmpty()) Res.string.insert_store_error_categories_load_failed else null
-                )
-            }
+        getStoreCategoriesUseCase()
+            .onSuccess { categories -> applyCategories(categories) }
+            .onFailure { showLoadCategoriesError(it.message.orEmpty()) }
+    }
+
+    private fun applyCategories(categories: List<StoreCategory>) = intent {
+        reduce { state.copy(categories = categories, isLoading = false) }
+    }
+
+    private fun showLoadCategoriesError(message: String) = intent {
+        reduce {
+            state.copy(
+                isLoading = false,
+                errorMessage = message,
+                errorMessageRes = if (message.isEmpty()) Res.string.insert_store_error_categories_load_failed else null
+            )
         }
     }
 
@@ -182,27 +186,45 @@ class InsertStoreViewModel(
 
     private fun submit() = intent {
         reduce { state.copy(isLoading = true, errorMessage = "", errorMessageRes = null) }
-        try {
-            val imageUrls = state.coverImages.map { uploadFileUseCase(it.name, it.mimeType, it.bytes) }
-            registerStoreUseCase(
-                name = state.name, address = state.address,
-                mainCategoryId = state.mainCategoryId, categoryIds = state.categoryIds,
-                phone = BusinessFormatters.formatPhone(state.phone), delivery = state.isDeliveryOk,
-                deliveryPrice = state.deliveryPrice.toIntOrNull() ?: 0,
-                payCard = state.isCardOk, payBank = state.isBankOk,
-                description = state.description, imageUrls = imageUrls,
-                operatingTimes = state.operatingTimes
+        uploadAllImagesAndRegister()
+    }
+
+    private fun uploadAllImagesAndRegister() = intent {
+        val imageUrls = mutableListOf<String>()
+        for (img in state.coverImages) {
+            val uploadResult = uploadFileUseCase(img.name, img.mimeType, img.bytes)
+            uploadResult.fold(
+                onSuccess = { imageUrls.add(it) },
+                onFailure = {
+                    showRegisterError(it.message.orEmpty())
+                    return@intent
+                }
             )
-            reduce { state.copy(isLoading = false, step = InsertStoreStep.Complete) }
-        } catch (e: Exception) {
-            val msg = e.message.orEmpty()
-            reduce {
-                state.copy(
-                    isLoading = false,
-                    errorMessage = msg,
-                    errorMessageRes = if (msg.isEmpty()) Res.string.insert_store_error_register_failed else null
-                )
-            }
+        }
+        registerStoreUseCase(
+            name = state.name, address = state.address,
+            mainCategoryId = state.mainCategoryId, categoryIds = state.categoryIds,
+            phone = BusinessFormatters.formatPhone(state.phone), delivery = state.isDeliveryOk,
+            deliveryPrice = state.deliveryPrice.toIntOrNull() ?: 0,
+            payCard = state.isCardOk, payBank = state.isBankOk,
+            description = state.description, imageUrls = imageUrls,
+            operatingTimes = state.operatingTimes
+        )
+            .onSuccess { completeRegister() }
+            .onFailure { showRegisterError(it.message.orEmpty()) }
+    }
+
+    private fun completeRegister() = intent {
+        reduce { state.copy(isLoading = false, step = InsertStoreStep.Complete) }
+    }
+
+    private fun showRegisterError(message: String) = intent {
+        reduce {
+            state.copy(
+                isLoading = false,
+                errorMessage = message,
+                errorMessageRes = if (message.isEmpty()) Res.string.insert_store_error_register_failed else null
+            )
         }
     }
 

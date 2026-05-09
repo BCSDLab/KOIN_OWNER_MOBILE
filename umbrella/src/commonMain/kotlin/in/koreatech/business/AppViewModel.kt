@@ -92,8 +92,9 @@ class AppViewModel(
                         _sessionExpired.trySend(Unit)
                         // 마지막으로 활성 매장 정리(suspending). 취소되어도 다음 로그인
                         // 시점에 어차피 새로 선택하므로 idempotent.
-                        runCatching { setActiveStoreIdUseCase(null) }
-                            .onFailure { if (it is CancellationException) throw it }
+                        // UseCase가 Result<Unit>을 반환하므로 별도의 try/catch 없이 호출만 하고
+                        // 실패는 무시한다(runCatchingCancellable이 CE는 이미 재전파).
+                        setActiveStoreIdUseCase(null)
                     }
                 }
         }
@@ -121,41 +122,40 @@ class AppViewModel(
 
     fun clearSession() {
         viewModelScope.launch {
-            runCatching { clearTokensUseCase() }
-                .onFailure { if (it is CancellationException) throw it }
-            runCatching { setActiveStoreIdUseCase(null) }
-                .onFailure { if (it is CancellationException) throw it }
+            // UseCase가 Result<Unit>을 반환 — runCatchingCancellable이 이미 CE를 재전파하므로
+            // 호출 후 실패는 무시한다.
+            clearTokensUseCase()
+            setActiveStoreIdUseCase(null)
             _launchState.value = LaunchState.Unauthenticated
         }
     }
 
     fun deleteAccount() {
         viewModelScope.launch {
-            runCatching { deleteAccountUseCase() }
-                .onFailure { if (it is CancellationException) throw it }
-            runCatching { clearTokensUseCase() }
-                .onFailure { if (it is CancellationException) throw it }
-            runCatching { setActiveStoreIdUseCase(null) }
-                .onFailure { if (it is CancellationException) throw it }
+            deleteAccountUseCase()
+            clearTokensUseCase()
+            setActiveStoreIdUseCase(null)
             _launchState.value = LaunchState.Unauthenticated
         }
     }
 
-    private suspend fun hasValidOwnerSession(): Boolean = runCatching {
-        val token = getAccessTokenUseCase().trim()
-        token.isNotBlank() && token.lowercase() != "null"
-    }.onFailure { e ->
-        // CancellationException은 구조적 동시성을 위해 즉시 재전파.
-        // DataStore 손상/디스크 오류 시 IOException은 흡수해서 refreshLaunchState
-        // 코루틴이 launchState를 Loading에 영구 고립시키지 않도록 한다 — 안전
-        // 기본값은 "세션 없음"으로 보고 재로그인을 유도하는 것.
-        if (e is CancellationException) throw e
-        Napier.e("hasValidOwnerSession failed: ${e.message}", e, tag = "AppViewModel")
-    }.getOrDefault(false)
+    private suspend fun hasValidOwnerSession(): Boolean = getAccessTokenUseCase()
+        .onFailure { e ->
+            // CancellationException은 runCatchingCancellable이 이미 재전파하지만,
+            // Result.failure로 도착하는 다른 throwable은 여기서 흡수해 launchState가
+            // 영구히 Loading에 갇히지 않게 한다 — 안전 기본값은 "세션 없음".
+            if (e is CancellationException) throw e
+            Napier.e("hasValidOwnerSession failed: ${e.message}", e, tag = "AppViewModel")
+        }
+        .map { token ->
+            val trimmed = token.trim()
+            trimmed.isNotBlank() && trimmed.lowercase() != "null"
+        }
+        .getOrDefault(false)
 
-    private suspend fun isForceUpdateRequired(): Boolean = runCatching {
-        compareVersions(getAppVersion(), getRequiredVersionUseCase()) < 0
-    }.onFailure { if (it is CancellationException) throw it }
+    private suspend fun isForceUpdateRequired(): Boolean = getRequiredVersionUseCase()
+        .onFailure { if (it is CancellationException) throw it }
+        .map { required -> compareVersions(getAppVersion(), required) < 0 }
         .getOrDefault(false)
 
     internal fun compareVersions(current: String, required: String): Int {

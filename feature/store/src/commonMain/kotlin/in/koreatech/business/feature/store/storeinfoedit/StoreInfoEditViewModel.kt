@@ -1,6 +1,7 @@
 package `in`.koreatech.business.feature.store.storeinfoedit
 
 import androidx.lifecycle.ViewModel
+import `in`.koreatech.business.domain.model.StoreDetail
 import `in`.koreatech.business.domain.usecase.owner.UploadFileUseCase
 import `in`.koreatech.business.domain.usecase.store.GetStoreDetailUseCase
 import `in`.koreatech.business.domain.usecase.store.UpdateStoreInfoUseCase
@@ -24,36 +25,41 @@ class StoreInfoEditViewModel(
     fun load(storeId: String) {
         intent {
             reduce { state.copy(storeId = storeId, isLoading = true, errorMessage = "", errorMessageRes = null) }
-            try {
-                val detail = getStoreDetailUseCase(storeId)
-                val derivedMainCategoryId = detail.categoryIds.firstOrNull { it != ROOT_CATEGORY_ID } ?: ROOT_CATEGORY_ID
-                reduce {
-                    state.copy(
-                        isLoading = false,
-                        name = detail.name,
-                        phone = BusinessFormatters.digitsOnly(detail.phone, 11),
-                        address = detail.address,
-                        description = detail.description,
-                        openTime = detail.openTime,
-                        closeTime = detail.closeTime,
-                        mainCategoryId = derivedMainCategoryId,
-                        selectedCategoryIds = detail.categoryIds.ifEmpty { listOf(ROOT_CATEGORY_ID) },
-                        isDelivery = detail.isDelivery,
-                        isCard = detail.isCard,
-                        isBank = detail.isBank,
-                        existingImageUrls = detail.imageUrls,
-                        operatingTimes = detail.operatingTimes
-                    )
-                }
-            } catch (exception: Exception) {
-                reduce {
-                    state.copy(
-                        isLoading = false,
-                        errorMessage = exception.message.orEmpty(),
-                        errorMessageRes = null
-                    )
-                }
-            }
+            getStoreDetailUseCase(storeId)
+                .onSuccess { detail -> applyStoreDetail(detail) }
+                .onFailure { showLoadError(it.message.orEmpty()) }
+        }
+    }
+
+    private fun applyStoreDetail(detail: StoreDetail) = intent {
+        val derivedMainCategoryId = detail.categoryIds.firstOrNull { it != ROOT_CATEGORY_ID } ?: ROOT_CATEGORY_ID
+        reduce {
+            state.copy(
+                isLoading = false,
+                name = detail.name,
+                phone = BusinessFormatters.digitsOnly(detail.phone, 11),
+                address = detail.address,
+                description = detail.description,
+                openTime = detail.openTime,
+                closeTime = detail.closeTime,
+                mainCategoryId = derivedMainCategoryId,
+                selectedCategoryIds = detail.categoryIds.ifEmpty { listOf(ROOT_CATEGORY_ID) },
+                isDelivery = detail.isDelivery,
+                isCard = detail.isCard,
+                isBank = detail.isBank,
+                existingImageUrls = detail.imageUrls,
+                operatingTimes = detail.operatingTimes
+            )
+        }
+    }
+
+    private fun showLoadError(message: String) = intent {
+        reduce {
+            state.copy(
+                isLoading = false,
+                errorMessage = message,
+                errorMessageRes = null
+            )
         }
     }
 
@@ -101,32 +107,51 @@ class StoreInfoEditViewModel(
                 return@intent
             }
             reduce { state.copy(isLoading = true, errorMessage = "", errorMessageRes = null) }
-            try {
-                val uploadedUrls = state.pendingImages.map { uploadFileUseCase(it.name, it.mimeType, it.bytes) }
-                val mainId = state.mainCategoryId.takeIf { it > 0 }
-                    ?: state.selectedCategoryIds.firstOrNull { it != ROOT_CATEGORY_ID }
-                    ?: ROOT_CATEGORY_ID
-                val finalCategoryIds = (listOf(ROOT_CATEGORY_ID, mainId) + state.selectedCategoryIds).distinct()
-                updateStoreInfoUseCase(
-                    storeId = storeId, name = state.name, phone = BusinessFormatters.formatPhone(state.phone),
-                    address = state.address, description = state.description,
-                    mainCategoryId = mainId, categoryIds = finalCategoryIds,
-                    isDelivery = state.isDelivery, deliveryPrice = state.deliveryPrice,
-                    isCard = state.isCard, isBank = state.isBank,
-                    imageUrls = state.existingImageUrls + uploadedUrls,
-                    operatingTimes = state.operatingTimes
-                )
-                reduce { state.copy(isLoading = false) }
-                postSideEffect(StoreInfoEditSideEffect.NavigateBack)
-            } catch (exception: Exception) {
-                reduce {
-                    state.copy(
-                        isLoading = false,
-                        errorMessage = exception.message.orEmpty(),
-                        errorMessageRes = null
-                    )
+            uploadImagesAndSubmit(storeId)
+        }
+    }
+
+    private fun uploadImagesAndSubmit(storeId: String) = intent {
+        val uploadedUrls = mutableListOf<String>()
+        for (img in state.pendingImages) {
+            val uploadResult = uploadFileUseCase(img.name, img.mimeType, img.bytes)
+            uploadResult.fold(
+                onSuccess = { uploadedUrls.add(it) },
+                onFailure = {
+                    showSubmitError(it.message.orEmpty())
+                    return@intent
                 }
-            }
+            )
+        }
+        val mainId = state.mainCategoryId.takeIf { it > 0 }
+            ?: state.selectedCategoryIds.firstOrNull { it != ROOT_CATEGORY_ID }
+            ?: ROOT_CATEGORY_ID
+        val finalCategoryIds = (listOf(ROOT_CATEGORY_ID, mainId) + state.selectedCategoryIds).distinct()
+        updateStoreInfoUseCase(
+            storeId = storeId, name = state.name, phone = BusinessFormatters.formatPhone(state.phone),
+            address = state.address, description = state.description,
+            mainCategoryId = mainId, categoryIds = finalCategoryIds,
+            isDelivery = state.isDelivery, deliveryPrice = state.deliveryPrice,
+            isCard = state.isCard, isBank = state.isBank,
+            imageUrls = state.existingImageUrls + uploadedUrls,
+            operatingTimes = state.operatingTimes
+        )
+            .onSuccess { completeSubmit() }
+            .onFailure { showSubmitError(it.message.orEmpty()) }
+    }
+
+    private fun completeSubmit() = intent {
+        reduce { state.copy(isLoading = false) }
+        postSideEffect(StoreInfoEditSideEffect.NavigateBack)
+    }
+
+    private fun showSubmitError(message: String) = intent {
+        reduce {
+            state.copy(
+                isLoading = false,
+                errorMessage = message,
+                errorMessageRes = null
+            )
         }
     }
 

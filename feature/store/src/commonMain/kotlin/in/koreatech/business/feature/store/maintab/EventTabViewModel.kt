@@ -2,6 +2,7 @@ package `in`.koreatech.business.feature.store.maintab
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import `in`.koreatech.business.domain.model.StoreEvent
 import `in`.koreatech.business.domain.usecase.store.DeleteEventUseCase
 import `in`.koreatech.business.domain.usecase.store.GetStoreEventsUseCase
 import `in`.koreatech.business.domain.usecase.store.ObserveActiveStoreIdUseCase
@@ -30,13 +31,18 @@ class EventTabViewModel(
     fun load(storeId: String) {
         intent {
             reduce { state.copy(storeId = storeId, isLoading = true, errorMessage = "") }
-            try {
-                val events = getStoreEventsUseCase(storeId)
-                reduce { state.copy(isLoading = false, events = events) }
-            } catch (e: Exception) {
-                reduce { state.copy(isLoading = false, errorMessage = e.message.orEmpty()) }
-            }
+            getStoreEventsUseCase(storeId)
+                .onSuccess { events -> applyEvents(events) }
+                .onFailure { showError(it.message.orEmpty()) }
         }
+    }
+
+    private fun applyEvents(events: List<StoreEvent>) = intent {
+        reduce { state.copy(isLoading = false, events = events) }
+    }
+
+    private fun showError(message: String) = intent {
+        reduce { state.copy(isLoading = false, errorMessage = message) }
     }
 
     fun refresh() {
@@ -83,14 +89,21 @@ class EventTabViewModel(
             val ids = state.selectedEventIds.toList()
             if (ids.isEmpty()) return@intent
             reduce { state.copy(isLoading = true, errorMessage = "") }
-            try {
-                ids.forEach { deleteEventUseCase(storeId, it.toString()) }
-                val events = getStoreEventsUseCase(storeId)
-                reduce { state.copy(isLoading = false, events = events, selectedEventIds = emptySet(), isEditMode = false) }
-            } catch (e: Exception) {
-                reduce { state.copy(isLoading = false, errorMessage = e.message.orEmpty()) }
+            for (id in ids) {
+                val deleteResult = deleteEventUseCase(storeId, id.toString())
+                if (deleteResult.isFailure) {
+                    showError(deleteResult.exceptionOrNull()?.message.orEmpty())
+                    return@intent
+                }
             }
+            getStoreEventsUseCase(storeId)
+                .onSuccess { events -> applyEventsAfterDelete(events) }
+                .onFailure { showError(it.message.orEmpty()) }
         }
+    }
+
+    private fun applyEventsAfterDelete(events: List<StoreEvent>) = intent {
+        reduce { state.copy(isLoading = false, events = events, selectedEventIds = emptySet(), isEditMode = false) }
     }
 
     fun clearError() {
