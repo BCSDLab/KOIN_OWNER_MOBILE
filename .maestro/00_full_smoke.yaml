@@ -1,6 +1,7 @@
 appId: in.koreatech.business.dev
 name: 00 - 전체 스모크 테스트
-# 로그인 상태/로그아웃 상태 모두에서 실행 가능합니다.
+# 매장 없는 계정 + 로그인/로그아웃 양쪽 상태 모두에서 실행 가능합니다.
+# 매장 보유 계정은 4tab_smoke.yaml 참고.
 ---
 - launchApp
 
@@ -16,6 +17,13 @@ name: 00 - 전체 스모크 테스트
       - tapOn: "로그아웃"
       - tapOn:
           id: "logout_confirm"
+
+# Google Password Manager 다이얼로그가 노출되면 닫기
+- runFlow:
+    when:
+      visible: "나중에"
+    commands:
+      - tapOn: "나중에"
 
 # ── 1. 로그인 ─────────────────────────────────────────────
 - assertVisible: "사장님, 안녕하세요"

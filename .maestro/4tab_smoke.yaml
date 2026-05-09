@@ -1,19 +1,26 @@
 appId: in.koreatech.business.dev
-name: 4탭 IA Smoke
+name: 4탭 IA Smoke (매장 보유 계정)
+# 전제: 로그인 상태 + 적어도 1개 매장 등록되어 있는 계정
+# 매장 없는 계정은 02_tabs_no_store.yaml 사용.
 ---
 - launchApp
+
+# Google Password Manager 다이얼로그가 노출되면 닫기
+- runFlow:
+    when:
+      visible: "나중에"
+    commands:
+      - tapOn: "나중에"
+
 - assertVisible: "대시보드"
 - assertVisible: "운영 요약"
-- assertVisible: "진행 중인 이벤트"
-- assertVisible: "숨김 처리된 메뉴"
 - assertVisible: "영업 시간"
 
 # 메뉴 탭 진입
-- tapOn:
-    text: "메뉴"
-    index: 1
-- assertVisible: "+ 메뉴 등록"
+- tapOn: "메뉴"
 - assertVisible: "카테고리"
+- assertVisible:
+    id: "menu_add_fab"
 
 # 이벤트 탭 진입
 - tapOn: "이벤트"
@@ -21,7 +28,8 @@ name: 4탭 IA Smoke
 - assertVisible: "진행 중"
 - assertVisible: "예정"
 - assertVisible: "종료"
-- assertVisible: "+ 이벤트 등록"
+- assertVisible:
+    id: "event_add_fab"
 
 # 더보기 탭 진입
 - tapOn: "더보기"
@@ -29,13 +37,17 @@ name: 4탭 IA Smoke
 - assertVisible: "매장 추가 등록"
 - assertVisible: "비밀번호 변경"
 - assertVisible: "테마"
+- swipe:
+    start: "50%, 70%"
+    end: "50%, 20%"
 - assertVisible: "서비스 이용약관"
 - assertVisible: "개인정보 처리방침"
 - assertVisible: "오픈소스 라이선스"
 - assertVisible: "로그아웃"
 - assertVisible: "회원탈퇴"
 
-# 뒤로가기 시 대시보드 복귀 확인
-- back
-- assertVisible: "대시보드"
+# 대시보드 복귀
+- tapOn:
+    text: "대시보드"
+    index: 0
 - assertVisible: "운영 요약"

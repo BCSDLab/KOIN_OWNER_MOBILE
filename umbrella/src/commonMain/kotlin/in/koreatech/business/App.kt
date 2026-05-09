@@ -75,7 +75,10 @@ fun App() {
         SyncSystemBarsAppearance(darkTheme)
         val rootNavController = rememberNavController()
         KoinTheme(darkTheme = darkTheme) {
-            Surface(color = KoinTheme.colors.neutral50, modifier = Modifier.fillMaxSize()) {
+            Surface(
+                color = KoinTheme.colors.neutral50,
+                modifier = Modifier.fillMaxSize().rootTestSemantics()
+            ) {
                 AppNavigation(
                     rootNavController = rootNavController,
                     appViewModel = appViewModel
