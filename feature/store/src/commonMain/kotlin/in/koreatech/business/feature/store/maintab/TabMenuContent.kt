@@ -275,8 +275,8 @@ private fun MenuRow(menu: MenuItem, onClick: () -> Unit) {
             Text(
                 text = priceLabel,
                 fontSize = 13.sp,
-                fontWeight = if (priceLabel == optionPriceLabel) FontWeight.Medium else FontWeight.Bold,
-                color = if (priceLabel == optionPriceLabel) KoinTheme.colors.neutral500 else KoinTheme.colors.primary500,
+                fontWeight = if (priceLabel == optionPriceLabel) FontWeight.Medium else FontWeight.SemiBold,
+                color = if (priceLabel == optionPriceLabel) KoinTheme.colors.neutral500 else KoinTheme.colors.neutral800Variant,
                 modifier = Modifier.padding(top = 2.dp)
             )
         }
