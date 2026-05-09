@@ -6,7 +6,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -140,7 +139,6 @@ fun TabMoreContent(
         ) {
             // 사장님 헤더 카드
             OwnerHeaderCard(
-                initial = uiState.ownerName.take(1).ifBlank { "-" },
                 name = uiState.ownerName.ifBlank { "-" },
                 email = uiState.ownerEmail.ifBlank { "-" },
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
@@ -182,8 +180,13 @@ fun TabMoreContent(
                     padding = PaddingValues(16.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        IconBubble(icon = Icons.Outlined.DarkMode)
-                        Spacer(Modifier.width(12.dp))
+                        Icon(
+                            imageVector = Icons.Outlined.DarkMode,
+                            contentDescription = null,
+                            tint = KoinTheme.colors.neutral800Variant,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(Modifier.width(14.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
                                 text = stringResource(Res.string.theme),
@@ -281,47 +284,23 @@ fun TabMoreContent(
 
 @Composable
 private fun OwnerHeaderCard(
-    initial: String,
     name: String,
     email: String,
     modifier: Modifier = Modifier
 ) {
-    KoinCard(modifier = modifier.fillMaxWidth(), padding = PaddingValues(0.dp)) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(44.dp)
-                    .clip(RoundedCornerShape(22.dp))
-                    .background(KoinTheme.colors.primary500),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = initial,
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
-                )
-            }
-            Spacer(Modifier.width(12.dp))
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(Res.string.name_honorific, name),
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = KoinTheme.colors.neutral800
-                )
-                Text(
-                    text = email,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = KoinTheme.colors.neutral500,
-                    modifier = Modifier.padding(top = 2.dp)
-                )
-            }
+    KoinCard(modifier = modifier.fillMaxWidth(), padding = PaddingValues(horizontal = 16.dp, vertical = 16.dp)) {
+        Text(
+            text = stringResource(Res.string.name_honorific, name),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = KoinTheme.colors.neutral800
+        )
+        if (email.isNotBlank() && email != "-") {
+            Text(
+                text = email,
+                fontSize = 13.sp,
+                color = KoinTheme.colors.neutral500
+            )
         }
     }
 }
@@ -330,11 +309,10 @@ private fun OwnerHeaderCard(
 private fun MoreSectionHeader(title: String) {
     Text(
         text = title,
-        fontSize = 11.sp,
-        fontWeight = FontWeight.Bold,
-        color = KoinTheme.colors.neutral500,
-        letterSpacing = 0.6.sp,
-        modifier = Modifier.padding(top = 4.dp, bottom = 8.dp, start = 4.dp)
+        fontSize = 14.sp,
+        fontWeight = FontWeight.SemiBold,
+        color = KoinTheme.colors.neutral800Variant,
+        modifier = Modifier.padding(top = 4.dp, bottom = 8.dp)
     )
 }
 
@@ -371,10 +349,19 @@ private fun MoreRow(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(enabled = enabled, onClick = onClick)
-            .padding(horizontal = 16.dp, vertical = 13.dp),
+            .padding(horizontal = 16.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconBubble(icon = icon, danger = danger)
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = when {
+                danger -> KoinTheme.colors.danger600
+                !enabled -> KoinTheme.colors.neutral400
+                else -> KoinTheme.colors.neutral800Variant
+            },
+            modifier = Modifier.size(18.dp)
+        )
         Spacer(Modifier.width(14.dp))
         Column(modifier = Modifier.weight(1f)) {
             Text(
@@ -418,27 +405,6 @@ private fun MoreRow(
         thickness = 1.dp,
         modifier = Modifier.padding(horizontal = 16.dp)
     )
-}
-
-@Composable
-private fun IconBubble(
-    icon: ImageVector,
-    danger: Boolean = false
-) {
-    Box(
-        modifier = Modifier
-            .size(30.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(if (danger) KoinTheme.colors.danger100 else KoinTheme.colors.primary100),
-        contentAlignment = Alignment.Center
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = if (danger) KoinTheme.colors.danger600 else KoinTheme.colors.primary500,
-            modifier = Modifier.size(15.dp)
-        )
-    }
 }
 
 @Composable

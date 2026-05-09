@@ -26,8 +26,6 @@ import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.LocalOffer
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Store
 import androidx.compose.material3.DropdownMenu
@@ -159,11 +157,10 @@ fun TabDashboardContent(
             // 운영 요약 라벨
             Text(
                 text = stringResource(Res.string.summary_section),
-                fontSize = 11.sp,
-                fontWeight = FontWeight.Bold,
-                color = KoinTheme.colors.neutral500,
-                letterSpacing = 0.6.sp,
-                modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = KoinTheme.colors.neutral800,
+                modifier = Modifier.padding(bottom = 8.dp)
             )
 
             // 운영 요약 카드
@@ -173,8 +170,6 @@ fun TabDashboardContent(
 
             SummaryCard(
                 icon = Icons.Default.LocalOffer,
-                iconBg = KoinTheme.colors.primary100,
-                iconTint = KoinTheme.colors.primary500,
                 title = stringResource(Res.string.live_event_section),
                 sub = if (liveEventCount > 0) stringResource(Res.string.live_event_count, liveEventCount) else stringResource(Res.string.no_live_events),
                 value = liveEventCount.toString(),
@@ -183,8 +178,6 @@ fun TabDashboardContent(
             Spacer(Modifier.height(8.dp))
             SummaryCard(
                 icon = Icons.Default.AccessTime,
-                iconBg = KoinTheme.colors.neutral200,
-                iconTint = KoinTheme.colors.neutral500,
                 title = stringResource(Res.string.operating_hours),
                 sub = operatingHoursLabel,
                 value = null,
@@ -204,24 +197,9 @@ private fun EmptyStoreState(onNavigateToInsertStore: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Box(
-            modifier = Modifier
-                .size(64.dp)
-                .clip(RoundedCornerShape(32.dp))
-                .background(KoinTheme.colors.primary100),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                imageVector = Icons.Default.Store,
-                contentDescription = null,
-                tint = KoinTheme.colors.primary500,
-                modifier = Modifier.size(28.dp)
-            )
-        }
-        Spacer(Modifier.height(18.dp))
         Text(
             text = stringResource(Res.string.no_stores),
-            fontSize = 17.sp,
+            fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             color = KoinTheme.colors.neutral800
         )
@@ -349,13 +327,7 @@ private fun StoreHeroCard(
     isCard: Boolean,
     isBank: Boolean
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(KoinTheme.colors.primary500)
-            .padding(20.dp)
-    ) {
+    KoinCard(modifier = Modifier.fillMaxWidth(), padding = PaddingValues(20.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             Box(
                 modifier = Modifier
@@ -366,114 +338,67 @@ private fun StoreHeroCard(
             Spacer(Modifier.width(6.dp))
             Text(
                 text = stringResource(Res.string.store_open),
-                fontSize = 11.sp,
-                color = Color.White.copy(alpha = 0.85f)
+                fontSize = 12.sp,
+                color = KoinTheme.colors.success700,
+                fontWeight = FontWeight.Medium
             )
         }
-        Spacer(Modifier.height(4.dp))
         Text(
             text = name,
-            fontSize = 20.sp,
+            fontSize = 22.sp,
             fontWeight = FontWeight.Bold,
-            color = Color.White
+            color = KoinTheme.colors.neutral800
         )
         if (phone.isNotEmpty()) {
-            Spacer(Modifier.height(8.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.Phone,
-                    contentDescription = null,
-                    tint = Color.White.copy(alpha = 0.85f),
-                    modifier = Modifier.size(11.dp)
-                )
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    text = phone,
-                    fontSize = 12.sp,
-                    color = Color.White.copy(alpha = 0.85f)
-                )
-            }
+            Text(
+                text = phone,
+                fontSize = 13.sp,
+                color = KoinTheme.colors.neutral800Variant
+            )
         }
         if (address.isNotEmpty()) {
-            Spacer(Modifier.height(4.dp))
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
-                    imageVector = Icons.Default.LocationOn,
-                    contentDescription = null,
-                    tint = Color.White.copy(alpha = 0.85f),
-                    modifier = Modifier.size(11.dp)
-                )
-                Spacer(Modifier.width(6.dp))
-                Text(
-                    text = address,
-                    fontSize = 12.sp,
-                    color = Color.White.copy(alpha = 0.85f)
-                )
-            }
+            Text(
+                text = address,
+                fontSize = 13.sp,
+                color = KoinTheme.colors.neutral500
+            )
         }
-        Spacer(Modifier.height(12.dp))
-        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            if (isDelivery) WhiteBadge(stringResource(Res.string.info_delivery))
-            if (isCard) WhiteBadge(stringResource(Res.string.info_payment_card))
-            if (isBank) WhiteBadge(stringResource(Res.string.info_payment_bank))
+        val infoLabels = buildList {
+            if (isDelivery) add(stringResource(Res.string.info_delivery))
+            if (isCard) add(stringResource(Res.string.info_payment_card))
+            if (isBank) add(stringResource(Res.string.info_payment_bank))
         }
-    }
-}
-
-@Composable
-private fun WhiteBadge(label: String) {
-    Box(
-        modifier = Modifier
-            .clip(RoundedCornerShape(20.dp))
-            .background(Color.White.copy(alpha = 0.18f))
-            .padding(horizontal = 10.dp, vertical = 4.dp)
-    ) {
-        Text(
-            text = label,
-            fontSize = 11.sp,
-            color = Color.White,
-            fontWeight = FontWeight.Medium
-        )
+        if (infoLabels.isNotEmpty()) {
+            Text(
+                text = infoLabels.joinToString("  ·  "),
+                fontSize = 12.sp,
+                color = KoinTheme.colors.neutral500,
+                fontWeight = FontWeight.Medium
+            )
+        }
     }
 }
 
 @Composable
 private fun SummaryCard(
     icon: ImageVector,
-    iconBg: Color,
-    iconTint: Color,
     title: String,
     sub: String,
     value: String?,
     valueColor: Color
 ) {
-    KoinCard(modifier = Modifier.fillMaxWidth(), padding = PaddingValues(14.dp)) {
+    KoinCard(modifier = Modifier.fillMaxWidth(), padding = PaddingValues(horizontal = 16.dp, vertical = 14.dp)) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(RoundedCornerShape(10.dp))
-                    .background(iconBg),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = iconTint,
-                    modifier = Modifier.size(16.dp)
-                )
-            }
-            Spacer(Modifier.width(12.dp))
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = title,
-                    fontSize = 13.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = KoinTheme.colors.neutral800
                 )
                 Text(
                     text = sub,
-                    fontSize = 12.sp,
+                    fontSize = 13.sp,
                     color = KoinTheme.colors.neutral500,
                     modifier = Modifier.padding(top = 2.dp)
                 )
@@ -481,9 +406,16 @@ private fun SummaryCard(
             if (value != null) {
                 Text(
                     text = value,
-                    fontSize = 18.sp,
+                    fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     color = valueColor
+                )
+            } else {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = KoinTheme.colors.neutral400,
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }
