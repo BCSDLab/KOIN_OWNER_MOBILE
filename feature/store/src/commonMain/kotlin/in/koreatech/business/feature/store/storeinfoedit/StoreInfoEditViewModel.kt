@@ -1,8 +1,6 @@
 package `in`.koreatech.business.feature.store.storeinfoedit
 
 import androidx.lifecycle.ViewModel
-import `in`.koreatech.business.domain.model.OperatingTime
-import `in`.koreatech.business.domain.model.defaultOperatingTimes
 import `in`.koreatech.business.domain.usecase.owner.UploadFileUseCase
 import `in`.koreatech.business.domain.usecase.store.GetStoreDetailUseCase
 import `in`.koreatech.business.domain.usecase.store.UpdateStoreInfoUseCase
@@ -12,7 +10,6 @@ import `in`.koreatech.business.ui.util.BusinessValidators
 import koreatech.business.designsystem.resources.Res
 import koreatech.business.designsystem.resources.error_phone_invalid
 import koreatech.business.designsystem.resources.store_info_error_operating_time_invalid
-import org.jetbrains.compose.resources.StringResource
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
@@ -21,8 +18,8 @@ class StoreInfoEditViewModel(
     private val updateStoreInfoUseCase: UpdateStoreInfoUseCase,
     private val uploadFileUseCase: UploadFileUseCase
 ) : ViewModel(),
-    ContainerHost<StoreInfoEditUiState, StoreInfoEditSideEffect> {
-    override val container = container<StoreInfoEditUiState, StoreInfoEditSideEffect>(StoreInfoEditUiState())
+    ContainerHost<StoreInfoEditState, StoreInfoEditSideEffect> {
+    override val container = container<StoreInfoEditState, StoreInfoEditSideEffect>(StoreInfoEditState())
 
     fun load(storeId: String) {
         intent {
@@ -161,25 +158,3 @@ class StoreInfoEditViewModel(
         private const val ROOT_CATEGORY_ID = 1
     }
 }
-
-data class StoreInfoEditUiState(
-    val isLoading: Boolean = false,
-    val storeId: String? = null,
-    val name: String = "",
-    val phone: String = "",
-    val address: String = "",
-    val description: String = "",
-    val openTime: String = "",
-    val closeTime: String = "",
-    val mainCategoryId: Int = 0,
-    val selectedCategoryIds: List<Int> = emptyList(),
-    val isDelivery: Boolean = false,
-    val deliveryPrice: Int = 0,
-    val isCard: Boolean = false,
-    val isBank: Boolean = false,
-    val existingImageUrls: List<String> = emptyList(),
-    val pendingImages: List<PlatformFile> = emptyList(),
-    val operatingTimes: List<OperatingTime> = defaultOperatingTimes,
-    val errorMessage: String = "",
-    val errorMessageRes: StringResource? = null
-)

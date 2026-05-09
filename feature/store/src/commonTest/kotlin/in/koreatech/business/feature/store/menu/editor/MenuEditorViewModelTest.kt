@@ -66,7 +66,7 @@ class MenuEditorViewModelTest {
     @Test
     fun submitWithBlankNameEmitsNameRequiredRes() = runTest {
         val (vm, _) = newViewModel()
-        vm.test(this, MenuEditorUiState(storeId = "storeA", name = "")) {
+        vm.test(this, MenuEditorState(storeId = "storeA", name = "")) {
             containerHost.submit()
             expectState {
                 copy(errorMessageRes = Res.string.menu_editor_error_name_required, errorMessage = "")
@@ -79,7 +79,7 @@ class MenuEditorViewModelTest {
         val (vm, _) = newViewModel()
         vm.test(
             this,
-            MenuEditorUiState(storeId = "storeA", name = "메뉴", singlePrice = "")
+            MenuEditorState(storeId = "storeA", name = "메뉴", singlePrice = "")
         ) {
             containerHost.submit()
             expectState {
@@ -93,7 +93,7 @@ class MenuEditorViewModelTest {
         val (vm, _) = newViewModel()
         vm.test(
             this,
-            MenuEditorUiState(
+            MenuEditorState(
                 storeId = "storeA",
                 name = "메뉴",
                 optionPrices = listOf(MenuOptionPriceDraft(option = "", price = "5000"))
@@ -111,7 +111,7 @@ class MenuEditorViewModelTest {
         val (vm, _) = newViewModel(categories = emptyList())
         vm.test(
             this,
-            MenuEditorUiState(
+            MenuEditorState(
                 storeId = "storeA",
                 name = "메뉴",
                 singlePrice = "5000",
@@ -131,7 +131,7 @@ class MenuEditorViewModelTest {
         val (vm, _) = newViewModel(categories = cats)
         vm.test(
             this,
-            MenuEditorUiState(
+            MenuEditorState(
                 storeId = "storeA",
                 name = "메뉴",
                 singlePrice = "5000",
@@ -152,7 +152,7 @@ class MenuEditorViewModelTest {
         val (vm, repo) = newViewModel(categories = cats)
         vm.test(
             this,
-            MenuEditorUiState(
+            MenuEditorState(
                 storeId = "storeA",
                 name = "메뉴",
                 singlePrice = "5000",
@@ -174,7 +174,7 @@ class MenuEditorViewModelTest {
         val (vm, repo) = newViewModel(categories = cats)
         vm.test(
             this,
-            MenuEditorUiState(
+            MenuEditorState(
                 storeId = "storeA",
                 menuId = "M1",
                 isEditMode = true,
@@ -198,7 +198,7 @@ class MenuEditorViewModelTest {
         val (vm, _) = newViewModel(categories = cats, registerError = DomainError.Network("등록 실패"))
         vm.test(
             this,
-            MenuEditorUiState(
+            MenuEditorState(
                 storeId = "storeA",
                 name = "메뉴",
                 singlePrice = "5000",
@@ -215,7 +215,7 @@ class MenuEditorViewModelTest {
     @Test
     fun deleteMenuPostsNavigateBack() = runTest {
         val (vm, repo) = newViewModel()
-        vm.test(this, MenuEditorUiState(storeId = "storeA", menuId = "M1")) {
+        vm.test(this, MenuEditorState(storeId = "storeA", menuId = "M1")) {
             containerHost.deleteMenu()
             expectState { copy(isLoading = true, errorMessage = "") }
             expectState { copy(isLoading = false) }

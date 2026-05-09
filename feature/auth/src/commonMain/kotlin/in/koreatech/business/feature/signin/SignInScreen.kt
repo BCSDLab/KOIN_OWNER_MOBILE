@@ -85,7 +85,7 @@ fun SignInScreen(
 
 @Composable
 internal fun SignInScreenImpl(
-    state: SignInUiState,
+    state: SignInState,
     onPhoneNumberChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit,
     onTogglePasswordVisibility: () -> Unit,
@@ -330,7 +330,7 @@ fun AuthEntryPlaceholderScreen(
 }
 
 @Composable
-private fun SignInUiState.signInErrorMessage(): String? {
+private fun SignInState.signInErrorMessage(): String? {
     if (!notValidateField) return null
     errorMessageRes?.let { return stringResource(it) }
     return errorMessage.takeIf { it.isNotEmpty() }

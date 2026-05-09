@@ -1,7 +1,6 @@
 package `in`.koreatech.business.feature.store.menu.editor
 
 import androidx.lifecycle.ViewModel
-import `in`.koreatech.business.domain.model.MenuCategory
 import `in`.koreatech.business.domain.model.MenuOptionPrice
 import `in`.koreatech.business.domain.usecase.owner.UploadFileUseCase
 import `in`.koreatech.business.domain.usecase.store.DeleteMenuUseCase
@@ -17,7 +16,6 @@ import koreatech.business.designsystem.resources.menu_editor_error_categories_em
 import koreatech.business.designsystem.resources.menu_editor_error_name_required
 import koreatech.business.designsystem.resources.menu_editor_error_option_required
 import koreatech.business.designsystem.resources.menu_editor_error_price_required
-import org.jetbrains.compose.resources.StringResource
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
@@ -29,8 +27,8 @@ class MenuEditorViewModel(
     private val deleteMenuUseCase: DeleteMenuUseCase,
     private val uploadFileUseCase: UploadFileUseCase
 ) : ViewModel(),
-    ContainerHost<MenuEditorUiState, MenuEditorSideEffect> {
-    override val container = container<MenuEditorUiState, MenuEditorSideEffect>(MenuEditorUiState())
+    ContainerHost<MenuEditorState, MenuEditorSideEffect> {
+    override val container = container<MenuEditorState, MenuEditorSideEffect>(MenuEditorState())
 
     fun init(storeId: String, menuId: String?) {
         intent(registerIdling = false) {
@@ -225,23 +223,3 @@ class MenuEditorViewModel(
         }
     }
 }
-
-data class MenuEditorUiState(
-    val isLoading: Boolean = false,
-    val storeId: String? = null,
-    val menuId: String? = null,
-    val isEditMode: Boolean = false,
-    val name: String = "",
-    val description: String = "",
-    val singlePrice: String = "",
-    val singlePriceError: String = "",
-    val optionPrices: List<MenuOptionPriceDraft> = emptyList(),
-    val menuCategories: List<MenuCategory> = emptyList(),
-    val selectedCategoryIds: List<Int> = emptyList(),
-    val existingImageUrls: List<String> = emptyList(),
-    val pendingImages: List<PlatformFile> = emptyList(),
-    val errorMessage: String = "",
-    val errorMessageRes: StringResource? = null
-)
-
-data class MenuOptionPriceDraft(val option: String = "", val price: String = "")

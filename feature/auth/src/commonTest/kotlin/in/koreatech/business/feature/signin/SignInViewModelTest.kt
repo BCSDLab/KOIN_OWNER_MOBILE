@@ -42,7 +42,7 @@ class SignInViewModelTest {
 
     @Test
     fun phoneNumberStripsNonDigitsAndCapsAtElevenChars() = runTest {
-        newViewModel().test(this, SignInUiState()) {
+        newViewModel().test(this, SignInState()) {
             runOnCreate()
             containerHost.onPhoneNumberChanged("010-1111-3333abc99")
             expectState { copy(phoneNumber = "01011113333", errorMessage = "") }
@@ -51,7 +51,7 @@ class SignInViewModelTest {
 
     @Test
     fun submitWithEmptyPhoneEmitsValidationError() = runTest {
-        newViewModel().test(this, SignInUiState()) {
+        newViewModel().test(this, SignInState()) {
             runOnCreate()
             containerHost.submit()
             expectState {
@@ -67,7 +67,7 @@ class SignInViewModelTest {
     fun submitWithEmptyPasswordEmitsValidationError() = runTest {
         newViewModel().test(
             this,
-            SignInUiState(phoneNumber = "01011113333")
+            SignInState(phoneNumber = "01011113333")
         ) {
             runOnCreate()
             containerHost.submit()
@@ -85,7 +85,7 @@ class SignInViewModelTest {
         val authFailure = DomainError.Auth("전화번호 또는 비밀번호가 잘못되었습니다.")
         newViewModel(signInError = authFailure).test(
             this,
-            SignInUiState(phoneNumber = "01011113333", password = "wrongpass")
+            SignInState(phoneNumber = "01011113333", password = "wrongpass")
         ) {
             runOnCreate()
             containerHost.submit()

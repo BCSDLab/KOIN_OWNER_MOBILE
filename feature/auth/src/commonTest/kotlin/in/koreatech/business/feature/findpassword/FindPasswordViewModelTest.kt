@@ -53,7 +53,7 @@ class FindPasswordViewModelTest {
 
     @Test
     fun submitPhoneInvalidEmitsErrorPhoneInvalid() = runTest {
-        newViewModel().test(this, FindPasswordUiState(phoneNumber = "12345")) {
+        newViewModel().test(this, FindPasswordState(phoneNumber = "12345")) {
             runOnCreate()
             containerHost.submitPhone()
             expectState { copy(phoneError = "", phoneErrorRes = Res.string.error_phone_invalid) }
@@ -62,7 +62,7 @@ class FindPasswordViewModelTest {
 
     @Test
     fun submitPhoneAdvancesToSmsVerifyOnSuccess() = runTest {
-        newViewModel().test(this, FindPasswordUiState(phoneNumber = "01011113333")) {
+        newViewModel().test(this, FindPasswordState(phoneNumber = "01011113333")) {
             runOnCreate()
             containerHost.submitPhone()
             expectState { copy(isLoading = true, phoneError = "", phoneErrorRes = null) }
@@ -73,7 +73,7 @@ class FindPasswordViewModelTest {
     @Test
     fun submitPhoneFailureWithEmptyMessageFallsBackToSendFailedRes() = runTest {
         newViewModel(sendSmsError = DomainError.Network(""))
-            .test(this, FindPasswordUiState(phoneNumber = "01011113333")) {
+            .test(this, FindPasswordState(phoneNumber = "01011113333")) {
                 runOnCreate()
                 containerHost.submitPhone()
                 expectState { copy(isLoading = true, phoneError = "", phoneErrorRes = null) }
@@ -91,7 +91,7 @@ class FindPasswordViewModelTest {
     fun submitSmsTooShortEmitsCodeRequiredRes() = runTest {
         newViewModel().test(
             this,
-            FindPasswordUiState(step = FindPasswordStep.SmsVerify, smsCode = "12")
+            FindPasswordState(step = FindPasswordStep.SmsVerify, smsCode = "12")
         ) {
             runOnCreate()
             containerHost.submitSms()
@@ -103,7 +103,7 @@ class FindPasswordViewModelTest {
     fun submitSmsAdvancesToNewPasswordOnSuccess() = runTest {
         newViewModel().test(
             this,
-            FindPasswordUiState(
+            FindPasswordState(
                 step = FindPasswordStep.SmsVerify,
                 phoneNumber = "01011113333",
                 smsCode = "123456"
@@ -120,7 +120,7 @@ class FindPasswordViewModelTest {
     fun submitNewPasswordInvalidEmitsPasswordInvalidRes() = runTest {
         newViewModel().test(
             this,
-            FindPasswordUiState(step = FindPasswordStep.NewPassword, newPassword = "abc")
+            FindPasswordState(step = FindPasswordStep.NewPassword, newPassword = "abc")
         ) {
             runOnCreate()
             containerHost.submitNewPassword()
@@ -134,7 +134,7 @@ class FindPasswordViewModelTest {
     fun submitNewPasswordMismatchEmitsMismatchRes() = runTest {
         newViewModel().test(
             this,
-            FindPasswordUiState(
+            FindPasswordState(
                 step = FindPasswordStep.NewPassword,
                 newPassword = "abc12!@",
                 newPasswordConfirm = "different"
@@ -152,7 +152,7 @@ class FindPasswordViewModelTest {
     fun submitNewPasswordAdvancesToCompleteOnSuccess() = runTest {
         newViewModel().test(
             this,
-            FindPasswordUiState(
+            FindPasswordState(
                 step = FindPasswordStep.NewPassword,
                 phoneNumber = "01011113333",
                 newPassword = "abc12!@",
@@ -170,7 +170,7 @@ class FindPasswordViewModelTest {
     fun submitNewPasswordFailureFallsBackToChangeFailedRes() = runTest {
         newViewModel(changePasswordError = DomainError.Network("")).test(
             this,
-            FindPasswordUiState(
+            FindPasswordState(
                 step = FindPasswordStep.NewPassword,
                 phoneNumber = "01011113333",
                 newPassword = "abc12!@",

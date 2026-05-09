@@ -123,7 +123,7 @@ internal fun StartStep(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun SelectCategoryStep(
-    uiState: InsertStoreUiState,
+    uiState: InsertStoreState,
     onCategorySelected: (Int, String) -> Unit,
     onNext: () -> Unit,
     onBack: () -> Unit
@@ -206,7 +206,7 @@ internal fun SelectCategoryStep(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun BasicInfoStep(
-    uiState: InsertStoreUiState,
+    uiState: InsertStoreState,
     onNameChanged: (String) -> Unit,
     onAddressChanged: (String) -> Unit,
     onPhoneChanged: (String) -> Unit,
@@ -297,7 +297,7 @@ internal fun BasicInfoStep(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DetailInfoStep(
-    uiState: InsertStoreUiState,
+    uiState: InsertStoreState,
     onToggleCard: () -> Unit,
     onToggleBank: () -> Unit,
     onToggleDelivery: () -> Unit,
@@ -433,7 +433,7 @@ internal fun DetailInfoStep(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun FinalCheckStep(
-    uiState: InsertStoreUiState,
+    uiState: InsertStoreState,
     onSubmit: () -> Unit,
     onBack: () -> Unit
 ) {

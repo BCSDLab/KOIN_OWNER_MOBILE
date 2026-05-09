@@ -15,48 +15,16 @@ import koreatech.business.designsystem.resources.error_sms_code_required
 import koreatech.business.designsystem.resources.error_sms_resend_failed
 import koreatech.business.designsystem.resources.error_sms_send_failed
 import koreatech.business.designsystem.resources.find_password_error_change_failed
-import org.jetbrains.compose.resources.StringResource
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
-
-enum class FindPasswordStep {
-    PhoneInput,
-    SmsVerify,
-    NewPassword,
-    Complete;
-
-    val route: String get() = when (this) {
-        PhoneInput -> "phone-input"
-        SmsVerify -> "sms-verify"
-        NewPassword -> "new-password"
-        Complete -> "complete"
-    }
-}
-
-data class FindPasswordUiState(
-    val step: FindPasswordStep = FindPasswordStep.PhoneInput,
-    val phoneNumber: String = "",
-    val phoneError: String = "",
-    val phoneErrorRes: StringResource? = null,
-    val smsCode: String = "",
-    val smsError: String = "",
-    val smsErrorRes: StringResource? = null,
-    val newPassword: String = "",
-    val newPasswordConfirm: String = "",
-    val isPasswordVisible: Boolean = false,
-    val isPasswordConfirmVisible: Boolean = false,
-    val passwordError: String = "",
-    val passwordErrorRes: StringResource? = null,
-    val isLoading: Boolean = false
-)
 
 class FindPasswordViewModel(
     private val sendFindPasswordSmsUseCase: SendFindPasswordSmsUseCase,
     private val verifyFindPasswordSmsUseCase: VerifyFindPasswordSmsUseCase,
     private val changePasswordBySmsUseCase: ChangePasswordBySmsUseCase
 ) : ViewModel(),
-    ContainerHost<FindPasswordUiState, Nothing> {
-    override val container = container<FindPasswordUiState, Nothing>(FindPasswordUiState())
+    ContainerHost<FindPasswordState, Nothing> {
+    override val container = container<FindPasswordState, Nothing>(FindPasswordState())
 
     fun onPhoneNumberChanged(value: String) = intent {
         reduce {

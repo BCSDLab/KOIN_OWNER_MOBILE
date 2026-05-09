@@ -21,8 +21,8 @@ import `in`.koreatech.business.feature.signup.BusinessNumberStep
 import `in`.koreatech.business.feature.signup.EnterPasswordStep
 import `in`.koreatech.business.feature.signup.SearchStoreStep
 import `in`.koreatech.business.feature.signup.SignupCompleteStep
+import `in`.koreatech.business.feature.signup.SignupState
 import `in`.koreatech.business.feature.signup.SignupStep
-import `in`.koreatech.business.feature.signup.SignupUiState
 import `in`.koreatech.business.feature.signup.SignupViewModel
 import `in`.koreatech.business.feature.signup.SmsVerifyStep
 import `in`.koreatech.business.feature.signup.StoreNameStep
@@ -196,7 +196,7 @@ fun SignupStepHost(
     navController: NavController,
     entry: NavBackStackEntry,
     onExitSignup: () -> Unit,
-    content: @Composable (viewModel: SignupViewModel, uiState: SignupUiState) -> Unit
+    content: @Composable (viewModel: SignupViewModel, uiState: SignupState) -> Unit
 ) {
     val parentEntry = remember(entry) {
         navController.getBackStackEntry<AuthRoute.SignUp>()

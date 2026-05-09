@@ -76,7 +76,7 @@ class WriteEventViewModelTest {
             endDate = "2026-01-31"
         )
         val (vm, _) = newViewModel(events = listOf(sample))
-        vm.test(this, WriteEventUiState()) {
+        vm.test(this, WriteEventState()) {
             containerHost.init(storeId = "storeA", eventId = "5")
             expectState { copy(storeId = "storeA", eventId = "5", isEditMode = true) }
             expectState { copy(isLoading = true, errorMessage = "", errorMessageRes = null) }
@@ -96,7 +96,7 @@ class WriteEventViewModelTest {
     @Test
     fun initEventNotFoundEmitsNotFoundRes() = runTest {
         val (vm, _) = newViewModel(events = emptyList())
-        vm.test(this, WriteEventUiState()) {
+        vm.test(this, WriteEventState()) {
             containerHost.init(storeId = "storeA", eventId = "999")
             expectState { copy(storeId = "storeA", eventId = "999", isEditMode = true) }
             expectState { copy(isLoading = true, errorMessage = "", errorMessageRes = null) }
@@ -113,7 +113,7 @@ class WriteEventViewModelTest {
     @Test
     fun submitBlankTitleEmitsTitleRequiredRes() = runTest {
         val (vm, _) = newViewModel()
-        vm.test(this, WriteEventUiState(storeId = "storeA")) {
+        vm.test(this, WriteEventState(storeId = "storeA")) {
             containerHost.submit()
             expectState {
                 copy(errorMessage = "", errorMessageRes = Res.string.event_editor_error_title_required)
@@ -124,7 +124,7 @@ class WriteEventViewModelTest {
     @Test
     fun submitBlankContentEmitsContentRequiredRes() = runTest {
         val (vm, _) = newViewModel()
-        vm.test(this, WriteEventUiState(storeId = "storeA", title = "타이틀")) {
+        vm.test(this, WriteEventState(storeId = "storeA", title = "타이틀")) {
             containerHost.submit()
             expectState {
                 copy(errorMessage = "", errorMessageRes = Res.string.event_editor_error_content_required)
@@ -135,7 +135,7 @@ class WriteEventViewModelTest {
     @Test
     fun submitMissingPeriodEmitsPeriodRequiredRes() = runTest {
         val (vm, _) = newViewModel()
-        vm.test(this, WriteEventUiState(storeId = "storeA", title = "T", content = "C")) {
+        vm.test(this, WriteEventState(storeId = "storeA", title = "T", content = "C")) {
             containerHost.submit()
             expectState {
                 copy(errorMessage = "", errorMessageRes = Res.string.event_editor_error_period_required)
@@ -148,7 +148,7 @@ class WriteEventViewModelTest {
         val (vm, _) = newViewModel()
         vm.test(
             this,
-            WriteEventUiState(
+            WriteEventState(
                 storeId = "storeA",
                 title = "T",
                 content = "C",
@@ -168,7 +168,7 @@ class WriteEventViewModelTest {
         val (vm, repo) = newViewModel()
         vm.test(
             this,
-            WriteEventUiState(
+            WriteEventState(
                 storeId = "storeA",
                 title = "이벤트",
                 content = "내용",
@@ -187,7 +187,7 @@ class WriteEventViewModelTest {
     @Test
     fun deleteEventPostsNavigateBack() = runTest {
         val (vm, repo) = newViewModel()
-        vm.test(this, WriteEventUiState(storeId = "storeA", eventId = "5")) {
+        vm.test(this, WriteEventState(storeId = "storeA", eventId = "5")) {
             containerHost.deleteEvent()
             expectState { copy(isLoading = true, errorMessage = "", errorMessageRes = null) }
             expectState { copy(isLoading = false) }

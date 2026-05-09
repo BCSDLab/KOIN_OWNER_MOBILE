@@ -2,7 +2,6 @@ package `in`.koreatech.business.feature.store.menu.manage
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import `in`.koreatech.business.domain.model.MenuCategory
 import `in`.koreatech.business.domain.usecase.store.DeleteMenuUseCase
 import `in`.koreatech.business.domain.usecase.store.GetStoreMenusUseCase
 import `in`.koreatech.business.domain.usecase.store.ObserveActiveStoreIdUseCase
@@ -17,9 +16,9 @@ class ManageMenusViewModel(
     private val deleteMenuUseCase: DeleteMenuUseCase,
     private val observeActiveStoreIdUseCase: ObserveActiveStoreIdUseCase
 ) : ViewModel(),
-    ContainerHost<ManageMenusUiState, ManageMenusSideEffect> {
-    override val container = container<ManageMenusUiState, ManageMenusSideEffect>(
-        initialState = ManageMenusUiState(),
+    ContainerHost<ManageMenusState, ManageMenusSideEffect> {
+    override val container = container<ManageMenusState, ManageMenusSideEffect>(
+        initialState = ManageMenusState(),
         onCreate = {
             observeActiveStoreIdUseCase()
                 .distinctUntilChanged()
@@ -63,11 +62,3 @@ class ManageMenusViewModel(
         intent(registerIdling = false) { reduce { state.copy(errorMessage = "") } }
     }
 }
-
-data class ManageMenusUiState(
-    val isLoading: Boolean = false,
-    val storeId: String? = null,
-    val categories: List<MenuCategory> = emptyList(),
-    val deletingMenuId: String? = null,
-    val errorMessage: String = ""
-)

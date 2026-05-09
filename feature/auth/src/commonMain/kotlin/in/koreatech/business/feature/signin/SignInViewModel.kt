@@ -7,7 +7,6 @@ import koreatech.business.designsystem.resources.Res
 import koreatech.business.designsystem.resources.error_generic
 import koreatech.business.designsystem.resources.error_password_required
 import koreatech.business.designsystem.resources.error_phone_required
-import org.jetbrains.compose.resources.StringResource
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
@@ -15,8 +14,8 @@ class SignInViewModel(
     private val signInUseCase: SignInUseCase,
     private val getShopListUseCase: GetShopListUseCase
 ) : ViewModel(),
-    ContainerHost<SignInUiState, SignInSideEffect> {
-    override val container = container<SignInUiState, SignInSideEffect>(SignInUiState())
+    ContainerHost<SignInState, SignInSideEffect> {
+    override val container = container<SignInState, SignInSideEffect>(SignInState())
 
     fun onPhoneNumberChanged(phoneNumber: String) = intent {
         reduce {
@@ -94,16 +93,4 @@ class SignInViewModel(
             }
         }
     }
-}
-
-data class SignInUiState(
-    val phoneNumber: String = "",
-    val password: String = "",
-    val errorMessageRes: StringResource? = null,
-    val errorMessage: String = "",
-    val isLoading: Boolean = false,
-    val notValidateField: Boolean = false,
-    val isPasswordVisible: Boolean = false
-) {
-    val phoneDigits: String get() = phoneNumber
 }

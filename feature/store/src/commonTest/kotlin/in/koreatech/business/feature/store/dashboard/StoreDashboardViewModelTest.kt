@@ -61,7 +61,7 @@ class StoreDashboardViewModelTest {
     @Test
     fun loadEmitsEmptyStoresWhenShopListEmpty() = runTest {
         val (vm, _, _) = newViewModel(shops = emptyList())
-        vm.test(this, StoreDashboardUiState()) {
+        vm.test(this, StoreDashboardState()) {
             containerHost.load(initialStoreId = null)
             expectState { copy(isLoading = true, errorMessage = "") }
             expectState { copy(ownerName = "사장님") }
@@ -72,7 +72,7 @@ class StoreDashboardViewModelTest {
     @Test
     fun loadFailureSurfacesErrorAndPostsSideEffect() = runTest {
         val (vm, _, _) = newViewModel(shopListError = DomainError.Network("매장 로드 실패"))
-        vm.test(this, StoreDashboardUiState()) {
+        vm.test(this, StoreDashboardState()) {
             containerHost.load(initialStoreId = null)
             expectState { copy(isLoading = true, errorMessage = "") }
             expectState { copy(isLoading = false, errorMessage = "매장 로드 실패") }
@@ -83,7 +83,7 @@ class StoreDashboardViewModelTest {
     @Test
     fun toggleEventEditModeFlipsAndClearsSelection() = runTest {
         val (vm, _, _) = newViewModel()
-        vm.test(this, StoreDashboardUiState(selectedEventIds = setOf(1))) {
+        vm.test(this, StoreDashboardState(selectedEventIds = setOf(1))) {
             containerHost.toggleEventEditMode()
             expectState { copy(isEventEditMode = true, selectedEventIds = emptySet()) }
         }
@@ -92,7 +92,7 @@ class StoreDashboardViewModelTest {
     @Test
     fun toggleEventSelectionAddsThenRemoves() = runTest {
         val (vm, _, _) = newViewModel()
-        vm.test(this, StoreDashboardUiState()) {
+        vm.test(this, StoreDashboardState()) {
             containerHost.toggleEventSelection(7)
             expectState { copy(selectedEventIds = setOf(7)) }
             containerHost.toggleEventSelection(7)
@@ -103,7 +103,7 @@ class StoreDashboardViewModelTest {
     @Test
     fun clearErrorResetsErrorMessage() = runTest {
         val (vm, _, _) = newViewModel()
-        vm.test(this, StoreDashboardUiState(errorMessage = "기존 에러")) {
+        vm.test(this, StoreDashboardState(errorMessage = "기존 에러")) {
             containerHost.clearError()
             expectState { copy(errorMessage = "") }
         }

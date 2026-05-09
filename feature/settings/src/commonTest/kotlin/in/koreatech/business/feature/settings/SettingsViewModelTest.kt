@@ -56,7 +56,7 @@ class SettingsViewModelTest {
         val (vm, _) = newViewModel(
             profile = OwnerProfile(name = "홍길동", email = "hong@example.com", companyNumber = "1234567890")
         )
-        vm.test(this, SettingsUiState()) {
+        vm.test(this, SettingsState()) {
             runOnCreate()
             expectState { copy(isProfileLoading = true, profileError = "") }
             expectState {
@@ -68,7 +68,7 @@ class SettingsViewModelTest {
     @Test
     fun setThemeModePropagatesThroughObserveFlow() = runTest {
         val (vm, prefs) = newViewModel(initialTheme = ThemeMode.System)
-        vm.test(this, SettingsUiState()) {
+        vm.test(this, SettingsState()) {
             runOnCreate()
             expectState { copy(isProfileLoading = true, profileError = "") }
             expectState {
@@ -83,7 +83,7 @@ class SettingsViewModelTest {
     @Test
     fun profileLoadFailureSurfacesErrorMessage() = runTest {
         val (vm, _) = newViewModel(profileError = DomainError.Network("프로필 로드 실패"))
-        vm.test(this, SettingsUiState()) {
+        vm.test(this, SettingsState()) {
             runOnCreate()
             expectState { copy(isProfileLoading = true, profileError = "") }
             expectState { copy(isProfileLoading = false, profileError = "프로필 로드 실패") }

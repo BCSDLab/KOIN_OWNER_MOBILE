@@ -26,84 +26,9 @@ import koreatech.business.designsystem.resources.signup_error_phone_already_regi
 import koreatech.business.designsystem.resources.signup_error_register_failed
 import koreatech.business.designsystem.resources.signup_error_search_failed
 import koreatech.business.designsystem.resources.signup_error_store_name_required
-import koreatech.business.designsystem.resources.signup_term_privacy_label
-import koreatech.business.designsystem.resources.signup_term_service_label
-import org.jetbrains.compose.resources.StringResource
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.syntax.Syntax
 import org.orbitmvi.orbit.viewmodel.container
-
-enum class SignupStep {
-    Terms,
-    AccountSetup,
-    SmsVerify,
-    EnterPassword,
-    BusinessNumber,
-    StoreName,
-    SearchStore,
-    AttachFile,
-    Complete;
-
-    val route: String get() = when (this) {
-        Terms -> "terms"
-        AccountSetup -> "account"
-        SmsVerify -> "sms-verify"
-        EnterPassword -> "enter-password"
-        BusinessNumber -> "business-number"
-        StoreName -> "store-name"
-        SearchStore -> "search-store"
-        AttachFile -> "attach-file"
-        Complete -> "complete"
-    }
-}
-
-data class TermItem(
-    val id: String,
-    val titleRes: StringResource,
-    val content: String,
-    val isRequired: Boolean,
-    val isAgreed: Boolean = false,
-    val isExpanded: Boolean = false
-)
-
-data class SignupUiState(
-    val step: SignupStep = SignupStep.Terms,
-    val terms: List<TermItem> = listOf(
-        TermItem("service", Res.string.signup_term_service_label, "", isRequired = true),
-        TermItem("privacy", Res.string.signup_term_privacy_label, "", isRequired = true)
-    ),
-    val phoneNumber: String = "",
-    val phoneError: String = "",
-    val phoneErrorRes: StringResource? = null,
-    val smsCode: String = "",
-    val smsToken: String = "",
-    val smsError: String = "",
-    val smsErrorRes: StringResource? = null,
-    val name: String = "",
-    val password: String = "",
-    val passwordConfirm: String = "",
-    val isPasswordVisible: Boolean = false,
-    val isPasswordConfirmVisible: Boolean = false,
-    val passwordError: String = "",
-    val passwordErrorRes: StringResource? = null,
-    val businessNumber: String = "",
-    val businessNumberError: String = "",
-    val businessNumberErrorRes: StringResource? = null,
-    val storeName: String = "",
-    val storeNameError: String = "",
-    val storeNameErrorRes: StringResource? = null,
-    val searchResults: List<ShopSearchResult> = emptyList(),
-    val selectedShopId: Int? = null,
-    val selectedShopName: String = "",
-    val shopPhoneNumber: String = "",
-    val attachedFiles: List<PlatformFile> = emptyList(),
-    val attachFileError: String = "",
-    val attachFileErrorRes: StringResource? = null,
-    val isLoading: Boolean = false
-) {
-    val allTermsAgreed: Boolean get() = terms.all { it.isAgreed }
-    val requiredTermsAgreed: Boolean get() = terms.filter { it.isRequired }.all { it.isAgreed }
-}
 
 class SignupViewModel(
     private val checkPhoneExistsUseCase: CheckPhoneExistsUseCase,
@@ -114,13 +39,13 @@ class SignupViewModel(
     private val searchShopsUseCase: SearchShopsUseCase,
     private val uploadFileUseCase: UploadFileUseCase
 ) : ViewModel(),
-    ContainerHost<SignupUiState, Nothing> {
-    override val container = container<SignupUiState, Nothing>(
-        initialState = SignupUiState(),
+    ContainerHost<SignupState, Nothing> {
+    override val container = container<SignupState, Nothing>(
+        initialState = SignupState(),
         onCreate = { loadTermsContent() }
     )
 
-    private suspend fun Syntax<SignupUiState, Nothing>.loadTermsContent() {
+    private suspend fun Syntax<SignupState, Nothing>.loadTermsContent() {
         try {
             val serviceText = Res.readBytes("files/Terms_koin_sign_up.txt").decodeToString()
             val privacyText = Res.readBytes("files/Terms_personal_information.txt").decodeToString()

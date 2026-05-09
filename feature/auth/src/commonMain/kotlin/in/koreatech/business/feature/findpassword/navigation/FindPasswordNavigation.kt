@@ -29,8 +29,8 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.composable
 import `in`.koreatech.business.feature.findpassword.CompleteStep
+import `in`.koreatech.business.feature.findpassword.FindPasswordState
 import `in`.koreatech.business.feature.findpassword.FindPasswordStep
-import `in`.koreatech.business.feature.findpassword.FindPasswordUiState
 import `in`.koreatech.business.feature.findpassword.FindPasswordViewModel
 import `in`.koreatech.business.feature.findpassword.NewPasswordStep
 import `in`.koreatech.business.feature.findpassword.PhoneInputStep
@@ -181,7 +181,7 @@ fun FindPasswordStepHost(
     parentRoute: Any,
     entry: NavBackStackEntry,
     onExitFindPassword: () -> Unit,
-    content: @Composable (viewModel: FindPasswordViewModel, uiState: FindPasswordUiState) -> Unit
+    content: @Composable (viewModel: FindPasswordViewModel, uiState: FindPasswordState) -> Unit
 ) {
     val parentEntry = remember(entry) {
         navController.getBackStackEntry(parentRoute)

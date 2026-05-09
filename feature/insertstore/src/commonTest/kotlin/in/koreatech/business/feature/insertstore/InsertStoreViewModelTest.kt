@@ -62,7 +62,7 @@ class InsertStoreViewModelTest {
     @Test
     fun categoriesLoadSucceedsOnCreate() = runTest {
         val (vm, _) = newViewModel(categories = listOf(StoreCategory(id = 5, name = "분식")))
-        vm.test(this, InsertStoreUiState()) {
+        vm.test(this, InsertStoreState()) {
             runOnCreate()
             expectState { copy(isLoading = true) }
             expectState { copy(categories = listOf(StoreCategory(5, "분식")), isLoading = false) }
@@ -72,7 +72,7 @@ class InsertStoreViewModelTest {
     @Test
     fun categoriesLoadFailureSurfacesErrorRes() = runTest {
         val (vm, _) = newViewModel(loadCategoriesError = DomainError.Network(""))
-        vm.test(this, InsertStoreUiState()) {
+        vm.test(this, InsertStoreState()) {
             runOnCreate()
             expectState { copy(isLoading = true) }
             expectState {
@@ -88,7 +88,7 @@ class InsertStoreViewModelTest {
     @Test
     fun navigateNextOnSelectCategoryEmitsCategorySelectRequiredWhenUnselected() = runTest {
         val (vm, _) = newViewModel()
-        vm.test(this, InsertStoreUiState(step = InsertStoreStep.SelectCategory)) {
+        vm.test(this, InsertStoreState(step = InsertStoreStep.SelectCategory)) {
             runOnCreate()
             expectState { copy(isLoading = true) }
             expectState {
@@ -107,7 +107,7 @@ class InsertStoreViewModelTest {
         // pre-seeded: category selected, but name blank → error_name
         vm.test(
             this,
-            InsertStoreUiState(step = InsertStoreStep.BasicInfo, selectedCategoryId = 2)
+            InsertStoreState(step = InsertStoreStep.BasicInfo, selectedCategoryId = 2)
         ) {
             runOnCreate()
             expectState { copy(isLoading = true) }
@@ -124,7 +124,7 @@ class InsertStoreViewModelTest {
     @Test
     fun navigateNextDetailInfoEmitsDescriptionRequired() = runTest {
         val (vm, _) = newViewModel()
-        vm.test(this, InsertStoreUiState(step = InsertStoreStep.DetailInfo)) {
+        vm.test(this, InsertStoreState(step = InsertStoreStep.DetailInfo)) {
             runOnCreate()
             expectState { copy(isLoading = true) }
             expectState {
@@ -142,7 +142,7 @@ class InsertStoreViewModelTest {
         val (vm, repo) = newViewModel()
         vm.test(
             this,
-            InsertStoreUiState(
+            InsertStoreState(
                 step = InsertStoreStep.FinalCheck,
                 selectedCategoryId = 2,
                 name = "테스트 매장",
@@ -169,7 +169,7 @@ class InsertStoreViewModelTest {
         val (vm, _) = newViewModel(registerError = DomainError.Network(""))
         vm.test(
             this,
-            InsertStoreUiState(
+            InsertStoreState(
                 step = InsertStoreStep.FinalCheck,
                 selectedCategoryId = 2,
                 name = "이름",

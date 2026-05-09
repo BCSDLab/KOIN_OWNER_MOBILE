@@ -61,7 +61,7 @@ class ManageCategoriesViewModelTest {
     fun loadEmitsCategoriesOnSuccess() = runTest {
         val sample = listOf(MenuCategory(id = 1, name = "한식", menus = emptyList()))
         val (vm, _) = newViewModel(categories = sample)
-        vm.test(this, ManageCategoriesUiState()) {
+        vm.test(this, ManageCategoriesState()) {
             containerHost.load("storeA")
             expectState { copy(storeId = "storeA", isLoading = true) }
             expectState { copy(isLoading = false, categories = sample) }
@@ -71,7 +71,7 @@ class ManageCategoriesViewModelTest {
     @Test
     fun loadFailureSurfacesErrorMessage() = runTest {
         val (vm, _) = newViewModel(getCategoriesError = DomainError.Network("로드 실패"))
-        vm.test(this, ManageCategoriesUiState()) {
+        vm.test(this, ManageCategoriesState()) {
             containerHost.load("storeA")
             expectState { copy(storeId = "storeA", isLoading = true) }
             expectState { copy(isLoading = false, errorMessage = "로드 실패") }
@@ -81,7 +81,7 @@ class ManageCategoriesViewModelTest {
     @Test
     fun addCategoryReloadsAfterCreate() = runTest {
         val (vm, repo) = newViewModel(categories = emptyList())
-        vm.test(this, ManageCategoriesUiState(storeId = "storeA")) {
+        vm.test(this, ManageCategoriesState(storeId = "storeA")) {
             containerHost.addCategory("디저트")
             expectState { copy(isLoading = true) }
             expectState { copy(isLoading = false, categories = emptyList()) }
@@ -92,7 +92,7 @@ class ManageCategoriesViewModelTest {
     @Test
     fun addCategoryWithBlankNameSilentlyDoesNothing() = runTest {
         val (vm, _) = newViewModel()
-        vm.test(this, ManageCategoriesUiState(storeId = "storeA")) {
+        vm.test(this, ManageCategoriesState(storeId = "storeA")) {
             containerHost.addCategory("   ")
             // no state change expected
         }
@@ -101,7 +101,7 @@ class ManageCategoriesViewModelTest {
     @Test
     fun renameCategoryReloadsAfterRename() = runTest {
         val (vm, repo) = newViewModel(categories = emptyList())
-        vm.test(this, ManageCategoriesUiState(storeId = "storeA")) {
+        vm.test(this, ManageCategoriesState(storeId = "storeA")) {
             containerHost.renameCategory(categoryId = 5, name = "새이름")
             expectState { copy(isLoading = true) }
             expectState { copy(isLoading = false, categories = emptyList()) }
@@ -113,7 +113,7 @@ class ManageCategoriesViewModelTest {
     fun deleteCategoryFailureSurfacesBlockDeleteCategory() = runTest {
         val cat = MenuCategory(id = 5, name = "한식", menus = emptyList())
         val (vm, _) = newViewModel(deleteError = DomainError.Network(""))
-        vm.test(this, ManageCategoriesUiState(storeId = "storeA", categories = listOf(cat))) {
+        vm.test(this, ManageCategoriesState(storeId = "storeA", categories = listOf(cat))) {
             containerHost.deleteCategory(5)
             expectState { copy(isLoading = true) }
             expectState { copy(isLoading = false, blockDeleteCategory = cat, errorMessage = "") }

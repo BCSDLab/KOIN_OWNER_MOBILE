@@ -17,7 +17,6 @@ import koreatech.business.designsystem.resources.event_editor_error_period_inval
 import koreatech.business.designsystem.resources.event_editor_error_period_required
 import koreatech.business.designsystem.resources.event_editor_error_title_required
 import kotlin.time.Clock
-import org.jetbrains.compose.resources.StringResource
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
@@ -28,8 +27,8 @@ class WriteEventViewModel(
     private val deleteEventUseCase: DeleteEventUseCase,
     private val uploadFileUseCase: UploadFileUseCase
 ) : ViewModel(),
-    ContainerHost<WriteEventUiState, WriteEventSideEffect> {
-    override val container = container<WriteEventUiState, WriteEventSideEffect>(WriteEventUiState())
+    ContainerHost<WriteEventState, WriteEventSideEffect> {
+    override val container = container<WriteEventState, WriteEventSideEffect>(WriteEventState())
 
     fun init(storeId: String, eventId: String? = null) {
         intent {
@@ -226,18 +225,3 @@ private fun epochDayToIso(epochDay: Int): String {
     val finalY = if (m <= 2) y + 1 else y
     return finalY.toString().padStart(4, '0') + "-" + m.toString().padStart(2, '0') + "-" + d.toString().padStart(2, '0')
 }
-
-data class WriteEventUiState(
-    val isLoading: Boolean = false,
-    val storeId: String? = null,
-    val eventId: String? = null,
-    val isEditMode: Boolean = false,
-    val title: String = "",
-    val content: String = "",
-    val startDate: String = "",
-    val endDate: String = "",
-    val existingImageUrls: List<String> = emptyList(),
-    val images: List<PlatformFile> = emptyList(),
-    val errorMessage: String = "",
-    val errorMessageRes: StringResource? = null
-)

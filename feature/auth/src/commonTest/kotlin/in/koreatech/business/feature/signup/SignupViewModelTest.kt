@@ -72,7 +72,7 @@ class SignupViewModelTest {
     @Test
     fun submitPhoneInvalidEmitsPhoneInvalidRes() = runTest {
         val (vm, _) = newViewModel()
-        vm.test(this, SignupUiState(phoneNumber = "12345")) {
+        vm.test(this, SignupState(phoneNumber = "12345")) {
             containerHost.submitPhone()
             expectState { copy(phoneError = "", phoneErrorRes = Res.string.error_phone_invalid) }
         }
@@ -81,7 +81,7 @@ class SignupViewModelTest {
     @Test
     fun submitPhoneAlreadyRegisteredEmitsAlreadyRegisteredRes() = runTest {
         val (vm, _) = newViewModel(phoneAlreadyExists = true)
-        vm.test(this, SignupUiState(phoneNumber = "01011113333")) {
+        vm.test(this, SignupState(phoneNumber = "01011113333")) {
             containerHost.submitPhone()
             expectState { copy(isLoading = true, phoneError = "", phoneErrorRes = null) }
             expectState {
@@ -97,7 +97,7 @@ class SignupViewModelTest {
     @Test
     fun submitSmsTooShortEmitsCodeRequiredRes() = runTest {
         val (vm, _) = newViewModel()
-        vm.test(this, SignupUiState(smsCode = "12")) {
+        vm.test(this, SignupState(smsCode = "12")) {
             containerHost.submitSms()
             expectState { copy(smsError = "", smsErrorRes = Res.string.error_sms_code_required) }
         }
@@ -106,7 +106,7 @@ class SignupViewModelTest {
     @Test
     fun submitPasswordWithBlankNameEmitsNameRequiredRes() = runTest {
         val (vm, _) = newViewModel()
-        vm.test(this, SignupUiState(name = "", password = "abc12!@", passwordConfirm = "abc12!@")) {
+        vm.test(this, SignupState(name = "", password = "abc12!@", passwordConfirm = "abc12!@")) {
             containerHost.submitPassword()
             expectState {
                 copy(passwordError = "", passwordErrorRes = Res.string.signup_error_name_required)
@@ -117,7 +117,7 @@ class SignupViewModelTest {
     @Test
     fun submitPasswordInvalidEmitsPasswordInvalidRes() = runTest {
         val (vm, _) = newViewModel()
-        vm.test(this, SignupUiState(name = "홍길동", password = "abc")) {
+        vm.test(this, SignupState(name = "홍길동", password = "abc")) {
             containerHost.submitPassword()
             expectState {
                 copy(passwordError = "", passwordErrorRes = Res.string.error_password_invalid)
@@ -130,7 +130,7 @@ class SignupViewModelTest {
         val (vm, _) = newViewModel()
         vm.test(
             this,
-            SignupUiState(
+            SignupState(
                 name = "홍길동",
                 password = "abc12!@",
                 passwordConfirm = "different"
@@ -146,7 +146,7 @@ class SignupViewModelTest {
     @Test
     fun submitBusinessNumberInvalidEmitsRes() = runTest {
         val (vm, _) = newViewModel()
-        vm.test(this, SignupUiState(businessNumber = "12")) {
+        vm.test(this, SignupState(businessNumber = "12")) {
             containerHost.submitBusinessNumber()
             expectState {
                 copy(
@@ -160,7 +160,7 @@ class SignupViewModelTest {
     @Test
     fun submitStoreNameBlankEmitsRes() = runTest {
         val (vm, _) = newViewModel()
-        vm.test(this, SignupUiState(storeName = "")) {
+        vm.test(this, SignupState(storeName = "")) {
             containerHost.submitStoreName()
             expectState {
                 copy(
@@ -174,7 +174,7 @@ class SignupViewModelTest {
     @Test
     fun submitAttachFileEmptyEmitsRes() = runTest {
         val (vm, _) = newViewModel()
-        vm.test(this, SignupUiState(attachedFiles = emptyList())) {
+        vm.test(this, SignupState(attachedFiles = emptyList())) {
             containerHost.submitAttachFile()
             expectState {
                 copy(
@@ -195,7 +195,7 @@ class SignupViewModelTest {
         )
         vm.test(
             this,
-            SignupUiState(
+            SignupState(
                 phoneNumber = "01011113333",
                 password = "abc12!@",
                 name = "홍길동",
@@ -219,7 +219,7 @@ class SignupViewModelTest {
     @Test
     fun toggleAllTermsFlipsAllFromUnagreedToAgreed() = runTest {
         val (vm, _) = newViewModel()
-        val initial = SignupUiState()
+        val initial = SignupState()
         vm.test(this, initial) {
             containerHost.onToggleAllTerms()
             expectState {

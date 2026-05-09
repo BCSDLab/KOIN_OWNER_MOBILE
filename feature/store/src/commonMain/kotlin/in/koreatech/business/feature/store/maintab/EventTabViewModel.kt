@@ -2,7 +2,6 @@ package `in`.koreatech.business.feature.store.maintab
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import `in`.koreatech.business.domain.model.StoreEvent
 import `in`.koreatech.business.domain.usecase.store.DeleteEventUseCase
 import `in`.koreatech.business.domain.usecase.store.GetStoreEventsUseCase
 import `in`.koreatech.business.domain.usecase.store.ObserveActiveStoreIdUseCase
@@ -12,27 +11,14 @@ import kotlinx.coroutines.flow.onEach
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
-enum class EventFilter { All, Live, Planned, Ended }
-
-data class EventTabUiState(
-    val isLoading: Boolean = false,
-    val storeId: String? = null,
-    val events: List<StoreEvent> = emptyList(),
-    val filter: EventFilter = EventFilter.All,
-    val isEditMode: Boolean = false,
-    val selectedEventIds: Set<Int> = emptySet(),
-    val expandedEventIds: Set<Int> = emptySet(),
-    val errorMessage: String = ""
-)
-
 class EventTabViewModel(
     private val getStoreEventsUseCase: GetStoreEventsUseCase,
     private val deleteEventUseCase: DeleteEventUseCase,
     private val observeActiveStoreIdUseCase: ObserveActiveStoreIdUseCase
 ) : ViewModel(),
-    ContainerHost<EventTabUiState, Nothing> {
-    override val container = container<EventTabUiState, Nothing>(
-        initialState = EventTabUiState(),
+    ContainerHost<EventTabState, Nothing> {
+    override val container = container<EventTabState, Nothing>(
+        initialState = EventTabState(),
         onCreate = {
             observeActiveStoreIdUseCase()
                 .distinctUntilChanged()

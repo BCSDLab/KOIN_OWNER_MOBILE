@@ -12,22 +12,14 @@ import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.syntax.Syntax
 import org.orbitmvi.orbit.viewmodel.container
 
-data class SettingsUiState(
-    val themeMode: ThemeMode = ThemeMode.System,
-    val ownerName: String = "",
-    val ownerEmail: String = "",
-    val isProfileLoading: Boolean = false,
-    val profileError: String = ""
-)
-
 class SettingsViewModel(
     private val observeThemeModeUseCase: ObserveThemeModeUseCase,
     private val setThemeModeUseCase: SetThemeModeUseCase,
     private val getOwnerProfileUseCase: GetOwnerProfileUseCase
 ) : ViewModel(),
-    ContainerHost<SettingsUiState, Nothing> {
-    override val container = container<SettingsUiState, Nothing>(
-        initialState = SettingsUiState(),
+    ContainerHost<SettingsState, Nothing> {
+    override val container = container<SettingsState, Nothing>(
+        initialState = SettingsState(),
         onCreate = {
             observeThemeModeUseCase()
                 .onEach { mode -> reduce { state.copy(themeMode = mode) } }
@@ -36,7 +28,7 @@ class SettingsViewModel(
         }
     )
 
-    private suspend fun Syntax<SettingsUiState, Nothing>.loadOwnerProfile() {
+    private suspend fun Syntax<SettingsState, Nothing>.loadOwnerProfile() {
         reduce { state.copy(isProfileLoading = true, profileError = "") }
         try {
             val profile = getOwnerProfileUseCase()

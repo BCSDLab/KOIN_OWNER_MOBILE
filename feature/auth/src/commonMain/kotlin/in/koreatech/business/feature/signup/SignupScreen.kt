@@ -156,7 +156,7 @@ private fun SignupStepScaffold(
 
 @Composable
 internal fun TermsStep(
-    uiState: SignupUiState,
+    uiState: SignupState,
     onBack: () -> Unit,
     onToggleAll: () -> Unit,
     onToggleTerm: (String) -> Unit,
@@ -324,7 +324,7 @@ private fun TermItemRow(
 
 @Composable
 internal fun AccountSetupStep(
-    uiState: SignupUiState,
+    uiState: SignupState,
     onBack: () -> Unit,
     onPhoneChanged: (String) -> Unit,
     onNext: () -> Unit,
@@ -378,7 +378,7 @@ internal fun AccountSetupStep(
 
 @Composable
 internal fun SmsVerifyStep(
-    uiState: SignupUiState,
+    uiState: SignupState,
     onBack: () -> Unit,
     onCodeChanged: (String) -> Unit,
     onNext: () -> Unit,
@@ -431,7 +431,7 @@ internal fun SmsVerifyStep(
 
 @Composable
 internal fun EnterPasswordStep(
-    uiState: SignupUiState,
+    uiState: SignupState,
     onBack: () -> Unit,
     onNameChanged: (String) -> Unit,
     onPasswordChanged: (String) -> Unit,
@@ -526,7 +526,7 @@ internal fun EnterPasswordStep(
 
 @Composable
 internal fun BusinessNumberStep(
-    uiState: SignupUiState,
+    uiState: SignupState,
     onBack: () -> Unit,
     onBusinessNumberChanged: (String) -> Unit,
     onNext: () -> Unit,
@@ -577,7 +577,7 @@ internal fun BusinessNumberStep(
 
 @Composable
 internal fun StoreNameStep(
-    uiState: SignupUiState,
+    uiState: SignupState,
     onBack: () -> Unit,
     onStoreNameChanged: (String) -> Unit,
     onSearch: () -> Unit,
@@ -647,7 +647,7 @@ internal fun StoreNameStep(
 
 @Composable
 internal fun SearchStoreStep(
-    uiState: SignupUiState,
+    uiState: SignupState,
     onBack: () -> Unit,
     onSelectShop: (ShopSearchResult) -> Unit,
     onEnterManually: () -> Unit,
@@ -748,7 +748,7 @@ private fun ShopResultItem(
 
 @Composable
 internal fun AttachFileStep(
-    uiState: SignupUiState,
+    uiState: SignupState,
     onBack: () -> Unit,
     onShopPhoneChanged: (String) -> Unit,
     onAddFile: (PlatformFile) -> Unit,

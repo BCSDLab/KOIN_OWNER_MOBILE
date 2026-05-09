@@ -18,8 +18,8 @@ import `in`.koreatech.business.feature.insertstore.BasicInfoStep
 import `in`.koreatech.business.feature.insertstore.CompleteStep
 import `in`.koreatech.business.feature.insertstore.DetailInfoStep
 import `in`.koreatech.business.feature.insertstore.FinalCheckStep
+import `in`.koreatech.business.feature.insertstore.InsertStoreState
 import `in`.koreatech.business.feature.insertstore.InsertStoreStep
-import `in`.koreatech.business.feature.insertstore.InsertStoreUiState
 import `in`.koreatech.business.feature.insertstore.InsertStoreViewModel
 import `in`.koreatech.business.feature.insertstore.SelectCategoryStep
 import `in`.koreatech.business.feature.insertstore.StartStep
@@ -140,7 +140,7 @@ private fun InsertStoreStepHost(
     navController: NavController,
     entry: NavBackStackEntry,
     onNavigateBack: () -> Unit,
-    content: @Composable (viewModel: InsertStoreViewModel, uiState: InsertStoreUiState) -> Unit
+    content: @Composable (viewModel: InsertStoreViewModel, uiState: InsertStoreState) -> Unit
 ) {
     val parentEntry = remember(entry) {
         navController.getBackStackEntry<InsertStoreGraph>()

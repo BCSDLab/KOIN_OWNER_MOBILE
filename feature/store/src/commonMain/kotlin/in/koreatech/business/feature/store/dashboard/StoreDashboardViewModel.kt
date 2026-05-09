@@ -2,9 +2,6 @@ package `in`.koreatech.business.feature.store.dashboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import `in`.koreatech.business.domain.model.MenuCategory
-import `in`.koreatech.business.domain.model.StoreDetail
-import `in`.koreatech.business.domain.model.StoreEvent
 import `in`.koreatech.business.domain.model.owner.OwnerStore
 import `in`.koreatech.business.domain.usecase.owner.GetOwnerProfileUseCase
 import `in`.koreatech.business.domain.usecase.owner.GetShopListUseCase
@@ -32,9 +29,9 @@ class StoreDashboardViewModel(
     private val setActiveStoreIdUseCase: SetActiveStoreIdUseCase,
     private val observeActiveStoreIdUseCase: ObserveActiveStoreIdUseCase
 ) : ViewModel(),
-    ContainerHost<StoreDashboardUiState, StoreDashboardSideEffect> {
-    override val container = container<StoreDashboardUiState, StoreDashboardSideEffect>(
-        initialState = StoreDashboardUiState(),
+    ContainerHost<StoreDashboardState, StoreDashboardSideEffect> {
+    override val container = container<StoreDashboardState, StoreDashboardSideEffect>(
+        initialState = StoreDashboardState(),
         onCreate = {
             observeActiveStoreIdUseCase()
                 .distinctUntilChanged()
@@ -159,7 +156,7 @@ class StoreDashboardViewModel(
         intent(registerIdling = false) { reduce { state.copy(errorMessage = "") } }
     }
 
-    private suspend fun org.orbitmvi.orbit.syntax.Syntax<StoreDashboardUiState, StoreDashboardSideEffect>.loadStoreData(
+    private suspend fun org.orbitmvi.orbit.syntax.Syntax<StoreDashboardState, StoreDashboardSideEffect>.loadStoreData(
         activeStore: OwnerStore,
         stores: List<OwnerStore>
     ) {
@@ -173,17 +170,3 @@ class StoreDashboardViewModel(
         reduce { state.copy(isLoading = false, stores = stores, activeStore = activeStore, storeDetail = detail, menus = menus, events = events) }
     }
 }
-
-data class StoreDashboardUiState(
-    val isLoading: Boolean = false,
-    val ownerName: String = "",
-    val stores: List<OwnerStore> = emptyList(),
-    val activeStore: OwnerStore? = null,
-    val storeDetail: StoreDetail? = null,
-    val menus: List<MenuCategory> = emptyList(),
-    val events: List<StoreEvent> = emptyList(),
-    val isEventEditMode: Boolean = false,
-    val selectedEventIds: Set<Int> = emptySet(),
-    val expandedEventIds: Set<Int> = emptySet(),
-    val errorMessage: String = ""
-)

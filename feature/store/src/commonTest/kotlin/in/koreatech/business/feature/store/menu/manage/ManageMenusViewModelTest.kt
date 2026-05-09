@@ -55,7 +55,7 @@ class ManageMenusViewModelTest {
     fun loadCallEmitsMenusOnSuccess() = runTest {
         val sample = listOf(MenuCategory(id = 1, name = "한식", menus = emptyList()))
         val (vm, _, _) = newViewModel(menus = sample)
-        vm.test(this, ManageMenusUiState()) {
+        vm.test(this, ManageMenusState()) {
             containerHost.load("storeA")
             expectState {
                 copy(storeId = "storeA", isLoading = true, errorMessage = "")
@@ -69,7 +69,7 @@ class ManageMenusViewModelTest {
     @Test
     fun loadFailureSurfacesErrorMessage() = runTest {
         val (vm, _, _) = newViewModel(getStoreMenusError = DomainError.Network("메뉴 로드 실패"))
-        vm.test(this, ManageMenusUiState()) {
+        vm.test(this, ManageMenusState()) {
             containerHost.load("storeA")
             expectState {
                 copy(storeId = "storeA", isLoading = true, errorMessage = "")
@@ -82,7 +82,7 @@ class ManageMenusViewModelTest {
     fun deleteMenuRefetchesAndClearsErrorOnSuccess() = runTest {
         val initial = listOf(MenuCategory(id = 1, name = "한식", menus = emptyList()))
         val (vm, repo, _) = newViewModel(menus = initial)
-        vm.test(this, ManageMenusUiState(storeId = "storeA", categories = initial)) {
+        vm.test(this, ManageMenusState(storeId = "storeA", categories = initial)) {
             containerHost.deleteMenu("M1")
             expectState { copy(deletingMenuId = "M1") }
             expectState { copy(categories = initial, deletingMenuId = null, errorMessage = "") }
@@ -93,7 +93,7 @@ class ManageMenusViewModelTest {
     @Test
     fun deleteMenuFailureRetainsCategoriesAndSurfacesError() = runTest {
         val (vm, _, _) = newViewModel(deleteMenuError = DomainError.Network("삭제 실패"))
-        vm.test(this, ManageMenusUiState(storeId = "storeA")) {
+        vm.test(this, ManageMenusState(storeId = "storeA")) {
             containerHost.deleteMenu("M1")
             expectState { copy(deletingMenuId = "M1") }
             expectState { copy(deletingMenuId = null, errorMessage = "삭제 실패") }

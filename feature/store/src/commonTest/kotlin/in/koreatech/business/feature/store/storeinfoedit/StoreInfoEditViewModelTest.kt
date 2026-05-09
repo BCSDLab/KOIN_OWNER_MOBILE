@@ -53,7 +53,7 @@ class StoreInfoEditViewModelTest {
     @Test
     fun loadPopulatesStateFromDetail() = runTest {
         val (vm, _) = newViewModel()
-        vm.test(this, StoreInfoEditUiState()) {
+        vm.test(this, StoreInfoEditState()) {
             containerHost.load("storeA")
             expectState {
                 copy(storeId = "storeA", isLoading = true, errorMessage = "", errorMessageRes = null)
@@ -84,7 +84,7 @@ class StoreInfoEditViewModelTest {
         val (vm, _) = newViewModel()
         vm.test(
             this,
-            StoreInfoEditUiState(storeId = "storeA", phone = "abc")
+            StoreInfoEditState(storeId = "storeA", phone = "abc")
         ) {
             containerHost.submit()
             expectState { copy(errorMessage = "", errorMessageRes = Res.string.error_phone_invalid) }
@@ -98,7 +98,7 @@ class StoreInfoEditViewModelTest {
         invalidTimes[0] = invalidTimes[0].copy(openTime = "25:00")
         vm.test(
             this,
-            StoreInfoEditUiState(
+            StoreInfoEditState(
                 storeId = "storeA",
                 phone = "01011113333",
                 operatingTimes = invalidTimes
@@ -119,7 +119,7 @@ class StoreInfoEditViewModelTest {
         val (vm, repo) = newViewModel()
         vm.test(
             this,
-            StoreInfoEditUiState(
+            StoreInfoEditState(
                 storeId = "storeA",
                 phone = "01011113333",
                 name = "이름",
@@ -139,7 +139,7 @@ class StoreInfoEditViewModelTest {
         val (vm, _) = newViewModel(updateError = DomainError.Network("저장 실패"))
         vm.test(
             this,
-            StoreInfoEditUiState(
+            StoreInfoEditState(
                 storeId = "storeA",
                 phone = "01011113333",
                 operatingTimes = defaultOperatingTimes
@@ -154,7 +154,7 @@ class StoreInfoEditViewModelTest {
     @Test
     fun toggleDeliveryCardBank() = runTest {
         val (vm, _) = newViewModel()
-        vm.test(this, StoreInfoEditUiState(isDelivery = false, isCard = false, isBank = false)) {
+        vm.test(this, StoreInfoEditState(isDelivery = false, isCard = false, isBank = false)) {
             containerHost.onToggleDelivery()
             expectState { copy(isDelivery = true) }
             containerHost.onToggleCard()
@@ -168,7 +168,7 @@ class StoreInfoEditViewModelTest {
     fun operatingTimeToggleClosesAndReopens() = runTest {
         val (vm, _) = newViewModel()
         val initialTimes = defaultOperatingTimes
-        vm.test(this, StoreInfoEditUiState(operatingTimes = initialTimes)) {
+        vm.test(this, StoreInfoEditState(operatingTimes = initialTimes)) {
             containerHost.onOperatingTimeToggle(0)
             val toggled = initialTimes.toMutableList().also {
                 it[0] = it[0].copy(isClosed = true)

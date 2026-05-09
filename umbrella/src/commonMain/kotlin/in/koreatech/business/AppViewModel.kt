@@ -2,7 +2,6 @@ package `in`.koreatech.business
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import `in`.koreatech.business.domain.model.ThemeMode
 import `in`.koreatech.business.domain.usecase.auth.DeleteAccountUseCase
 import `in`.koreatech.business.domain.usecase.owner.GetRequiredVersionUseCase
 import `in`.koreatech.business.domain.usecase.preferences.ObserveThemeModeUseCase
@@ -26,17 +25,6 @@ import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
-enum class LaunchState {
-    Loading,
-    RequiresUpdate,
-    Authenticated,
-    Unauthenticated
-}
-
-data class AppUiState(
-    val themeMode: ThemeMode = ThemeMode.System
-)
-
 class AppViewModel(
     private val deleteAccountUseCase: DeleteAccountUseCase,
     private val getRequiredVersionUseCase: GetRequiredVersionUseCase,
@@ -46,8 +34,8 @@ class AppViewModel(
     private val setActiveStoreIdUseCase: SetActiveStoreIdUseCase,
     private val observeThemeModeUseCase: ObserveThemeModeUseCase
 ) : ViewModel(),
-    ContainerHost<AppUiState, Nothing> {
-    override val container = container<AppUiState, Nothing>(AppUiState())
+    ContainerHost<AppState, Nothing> {
+    override val container = container<AppState, Nothing>(AppState())
 
     private val _launchState = MutableStateFlow(LaunchState.Loading)
     val launchState: StateFlow<LaunchState> = _launchState.asStateFlow()

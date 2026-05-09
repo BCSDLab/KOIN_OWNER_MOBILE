@@ -1,9 +1,6 @@
 package `in`.koreatech.business.feature.insertstore
 
 import androidx.lifecycle.ViewModel
-import `in`.koreatech.business.domain.model.OperatingTime
-import `in`.koreatech.business.domain.model.StoreCategory
-import `in`.koreatech.business.domain.model.defaultOperatingTimes
 import `in`.koreatech.business.domain.usecase.owner.UploadFileUseCase
 import `in`.koreatech.business.domain.usecase.store.GetStoreCategoriesUseCase
 import `in`.koreatech.business.domain.usecase.store.RegisterStoreUseCase
@@ -19,64 +16,22 @@ import koreatech.business.designsystem.resources.insert_store_error_categories_l
 import koreatech.business.designsystem.resources.insert_store_error_description_required
 import koreatech.business.designsystem.resources.insert_store_error_name_required
 import koreatech.business.designsystem.resources.insert_store_error_register_failed
-import org.jetbrains.compose.resources.StringResource
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.syntax.Syntax
 import org.orbitmvi.orbit.viewmodel.container
-
-enum class InsertStoreStep {
-    Start,
-    SelectCategory,
-    BasicInfo,
-    DetailInfo,
-    FinalCheck,
-    Complete;
-
-    val route: String get() = when (this) {
-        Start -> "start"
-        SelectCategory -> "select-category"
-        BasicInfo -> "basic-info"
-        DetailInfo -> "detail-info"
-        FinalCheck -> "final-check"
-        Complete -> "complete"
-    }
-}
-
-data class InsertStoreUiState(
-    val step: InsertStoreStep = InsertStoreStep.Start,
-    val isLoading: Boolean = false,
-    val errorMessage: String = "",
-    val errorMessageRes: StringResource? = null,
-    val categories: List<StoreCategory> = emptyList(),
-    val selectedCategoryId: Int = -1,
-    val selectedCategoryName: String = "",
-    val name: String = "",
-    val address: String = "",
-    val phone: String = "",
-    val isCardOk: Boolean = false,
-    val isBankOk: Boolean = false,
-    val isDeliveryOk: Boolean = false,
-    val deliveryPrice: String = "",
-    val description: String = "",
-    val operatingTimes: List<OperatingTime> = defaultOperatingTimes,
-    val coverImages: List<PlatformFile> = emptyList()
-) {
-    val mainCategoryId: Int get() = selectedCategoryId
-    val categoryIds: List<Int> get() = listOf(1, selectedCategoryId)
-}
 
 class InsertStoreViewModel(
     private val getStoreCategoriesUseCase: GetStoreCategoriesUseCase,
     private val registerStoreUseCase: RegisterStoreUseCase,
     private val uploadFileUseCase: UploadFileUseCase
 ) : ViewModel(),
-    ContainerHost<InsertStoreUiState, Nothing> {
-    override val container = container<InsertStoreUiState, Nothing>(
-        initialState = InsertStoreUiState(),
+    ContainerHost<InsertStoreState, Nothing> {
+    override val container = container<InsertStoreState, Nothing>(
+        initialState = InsertStoreState(),
         onCreate = { loadCategories() }
     )
 
-    private suspend fun Syntax<InsertStoreUiState, Nothing>.loadCategories() {
+    private suspend fun Syntax<InsertStoreState, Nothing>.loadCategories() {
         reduce { state.copy(isLoading = true) }
         try {
             val categories = getStoreCategoriesUseCase()

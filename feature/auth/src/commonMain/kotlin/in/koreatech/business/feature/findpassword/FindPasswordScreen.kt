@@ -59,7 +59,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun PhoneInputStep(
-    uiState: FindPasswordUiState,
+    uiState: FindPasswordState,
     onPhoneChanged: (String) -> Unit,
     onNext: () -> Unit,
     modifier: Modifier = Modifier
@@ -121,7 +121,7 @@ fun PhoneInputStep(
 
 @Composable
 fun SmsVerifyStep(
-    uiState: FindPasswordUiState,
+    uiState: FindPasswordState,
     onSmsCodeChanged: (String) -> Unit,
     onNext: () -> Unit,
     onResendSms: () -> Unit,
@@ -193,7 +193,7 @@ fun SmsVerifyStep(
 
 @Composable
 fun NewPasswordStep(
-    uiState: FindPasswordUiState,
+    uiState: FindPasswordState,
     onNewPasswordChanged: (String) -> Unit,
     onNewPasswordConfirmChanged: (String) -> Unit,
     onTogglePasswordVisibility: () -> Unit,

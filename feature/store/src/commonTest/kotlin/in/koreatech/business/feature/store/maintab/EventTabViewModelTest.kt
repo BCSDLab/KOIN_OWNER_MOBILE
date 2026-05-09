@@ -56,7 +56,7 @@ class EventTabViewModelTest {
             StoreEvent(id = 1, shopId = 100, title = "할인", content = "20%", thumbnailUrls = emptyList(), startDate = "2026-01-01", endDate = "2026-01-31")
         )
         val (vm, _) = newViewModel(events = sample)
-        vm.test(this, EventTabUiState()) {
+        vm.test(this, EventTabState()) {
             containerHost.load("storeA")
             expectState { copy(storeId = "storeA", isLoading = true, errorMessage = "") }
             expectState { copy(isLoading = false, events = sample) }
@@ -66,7 +66,7 @@ class EventTabViewModelTest {
     @Test
     fun loadFailureSurfacesErrorMessage() = runTest {
         val (vm, _) = newViewModel(getEventsError = DomainError.Network("이벤트 로드 실패"))
-        vm.test(this, EventTabUiState()) {
+        vm.test(this, EventTabState()) {
             containerHost.load("storeA")
             expectState { copy(storeId = "storeA", isLoading = true, errorMessage = "") }
             expectState { copy(isLoading = false, errorMessage = "이벤트 로드 실패") }
@@ -76,7 +76,7 @@ class EventTabViewModelTest {
     @Test
     fun setFilterUpdatesState() = runTest {
         val (vm, _) = newViewModel()
-        vm.test(this, EventTabUiState()) {
+        vm.test(this, EventTabState()) {
             containerHost.setFilter(EventFilter.Live)
             expectState { copy(filter = EventFilter.Live) }
         }
@@ -85,7 +85,7 @@ class EventTabViewModelTest {
     @Test
     fun toggleEditModeFlipsAndClearsSelection() = runTest {
         val (vm, _) = newViewModel()
-        vm.test(this, EventTabUiState(selectedEventIds = setOf(1, 2))) {
+        vm.test(this, EventTabState(selectedEventIds = setOf(1, 2))) {
             containerHost.toggleEditMode()
             expectState { copy(isEditMode = true, selectedEventIds = emptySet()) }
         }
@@ -94,7 +94,7 @@ class EventTabViewModelTest {
     @Test
     fun toggleSelectionAddsThenRemoves() = runTest {
         val (vm, _) = newViewModel()
-        vm.test(this, EventTabUiState()) {
+        vm.test(this, EventTabState()) {
             containerHost.toggleSelection(1)
             expectState { copy(selectedEventIds = setOf(1)) }
             containerHost.toggleSelection(1)
@@ -110,7 +110,7 @@ class EventTabViewModelTest {
         val (vm, repo) = newViewModel(events = sample)
         vm.test(
             this,
-            EventTabUiState(storeId = "storeA", selectedEventIds = setOf(1), events = sample)
+            EventTabState(storeId = "storeA", selectedEventIds = setOf(1), events = sample)
         ) {
             containerHost.deleteSelected()
             expectState { copy(isLoading = true, errorMessage = "") }
