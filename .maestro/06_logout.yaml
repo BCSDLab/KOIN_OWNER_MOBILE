@@ -8,13 +8,20 @@ name: 06 - 로그아웃
       visible: "사장님, 안녕하세요"
     commands:
       - tapOn: "010-0000-0000"
-      - inputText: "01011113333"
+      # Maestro inputText 첫-글자 race 회피
+      - inputText: "0"
+      - inputText: "1011113333"
       - tapOn: "비밀번호를 입력하세요"
-      - inputText: "test1234!"
+      - inputText: "t"
+      - inputText: "est1234!"
       - hideKeyboard
       - tapOn: "로그인"
-      - tapOn:
-          text: "닫기"
+      - runFlow:
+          when:
+            visible: "닫기"
+          commands:
+            - tapOn:
+                text: "닫기"
 - assertVisible: "대시보드"
 
 - tapOn: "더보기"

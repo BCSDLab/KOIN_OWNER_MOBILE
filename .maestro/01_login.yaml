@@ -6,18 +6,25 @@ name: 01 - 로그인
 - launchApp
 - assertVisible: "사장님, 안녕하세요"
 
+# Note: Maestro inputText는 키보드 표시 직후 첫 글자를 놓치는 race가 있어
+# 첫 1글자 + 나머지로 분리해 입력한다.
 - tapOn: "010-0000-0000"
-- inputText: "01011113333"
+- inputText: "0"
+- inputText: "1011113333"
 
 - tapOn: "비밀번호를 입력하세요"
-- inputText: "test1234!"
+- inputText: "t"
+- inputText: "est1234!"
 - hideKeyboard
 
 - tapOn: "로그인"
 
-# 매장 없는 계정이라 InsertStore 마법사가 자동으로 열림 → 닫기
-- tapOn:
-    text: "닫기"
+# 매장 없는 계정이면 InsertStore 마법사가 자동으로 열림 → 닫기 (보유 계정은 스킵)
+- runFlow:
+    when:
+      visible: "닫기"
+    commands:
+      - tapOn:
+          text: "닫기"
 
 - assertVisible: "대시보드"
-- assertVisible: "등록된 매장이 없습니다."

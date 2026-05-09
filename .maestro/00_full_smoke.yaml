@@ -1,7 +1,7 @@
 appId: in.koreatech.business.dev
 name: 00 - 전체 스모크 테스트
-# 매장 없는 계정 + 로그인/로그아웃 양쪽 상태 모두에서 실행 가능합니다.
-# 매장 보유 계정은 4tab_smoke.yaml 참고.
+# 매장 보유/없는 계정 + 로그인/로그아웃 양쪽 상태 모두에서 실행 가능합니다.
+# 매장 보유 계정 한정 4탭 IA만 빠르게 보고 싶으면 4tab_smoke.yaml 사용.
 ---
 - launchApp
 
@@ -26,24 +26,30 @@ name: 00 - 전체 스모크 테스트
       - tapOn: "나중에"
 
 # ── 1. 로그인 ─────────────────────────────────────────────
+# Note: Maestro inputText는 키보드 표시 직후 첫 글자를 놓치는 race가 있어
+# 첫 1글자 + 나머지로 분리해 입력한다.
 - assertVisible: "사장님, 안녕하세요"
 - tapOn: "010-0000-0000"
-- inputText: "01011113333"
+- inputText: "0"
+- inputText: "1011113333"
 - tapOn: "비밀번호를 입력하세요"
-- inputText: "test1234!"
+- inputText: "t"
+- inputText: "est1234!"
 - hideKeyboard
 - tapOn: "로그인"
 
 # 매장 없는 계정: InsertStore 마법사 자동 오픈 → 닫기
-- tapOn:
-    text: "닫기"
+- runFlow:
+    when:
+      visible: "닫기"
+    commands:
+      - tapOn:
+          text: "닫기"
+
 - assertVisible: "대시보드"
-- assertVisible: "등록된 매장이 없습니다."
 
 # ── 2. 탭 탐색 ────────────────────────────────────────────
 - tapOn: "메뉴"
-- assertVisible: "메뉴"
-
 - tapOn: "이벤트"
 
 - tapOn: "더보기"
@@ -54,6 +60,9 @@ name: 00 - 전체 스모크 테스트
 - assertVisible: "라이트"
 - assertVisible: "다크"
 - assertVisible: "시스템"
+- swipe:
+    start: "50%, 70%"
+    end: "50%, 20%"
 - assertVisible: "서비스 이용약관"
 - assertVisible: "개인정보 처리방침"
 - assertVisible: "오픈소스 라이선스"
@@ -61,7 +70,7 @@ name: 00 - 전체 스모크 테스트
 - tapOn:
     text: "대시보드"
     index: 0
-- assertVisible: "등록된 매장이 없습니다."
+- assertVisible: "대시보드"
 
 # ── 3. 매장 등록 마법사 탐색 ──────────────────────────────
 - tapOn: "더보기"
@@ -82,13 +91,19 @@ name: 00 - 전체 스모크 테스트
 - assertVisible: "매장 추가 등록"
 
 # ── 5. 약관 및 정책 탐색 ──────────────────────────────────
+- swipe:
+    start: "50%, 70%"
+    end: "50%, 20%"
 - tapOn: "서비스 이용약관"
 - back
-- assertVisible: "매장 추가 등록"
+- assertVisible: "더보기"
 
+- swipe:
+    start: "50%, 70%"
+    end: "50%, 20%"
 - tapOn: "개인정보 처리방침"
 - back
-- assertVisible: "매장 추가 등록"
+- assertVisible: "더보기"
 
 # ── 6. 로그아웃 ───────────────────────────────────────────
 - swipe:
