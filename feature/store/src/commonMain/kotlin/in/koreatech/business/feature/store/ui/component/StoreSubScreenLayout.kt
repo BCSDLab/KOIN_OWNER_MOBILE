@@ -43,11 +43,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import `in`.koreatech.business.feature.store.navigation.StoreDestination
 import `in`.koreatech.business.ui.theme.KoinTheme
+import `in`.koreatech.business.ui.theme.WindowSizeClass
 import koreatech.business.designsystem.resources.*
 import koreatech.business.designsystem.resources.Res
 import org.jetbrains.compose.resources.stringResource
 
-private val DESKTOP_BREAKPOINT = 700.dp
 private val SIDEBAR_WIDTH = 260.dp
 
 data class StoreSidebarActions(
@@ -76,7 +76,8 @@ fun StoreSubScreenLayout(
     content: @Composable () -> Unit
 ) {
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
-        if (maxWidth < DESKTOP_BREAKPOINT) {
+        val sizeClass = WindowSizeClass.of(maxWidth)
+        if (sizeClass == WindowSizeClass.Compact) {
             content()
             return@BoxWithConstraints
         }
