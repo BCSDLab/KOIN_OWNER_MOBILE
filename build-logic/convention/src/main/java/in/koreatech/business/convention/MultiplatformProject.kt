@@ -32,7 +32,8 @@ internal fun Project.configureMultiplatformProject(
 
         val isMacOS = System.getProperty("os.name").contains("mac", ignoreCase = true)
         if (isMacOS) {
-            iosX64()
+            // iosX64 (Intel iOS simulator) is dropped by Compose Multiplatform 1.11.0 /
+            // androidx-lifecycle 2.11.0; only arm64 device + simulator are supported.
             iosArm64()
             iosSimulatorArm64()
         }
