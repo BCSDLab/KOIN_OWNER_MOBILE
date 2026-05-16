@@ -47,6 +47,7 @@ import `in`.koreatech.business.ui.component.KoinTextFieldAlert
 import `in`.koreatech.business.ui.component.KoinTextFieldAlertType
 import `in`.koreatech.business.ui.component.PhoneVisualTransformation
 import `in`.koreatech.business.ui.theme.KoinTheme
+import `in`.koreatech.business.ui.theme.WindowSizeClass
 import koreatech.business.designsystem.resources.*
 import koreatech.business.designsystem.resources.Res
 import org.jetbrains.compose.resources.stringResource
@@ -102,9 +103,9 @@ internal fun SignInScreenImpl(
             .imePadding()
             .verticalScroll(rememberScrollState())
     ) {
-        val isDesktop = maxWidth >= 600.dp
+        val sizeClass = WindowSizeClass.of(maxWidth)
         val formMaxWidth = (maxWidth * 0.6f).coerceIn(360.dp, 560.dp)
-        val columnModifier = if (isDesktop) {
+        val columnModifier = if (sizeClass !is WindowSizeClass.Compact) {
             Modifier
                 .widthIn(max = formMaxWidth)
                 .align(Alignment.Center)
@@ -117,7 +118,7 @@ internal fun SignInScreenImpl(
         }
 
         Column(modifier = columnModifier) {
-            if (!isDesktop) {
+            if (sizeClass is WindowSizeClass.Compact) {
                 // Top spacer (mobile only)
                 Spacer(modifier = Modifier.height(32.dp))
             }
