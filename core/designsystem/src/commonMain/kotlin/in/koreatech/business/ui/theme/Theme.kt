@@ -48,9 +48,13 @@ internal val LocalShapes =
         Shapes
     }
 
+internal val LocalWindowSizeClass =
+    staticCompositionLocalOf<WindowSizeClass> { WindowSizeClass.Compact }
+
 @Composable
 fun KoinTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    windowSizeClass: WindowSizeClass = WindowSizeClass.Compact,
     content: @Composable () -> Unit
 ) {
     val extendedColors =
@@ -142,7 +146,8 @@ fun KoinTheme(
     CompositionLocalProvider(
         LocalKoinColorPalette provides extendedColors,
         LocalKoinTypography provides koinTypography,
-        LocalShapes provides Shapes
+        LocalShapes provides Shapes,
+        LocalWindowSizeClass provides windowSizeClass
     ) {
         MaterialTheme(
             colorScheme = colorScheme,
@@ -168,4 +173,9 @@ object KoinTheme {
         @Composable
         @ReadOnlyComposable
         get() = LocalShapes.current
+
+    val windowSizeClass: WindowSizeClass
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalWindowSizeClass.current
 }
