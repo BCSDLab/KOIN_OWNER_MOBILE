@@ -33,7 +33,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "KoinOwner"
-            packageVersion = "1.0.0"
+            packageVersion = "1.1.0"
             vendor = "BCSDLab"
             description = "KOIN Owner Desktop"
 
@@ -62,8 +62,8 @@ android {
     defaultConfig {
         applicationId = "in.koreatech.business"
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 1010000
+        versionName = "1.1.0"
     }
     buildTypes {
         getByName("debug") {
