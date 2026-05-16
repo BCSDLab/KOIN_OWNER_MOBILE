@@ -43,7 +43,6 @@ kotlin {
     val isMacOS = System.getProperty("os.name").contains("mac", ignoreCase = true)
     if (isMacOS) {
         listOf(
-            iosX64(),
             iosArm64(),
             iosSimulatorArm64()
         ).forEach { target ->

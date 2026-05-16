@@ -6,7 +6,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
+import platform.darwin.NSObject
 import platform.Foundation.NSData
+import platform.Foundation.NSFileManager
 import platform.Foundation.NSURL
 import platform.Foundation.lastPathComponent
 import platform.UIKit.UIDocumentPickerDelegateProtocol
@@ -45,7 +47,7 @@ private object FilePickerDelegateStore {
 
 private class DocumentPickerDelegate(
     private val onFilePicked: (PlatformFile) -> Unit
-) : platform.Foundation.NSObject(),
+) : NSObject(),
     UIDocumentPickerDelegateProtocol {
 
     override fun documentPicker(
@@ -53,9 +55,10 @@ private class DocumentPickerDelegate(
         didPickDocumentsAtURLs: List<*>
     ) {
         val url = didPickDocumentsAtURLs.firstOrNull() as? NSURL ?: return
+        val path = url.path ?: return
         val accessed = url.startAccessingSecurityScopedResource()
         try {
-            val data = NSData.dataWithContentsOfURL(url) ?: return
+            val data = NSFileManager.defaultManager.contentsAtPath(path) ?: return
             val size = data.length.toInt()
             val bytes = ByteArray(size)
             bytes.usePinned { pinned ->
