@@ -1,4 +1,4 @@
-package `in`.koreatech.business.ui.component
+package `in`.koreatech.business.feature.auth.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -18,6 +18,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import `in`.koreatech.business.feature.auth.navigation.authGraph
 import `in`.koreatech.business.ui.theme.KoinTheme
 import `in`.koreatech.business.ui.theme.WindowSizeClass
 import koreatech.business.designsystem.resources.Res
@@ -29,8 +30,21 @@ import org.jetbrains.compose.resources.stringResource
 
 private val BrandPanelBg = Color(0xFF1A1235)
 
+/**
+ * Auth 화면 전용 장식 Supporting Pane.
+ *
+ * 화면 너비가 [WindowSizeClass.Expanded] (>= 840dp) 일 때 왼쪽에 고정 너비(340dp)의 브랜드 패널
+ * ([BrandPanel])을 표시하고 오른쪽에 [content]를 배치하는 2단 레이아웃을 제공한다. 그 외 너비에서는
+ * [content]만 표시한다.
+ *
+ * **이 컴포저블은 네비게이션 항목을 보유하지 않는 순수 장식 패널이다.**
+ * 네비게이션의 단일 소스(single source of navigation)는 store 모듈의
+ * `MainTabScreen` (NavigationSuiteScaffold / NavigationRail 기반)이다.
+ *
+ * 사용 범위: [AuthNavigation.authGraph] 내 `AuthRoute.SignIn` 컴포저블 한정.
+ */
 @Composable
-fun DesktopAppShell(
+fun AuthBrandSupportingPane(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
