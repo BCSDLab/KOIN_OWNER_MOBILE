@@ -6,11 +6,11 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
+import `in`.koreatech.business.feature.auth.component.AuthBrandSupportingPane
 import `in`.koreatech.business.feature.findpassword.navigation.FindPasswordRoute
 import `in`.koreatech.business.feature.findpassword.navigation.findPasswordSteps
 import `in`.koreatech.business.feature.signin.SignInScreen
 import `in`.koreatech.business.feature.signup.navigation.signupSubGraph
-import `in`.koreatech.business.ui.component.DesktopAppShell
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -53,7 +53,7 @@ fun NavGraphBuilder.authGraph(
 
     navigation<AuthGraph>(startDestination = AuthRoute.SignIn) {
         composable<AuthRoute.SignIn> {
-            DesktopAppShell {
+            AuthBrandSupportingPane {
                 SignInScreen(
                     onSignedInToStoreMain = onSignedInToStoreMain,
                     onSignedInToStoreRegister = onSignedInToStoreRegister,
