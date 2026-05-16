@@ -19,3 +19,6 @@ captures
 
 # AboutLibraries plugin generates this at build time
 feature/settings/src/commonMain/composeResources/files/aboutlibraries.json
+
+.worktrees/
+.claude/
