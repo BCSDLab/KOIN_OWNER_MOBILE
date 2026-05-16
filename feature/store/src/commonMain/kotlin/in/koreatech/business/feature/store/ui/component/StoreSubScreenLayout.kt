@@ -41,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import `in`.koreatech.business.feature.store.navigation.StoreDestination
 import `in`.koreatech.business.ui.theme.KoinTheme
 import koreatech.business.designsystem.resources.*
 import koreatech.business.designsystem.resources.Res
@@ -48,19 +49,6 @@ import org.jetbrains.compose.resources.stringResource
 
 private val DESKTOP_BREAKPOINT = 700.dp
 private val SIDEBAR_WIDTH = 260.dp
-
-enum class StoreNavSection {
-    Dashboard,
-    Menu,
-    Categories,
-    Events,
-    StoreInfo,
-    Theme,
-    Terms,
-    Privacy,
-    OssLicenses,
-    None
-}
 
 data class StoreSidebarActions(
     val onNavigateToDashboard: (() -> Unit)? = null,
@@ -83,7 +71,7 @@ data class StoreSidebarActions(
 fun StoreSubScreenLayout(
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
-    activeSection: StoreNavSection = StoreNavSection.None,
+    activeSection: StoreDestination = StoreDestination.None,
     sidebarActions: StoreSidebarActions = StoreSidebarActions(),
     content: @Composable () -> Unit
 ) {
@@ -135,7 +123,7 @@ fun StoreSubScreenLayout(
                     SidebarNavItem(
                         label = stringResource(Res.string.sidebar_dashboard),
                         icon = Icons.Default.Home,
-                        selected = activeSection == StoreNavSection.Dashboard,
+                        selected = activeSection == StoreDestination.TopTab.Dashboard,
                         onClick = sidebarActions.onNavigateToDashboard
                     )
                     Spacer(Modifier.height(4.dp))
@@ -143,25 +131,25 @@ fun StoreSubScreenLayout(
                     SidebarNavItem(
                         label = stringResource(Res.string.manage_menus_title),
                         icon = Icons.Default.Store,
-                        selected = activeSection == StoreNavSection.Menu,
+                        selected = activeSection == StoreDestination.TopTab.Menu,
                         onClick = sidebarActions.onNavigateToMenu
                     )
                     SidebarSubItem(
                         label = stringResource(Res.string.field_category),
-                        selected = activeSection == StoreNavSection.Categories,
+                        selected = activeSection == StoreDestination.SubSection.Categories,
                         onClick = sidebarActions.onNavigateToCategories
                     )
                     SidebarNavItem(
                         label = stringResource(Res.string.event_management),
                         icon = Icons.Default.LocalOffer,
-                        selected = activeSection == StoreNavSection.Events,
+                        selected = activeSection == StoreDestination.TopTab.Events,
                         onClick = sidebarActions.onNavigateToEvents
                     )
 
                     SidebarNavItem(
                         label = stringResource(Res.string.modify_store_info_title),
                         icon = Icons.Default.Edit,
-                        selected = activeSection == StoreNavSection.StoreInfo,
+                        selected = activeSection == StoreDestination.SubSection.StoreInfo,
                         onClick = sidebarActions.onNavigateToStoreInfo
                     )
 
@@ -170,7 +158,7 @@ fun StoreSubScreenLayout(
                     SidebarNavItem(
                         label = stringResource(Res.string.theme),
                         icon = Icons.Outlined.DarkMode,
-                        selected = activeSection == StoreNavSection.Theme,
+                        selected = activeSection == StoreDestination.SubSection.Theme,
                         onClick = sidebarActions.onNavigateToTheme
                     )
 
@@ -179,19 +167,19 @@ fun StoreSubScreenLayout(
                     SidebarNavItem(
                         label = stringResource(Res.string.service_terms),
                         icon = Icons.Default.Description,
-                        selected = activeSection == StoreNavSection.Terms,
+                        selected = activeSection == StoreDestination.SubSection.Terms,
                         onClick = sidebarActions.onNavigateToTerms
                     )
                     SidebarNavItem(
                         label = stringResource(Res.string.privacy_policy),
                         icon = Icons.Default.Lock,
-                        selected = activeSection == StoreNavSection.Privacy,
+                        selected = activeSection == StoreDestination.SubSection.Privacy,
                         onClick = sidebarActions.onNavigateToPrivacy
                     )
                     SidebarNavItem(
                         label = stringResource(Res.string.oss_licenses),
                         icon = Icons.Default.Info,
-                        selected = activeSection == StoreNavSection.OssLicenses,
+                        selected = activeSection == StoreDestination.SubSection.OssLicenses,
                         onClick = sidebarActions.onNavigateToOssLicenses
                     )
                 }
