@@ -43,8 +43,9 @@ data class KoinTypography(
 @Composable
 internal fun Pretendard(): FontFamily = FontFamily(
     Font(Res.font.pretendard_regular, FontWeight.Normal, FontStyle.Normal),
-    Font(Res.font.pretendard_bold, FontWeight.Bold, FontStyle.Normal),
-    Font(Res.font.pretendard_medium, FontWeight.Medium, FontStyle.Normal)
+    Font(Res.font.pretendard_medium, FontWeight.Medium, FontStyle.Normal),
+    Font(Res.font.pretendard_bold, FontWeight.SemiBold, FontStyle.Normal),
+    Font(Res.font.pretendard_bold, FontWeight.Bold, FontStyle.Normal)
 )
 
 @Composable
