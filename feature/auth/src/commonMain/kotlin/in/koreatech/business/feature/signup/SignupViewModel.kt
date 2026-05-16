@@ -26,8 +26,8 @@ import koreatech.business.designsystem.resources.signup_error_phone_already_regi
 import koreatech.business.designsystem.resources.signup_error_register_failed
 import koreatech.business.designsystem.resources.signup_error_search_failed
 import koreatech.business.designsystem.resources.signup_error_store_name_required
-import org.orbitmvi.orbit.blockingIntent
 import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.blockingIntent
 import org.orbitmvi.orbit.syntax.Syntax
 import org.orbitmvi.orbit.viewmodel.container
 

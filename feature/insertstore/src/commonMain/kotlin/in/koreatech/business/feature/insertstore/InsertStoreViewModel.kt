@@ -17,8 +17,8 @@ import koreatech.business.designsystem.resources.insert_store_error_categories_l
 import koreatech.business.designsystem.resources.insert_store_error_description_required
 import koreatech.business.designsystem.resources.insert_store_error_name_required
 import koreatech.business.designsystem.resources.insert_store_error_register_failed
-import org.orbitmvi.orbit.blockingIntent
 import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.blockingIntent
 import org.orbitmvi.orbit.viewmodel.container
 
 class InsertStoreViewModel(

@@ -17,8 +17,8 @@ import koreatech.business.designsystem.resources.menu_editor_error_categories_em
 import koreatech.business.designsystem.resources.menu_editor_error_name_required
 import koreatech.business.designsystem.resources.menu_editor_error_option_required
 import koreatech.business.designsystem.resources.menu_editor_error_price_required
-import org.orbitmvi.orbit.blockingIntent
 import org.orbitmvi.orbit.ContainerHost
+import org.orbitmvi.orbit.blockingIntent
 import org.orbitmvi.orbit.viewmodel.container
 
 class MenuEditorViewModel(
