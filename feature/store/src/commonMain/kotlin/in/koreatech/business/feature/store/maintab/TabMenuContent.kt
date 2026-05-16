@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -62,6 +63,7 @@ import org.orbitmvi.orbit.compose.collectAsState
 fun TabMenuContent(
     onNavigateToMenuEditor: (storeId: String, menuId: String?) -> Unit,
     onNavigateToCategories: (storeId: String) -> Unit,
+    listState: LazyListState,
     viewModel: ManageMenusViewModel = koinViewModel()
 ) {
     val uiState by viewModel.collectAsState()
@@ -127,7 +129,8 @@ fun TabMenuContent(
                 else -> {
                     MenuList(
                         categories = uiState.categories,
-                        onClickMenu = { menu -> onNavigateToMenuEditor(storeId, menu.id.toString()) }
+                        onClickMenu = { menu -> onNavigateToMenuEditor(storeId, menu.id.toString()) },
+                        listState = listState
                     )
                 }
             }
@@ -183,11 +186,13 @@ private fun CategoryChipButton(onClick: () -> Unit) {
 @Composable
 private fun MenuList(
     categories: List<MenuCategory>,
-    onClickMenu: (MenuItem) -> Unit
+    onClickMenu: (MenuItem) -> Unit,
+    listState: LazyListState
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(top = 12.dp, bottom = 88.dp)
+        contentPadding = PaddingValues(top = 12.dp, bottom = 88.dp),
+        state = listState
     ) {
         categories.forEach { category ->
             item(key = "header_${category.id}") {

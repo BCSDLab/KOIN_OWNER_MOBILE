@@ -2,6 +2,7 @@
 
 package `in`.koreatech.business.feature.store.maintab
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -17,7 +18,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -71,6 +71,7 @@ import org.orbitmvi.orbit.compose.collectAsState
 @Composable
 fun TabDashboardContent(
     onNavigateToInsertStore: () -> Unit,
+    scrollState: ScrollState,
     viewModel: StoreDashboardViewModel = koinViewModel()
 ) {
     val uiState by viewModel.collectAsState()
@@ -125,7 +126,7 @@ fun TabDashboardContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(16.dp)
         ) {
             // 매장 셀렉터 (다중 매장)
