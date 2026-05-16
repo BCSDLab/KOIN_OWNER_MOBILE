@@ -73,7 +73,6 @@ import `in`.koreatech.business.ui.component.KoinTextField
 import `in`.koreatech.business.ui.component.KoinTextFieldAlert
 import `in`.koreatech.business.ui.component.KoinTextFieldAlertType
 import `in`.koreatech.business.ui.component.ShopPhoneVisualTransformation
-import `in`.koreatech.business.ui.component.StoreSidebarActions
 import `in`.koreatech.business.ui.theme.KoinTheme
 import koreatech.business.designsystem.resources.*
 import koreatech.business.designsystem.resources.Res
@@ -87,7 +86,6 @@ fun ModifyStoreInfoScreen(
     storeId: String,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
-    sidebarActions: StoreSidebarActions = StoreSidebarActions(),
     viewModel: StoreInfoEditViewModel = koinViewModel()
 ) {
     val uiState by viewModel.collectAsState()

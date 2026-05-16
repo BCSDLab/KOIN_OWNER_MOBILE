@@ -54,7 +54,6 @@ import `in`.koreatech.business.ui.component.BusinessSnackbarHost
 import `in`.koreatech.business.ui.component.DesktopTopBar
 import `in`.koreatech.business.ui.component.GlobalLoadingOverlay
 import `in`.koreatech.business.ui.component.KoinButton
-import `in`.koreatech.business.ui.component.StoreSidebarActions
 import `in`.koreatech.business.ui.theme.KoinTheme
 import koreatech.business.designsystem.resources.*
 import koreatech.business.designsystem.resources.Res
@@ -67,7 +66,6 @@ fun ManageCategoriesScreen(
     storeId: String,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
-    sidebarActions: StoreSidebarActions = StoreSidebarActions(),
     viewModel: ManageCategoriesViewModel = koinViewModel()
 ) {
     val uiState by viewModel.collectAsState()

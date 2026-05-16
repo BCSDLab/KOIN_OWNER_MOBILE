@@ -7,9 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.toRoute
 import `in`.koreatech.business.feature.store.event.editor.WriteEventScreen
-import `in`.koreatech.business.feature.store.maintab.EventListScreen
 import `in`.koreatech.business.feature.store.maintab.MainTabScreen
-import `in`.koreatech.business.feature.store.maintab.MenuListScreen
 import `in`.koreatech.business.feature.store.menu.categories.ManageCategoriesScreen
 import `in`.koreatech.business.feature.store.menu.editor.MenuEditorScreen
 import `in`.koreatech.business.feature.store.storeinfoedit.ModifyStoreInfoScreen
@@ -24,16 +22,10 @@ sealed class StoreRoute {
     data object Dashboard : StoreRoute()
 
     @Serializable
-    data class ManageMenus(val storeId: String) : StoreRoute()
-
-    @Serializable
     data class MenuCreate(val storeId: String) : StoreRoute()
 
     @Serializable
     data class MenuEdit(val storeId: String, val menuId: String) : StoreRoute()
-
-    @Serializable
-    data class Events(val storeId: String) : StoreRoute()
 
     @Serializable
     data class WriteEvent(val storeId: String, val eventId: String? = null) : StoreRoute()
@@ -91,23 +83,6 @@ fun NavGraphBuilder.storeGraph(
             )
         }
 
-        composable<StoreRoute.ManageMenus> { backStackEntry ->
-            val route = backStackEntry.toRoute<StoreRoute.ManageMenus>()
-            MenuListScreen(
-                storeId = route.storeId,
-                onNavigateToMenuEditor = { sid, menuId ->
-                    if (menuId != null) {
-                        navController.navigate(StoreRoute.MenuEdit(sid, menuId))
-                    } else {
-                        navController.navigate(StoreRoute.MenuCreate(sid))
-                    }
-                },
-                onNavigateToCategories = { sid ->
-                    navController.navigate(StoreRoute.ManageCategories(sid))
-                }
-            )
-        }
-
         composable<StoreRoute.ManageCategories> { backStackEntry ->
             val route = backStackEntry.toRoute<StoreRoute.ManageCategories>()
             ManageCategoriesScreen(
@@ -131,19 +106,6 @@ fun NavGraphBuilder.storeGraph(
                 storeId = route.storeId,
                 menuId = route.menuId,
                 onNavigateBack = { navController.popBackStack() }
-            )
-        }
-
-        composable<StoreRoute.Events> { backStackEntry ->
-            val route = backStackEntry.toRoute<StoreRoute.Events>()
-            EventListScreen(
-                storeId = route.storeId,
-                onNavigateToEventEditor = { sid ->
-                    navController.navigate(StoreRoute.WriteEvent(sid))
-                },
-                onNavigateToEditEvent = { sid, eid ->
-                    navController.navigate(StoreRoute.WriteEvent(sid, eid))
-                }
             )
         }
 

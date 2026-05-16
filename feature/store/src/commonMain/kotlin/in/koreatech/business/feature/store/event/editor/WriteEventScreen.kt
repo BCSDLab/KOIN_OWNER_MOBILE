@@ -71,7 +71,6 @@ import `in`.koreatech.business.ui.component.KoinCard
 import `in`.koreatech.business.ui.component.KoinTextField
 import `in`.koreatech.business.ui.component.KoinTextFieldAlert
 import `in`.koreatech.business.ui.component.KoinTextFieldAlertType
-import `in`.koreatech.business.ui.component.StoreSidebarActions
 import `in`.koreatech.business.ui.theme.KoinTheme
 import koreatech.business.designsystem.resources.*
 import koreatech.business.designsystem.resources.Res
@@ -86,7 +85,6 @@ fun WriteEventScreen(
     eventId: String? = null,
     onNavigateBack: () -> Unit,
     modifier: Modifier = Modifier,
-    sidebarActions: StoreSidebarActions = StoreSidebarActions(),
     viewModel: WriteEventViewModel = koinViewModel()
 ) {
     val uiState by viewModel.collectAsState()
