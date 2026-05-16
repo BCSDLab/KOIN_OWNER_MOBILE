@@ -1,5 +1,7 @@
 package `in`.koreatech.business.feature.store.maintab
 
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItemDefaults
@@ -37,6 +39,11 @@ fun MainTabScreen(
     modifier: Modifier = Modifier
 ) {
     var selectedTab by rememberSaveable { mutableStateOf(StoreDestination.TopTab.Dashboard) }
+
+    val dashboardScrollState = rememberScrollState()
+    val moreScrollState = rememberScrollState()
+    val menuListState = rememberLazyListState()
+    val eventsListState = rememberLazyListState()
 
     BackHandler(enabled = selectedTab != StoreDestination.TopTab.Dashboard) {
         selectedTab = StoreDestination.TopTab.Dashboard
@@ -90,15 +97,18 @@ fun MainTabScreen(
     ) {
         when (selectedTab) {
             StoreDestination.TopTab.Dashboard -> TabDashboardContent(
-                onNavigateToInsertStore = onNavigateToInsertStore
+                onNavigateToInsertStore = onNavigateToInsertStore,
+                scrollState = dashboardScrollState
             )
             StoreDestination.TopTab.Menu -> TabMenuContent(
                 onNavigateToMenuEditor = onNavigateToMenuEditor,
-                onNavigateToCategories = onNavigateToCategories
+                onNavigateToCategories = onNavigateToCategories,
+                listState = menuListState
             )
             StoreDestination.TopTab.Events -> TabEventContent(
                 onNavigateToEventEditor = onNavigateToEventEditor,
-                onNavigateToEditEvent = onNavigateToEventEdit
+                onNavigateToEditEvent = onNavigateToEventEdit,
+                listState = eventsListState
             )
             StoreDestination.TopTab.More -> TabMoreContent(
                 onNavigateToStoreInfoEdit = onNavigateToStoreInfoEdit,
@@ -108,7 +118,8 @@ fun MainTabScreen(
                 onNavigateToServiceTerms = onNavigateToServiceTerms,
                 onNavigateToOSSLicenses = onNavigateToOSSLicenses,
                 onSignOut = onSignOut,
-                onDeleteAccount = onDeleteAccount
+                onDeleteAccount = onDeleteAccount,
+                scrollState = moreScrollState
             )
         }
     }

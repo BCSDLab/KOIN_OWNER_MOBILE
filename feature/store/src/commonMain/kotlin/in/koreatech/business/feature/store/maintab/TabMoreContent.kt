@@ -2,6 +2,7 @@
 
 package `in`.koreatech.business.feature.store.maintab
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -16,7 +17,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -75,6 +75,7 @@ fun TabMoreContent(
     onNavigateToOSSLicenses: () -> Unit,
     onSignOut: () -> Unit,
     onDeleteAccount: () -> Unit,
+    scrollState: ScrollState,
     viewModel: SettingsViewModel = koinViewModel(),
     dashboardViewModel: StoreDashboardViewModel = koinViewModel()
 ) {
@@ -134,7 +135,7 @@ fun TabMoreContent(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(top = 12.dp, bottom = 24.dp)
         ) {
             // 사장님 헤더 카드

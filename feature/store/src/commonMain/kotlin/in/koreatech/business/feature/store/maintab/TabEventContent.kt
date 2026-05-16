@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -71,6 +72,7 @@ import org.orbitmvi.orbit.compose.collectAsState
 @Composable
 fun TabEventContent(
     onNavigateToEventEditor: (storeId: String) -> Unit,
+    listState: LazyListState,
     onNavigateToEditEvent: (storeId: String, eventId: String) -> Unit = { _, _ -> },
     viewModel: EventTabViewModel = koinViewModel()
 ) {
@@ -164,7 +166,8 @@ fun TabEventContent(
                         onToggleExpand = viewModel::toggleExpanded,
                         onEditEvent = { eventId ->
                             if (!storeId.isNullOrBlank()) onNavigateToEditEvent(storeId, eventId)
-                        }
+                        },
+                        listState = listState
                     )
                 }
             }
@@ -318,12 +321,14 @@ private fun EventList(
     expandedIds: Set<Int>,
     onToggleSelection: (Int) -> Unit,
     onToggleExpand: (Int) -> Unit,
-    onEditEvent: (String) -> Unit
+    onEditEvent: (String) -> Unit,
+    listState: LazyListState
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 96.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp)
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        state = listState
     ) {
         items(events, key = { it.id }) { event ->
             EventCard(
