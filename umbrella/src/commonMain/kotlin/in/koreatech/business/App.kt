@@ -3,6 +3,7 @@ package `in`.koreatech.business
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -44,6 +45,7 @@ import `in`.koreatech.business.ui.component.FilledActionButton
 import `in`.koreatech.business.ui.component.KoinLogo
 import `in`.koreatech.business.ui.testing.exposeTestTags
 import `in`.koreatech.business.ui.theme.KoinTheme
+import `in`.koreatech.business.ui.theme.WindowSizeClass
 import koreatech.business.designsystem.resources.Res
 import koreatech.business.designsystem.resources.checking_login
 import koreatech.business.designsystem.resources.force_update_desc
@@ -75,15 +77,20 @@ fun App() {
         }
         SyncSystemBarsAppearance(darkTheme)
         val rootNavController = rememberNavController()
-        KoinTheme(darkTheme = darkTheme) {
-            Surface(
-                color = KoinTheme.colors.neutral50,
-                modifier = Modifier.fillMaxSize().exposeTestTags()
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            KoinTheme(
+                darkTheme = darkTheme,
+                windowSizeClass = WindowSizeClass.of(maxWidth)
             ) {
-                AppNavigation(
-                    rootNavController = rootNavController,
-                    appViewModel = appViewModel
-                )
+                Surface(
+                    color = KoinTheme.colors.neutral50,
+                    modifier = Modifier.fillMaxSize().exposeTestTags()
+                ) {
+                    AppNavigation(
+                        rootNavController = rootNavController,
+                        appViewModel = appViewModel
+                    )
+                }
             }
         }
     }
