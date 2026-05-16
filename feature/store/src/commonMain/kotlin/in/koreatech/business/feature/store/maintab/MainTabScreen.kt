@@ -1,14 +1,5 @@
 package `in`.koreatech.business.feature.store.maintab
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.LocalOffer
-import androidx.compose.material.icons.filled.MoreHoriz
-import androidx.compose.material.icons.filled.Store
-import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.LocalOffer
-import androidx.compose.material.icons.outlined.MoreHoriz
-import androidx.compose.material.icons.outlined.Store
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.NavigationDrawerItemDefaults
@@ -23,11 +14,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.BackHandler
-import androidx.compose.ui.graphics.vector.ImageVector
+import `in`.koreatech.business.feature.store.navigation.StoreDestination
 import `in`.koreatech.business.ui.theme.KoinTheme
 import koreatech.business.designsystem.resources.*
-import koreatech.business.designsystem.resources.Res
-import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(androidx.compose.ui.ExperimentalComposeUiApi::class)
@@ -47,10 +36,10 @@ fun MainTabScreen(
     onDeleteAccount: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var selectedTab by rememberSaveable { mutableStateOf(MainTabDestination.Dashboard) }
+    var selectedTab by rememberSaveable { mutableStateOf(StoreDestination.TopTab.Dashboard) }
 
-    BackHandler(enabled = selectedTab != MainTabDestination.Dashboard) {
-        selectedTab = MainTabDestination.Dashboard
+    BackHandler(enabled = selectedTab != StoreDestination.TopTab.Dashboard) {
+        selectedTab = StoreDestination.TopTab.Dashboard
     }
 
     val selectedColor = KoinTheme.colors.primary500
@@ -82,7 +71,7 @@ fun MainTabScreen(
     NavigationSuiteScaffold(
         modifier = modifier,
         navigationSuiteItems = {
-            MainTabDestination.entries.forEach { dest ->
+            StoreDestination.TopTab.entries.forEach { dest ->
                 val isSelected = dest == selectedTab
                 item(
                     selected = isSelected,
@@ -100,18 +89,18 @@ fun MainTabScreen(
         }
     ) {
         when (selectedTab) {
-            MainTabDestination.Dashboard -> TabDashboardContent(
+            StoreDestination.TopTab.Dashboard -> TabDashboardContent(
                 onNavigateToInsertStore = onNavigateToInsertStore
             )
-            MainTabDestination.Menu -> TabMenuContent(
+            StoreDestination.TopTab.Menu -> TabMenuContent(
                 onNavigateToMenuEditor = onNavigateToMenuEditor,
                 onNavigateToCategories = onNavigateToCategories
             )
-            MainTabDestination.Events -> TabEventContent(
+            StoreDestination.TopTab.Events -> TabEventContent(
                 onNavigateToEventEditor = onNavigateToEventEditor,
                 onNavigateToEditEvent = onNavigateToEventEdit
             )
-            MainTabDestination.More -> TabMoreContent(
+            StoreDestination.TopTab.More -> TabMoreContent(
                 onNavigateToStoreInfoEdit = onNavigateToStoreInfoEdit,
                 onNavigateToInsertStore = onNavigateToInsertStore,
                 onNavigateToPasswordReset = onNavigateToPasswordReset,
@@ -123,15 +112,4 @@ fun MainTabScreen(
             )
         }
     }
-}
-
-private enum class MainTabDestination(
-    val labelRes: StringResource,
-    val iconFilled: ImageVector,
-    val iconOutlined: ImageVector
-) {
-    Dashboard(Res.string.sidebar_dashboard, Icons.Filled.Home, Icons.Outlined.Home),
-    Menu(Res.string.tab_menu, Icons.Filled.Store, Icons.Outlined.Store),
-    Events(Res.string.tab_events, Icons.Filled.LocalOffer, Icons.Outlined.LocalOffer),
-    More(Res.string.tab_more, Icons.Filled.MoreHoriz, Icons.Outlined.MoreHoriz)
 }
