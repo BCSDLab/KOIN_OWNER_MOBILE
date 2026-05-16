@@ -17,6 +17,7 @@ import koreatech.business.designsystem.resources.menu_editor_error_categories_em
 import koreatech.business.designsystem.resources.menu_editor_error_name_required
 import koreatech.business.designsystem.resources.menu_editor_error_option_required
 import koreatech.business.designsystem.resources.menu_editor_error_price_required
+import org.orbitmvi.orbit.blockingIntent
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
@@ -90,8 +91,8 @@ class MenuEditorViewModel(
         reduce { state.copy(isLoading = false, errorMessage = message) }
     }
 
-    fun onNameChanged(value: String) = intent { reduce { state.copy(name = value) } }
-    fun onDescriptionChanged(value: String) = intent { reduce { state.copy(description = value) } }
+    fun onNameChanged(value: String) = blockingIntent { reduce { state.copy(name = value) } }
+    fun onDescriptionChanged(value: String) = blockingIntent { reduce { state.copy(description = value) } }
 
     fun onCategoryToggled(categoryId: Int) = intent {
         val updated = state.selectedCategoryIds.toMutableList()
@@ -99,17 +100,17 @@ class MenuEditorViewModel(
         reduce { state.copy(selectedCategoryIds = updated) }
     }
 
-    fun onSinglePriceChanged(value: String) = intent {
+    fun onSinglePriceChanged(value: String) = blockingIntent {
         reduce { state.copy(singlePrice = BusinessFormatters.digitsOnly(value), singlePriceError = "") }
     }
 
-    fun onOptionNameChanged(index: Int, value: String) = intent {
+    fun onOptionNameChanged(index: Int, value: String) = blockingIntent {
         val updated = state.optionPrices.toMutableList()
         if (index in updated.indices) updated[index] = updated[index].copy(option = value)
         reduce { state.copy(optionPrices = updated) }
     }
 
-    fun onPriceChanged(index: Int, value: String) = intent {
+    fun onPriceChanged(index: Int, value: String) = blockingIntent {
         val updated = state.optionPrices.toMutableList()
         if (index in updated.indices) updated[index] = updated[index].copy(price = BusinessFormatters.digitsOnly(value))
         reduce { state.copy(optionPrices = updated) }

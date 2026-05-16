@@ -7,6 +7,7 @@ import koreatech.business.designsystem.resources.Res
 import koreatech.business.designsystem.resources.error_generic
 import koreatech.business.designsystem.resources.error_password_required
 import koreatech.business.designsystem.resources.error_phone_required
+import org.orbitmvi.orbit.blockingIntent
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
@@ -17,7 +18,7 @@ class SignInViewModel(
     ContainerHost<SignInState, SignInSideEffect> {
     override val container = container<SignInState, SignInSideEffect>(SignInState())
 
-    fun onPhoneNumberChanged(phoneNumber: String) = intent {
+    fun onPhoneNumberChanged(phoneNumber: String) = blockingIntent {
         reduce {
             state.copy(
                 phoneNumber = phoneNumber.filter(Char::isDigit).take(11),
@@ -27,7 +28,7 @@ class SignInViewModel(
         }
     }
 
-    fun onPasswordChanged(password: String) = intent {
+    fun onPasswordChanged(password: String) = blockingIntent {
         reduce { state.copy(password = password, errorMessageRes = null, errorMessage = "") }
     }
 

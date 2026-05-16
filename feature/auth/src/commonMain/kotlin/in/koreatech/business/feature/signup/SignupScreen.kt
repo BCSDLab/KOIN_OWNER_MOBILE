@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -119,6 +120,7 @@ private fun SignupStepScaffold(
                             .widthIn(max = 480.dp)
                             .align(Alignment.Center)
                             .fillMaxWidth()
+                            .imePadding()
                             .navigationBarsPadding()
                             .padding(horizontal = 24.dp, vertical = 16.dp)
                     ) {
@@ -335,7 +337,15 @@ internal fun AccountSetupStep(
         title = stringResource(Res.string.phone_verify_title),
         subtitle = stringResource(Res.string.phone_verify_subtitle),
         onBack = onBack,
-        modifier = modifier
+        modifier = modifier,
+        bottomContent = {
+            FilledActionButton(
+                text = stringResource(Res.string.request_sms),
+                onClick = onNext,
+                isLoading = uiState.isLoading,
+                enabled = !uiState.isLoading
+            )
+        }
     ) {
         Spacer(modifier = Modifier.height(64.dp))
 
@@ -358,17 +368,6 @@ internal fun AccountSetupStep(
         if (phoneErrorMessage.isNotEmpty()) {
             KoinTextFieldAlert(message = phoneErrorMessage, type = KoinTextFieldAlertType.Error)
         }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        FilledActionButton(
-            text = stringResource(Res.string.request_sms),
-            onClick = onNext,
-            isLoading = uiState.isLoading,
-            enabled = !uiState.isLoading
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
@@ -389,7 +388,15 @@ internal fun SmsVerifyStep(
         title = stringResource(Res.string.sms_verify_title),
         subtitle = stringResource(Res.string.sms_sent_to_phone_signup, uiState.phoneNumber),
         onBack = onBack,
-        modifier = modifier
+        modifier = modifier,
+        bottomContent = {
+            FilledActionButton(
+                text = stringResource(Res.string.confirm),
+                onClick = onNext,
+                isLoading = uiState.isLoading,
+                enabled = !uiState.isLoading
+            )
+        }
     ) {
         Spacer(modifier = Modifier.height(64.dp))
 
@@ -411,17 +418,6 @@ internal fun SmsVerifyStep(
         if (smsErrorMessage.isNotEmpty()) {
             KoinTextFieldAlert(message = smsErrorMessage, type = KoinTextFieldAlertType.Error)
         }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        FilledActionButton(
-            text = stringResource(Res.string.confirm),
-            onClick = onNext,
-            isLoading = uiState.isLoading,
-            enabled = !uiState.isLoading
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
@@ -447,7 +443,10 @@ internal fun EnterPasswordStep(
         subtitle = stringResource(Res.string.basic_info_subtitle),
         onBack = onBack,
         scrollable = true,
-        modifier = modifier
+        modifier = modifier,
+        bottomContent = {
+            FilledActionButton(text = stringResource(Res.string.next), onClick = onNext)
+        }
     ) {
         Spacer(modifier = Modifier.height(64.dp))
 
@@ -511,12 +510,6 @@ internal fun EnterPasswordStep(
         if (passwordErrorMessage.isNotEmpty()) {
             KoinTextFieldAlert(message = passwordErrorMessage, type = KoinTextFieldAlertType.Error)
         }
-
-        Spacer(modifier = Modifier.height(40.dp))
-
-        FilledActionButton(text = stringResource(Res.string.next), onClick = onNext)
-
-        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
@@ -537,7 +530,10 @@ internal fun BusinessNumberStep(
         title = stringResource(Res.string.business_number_title),
         subtitle = stringResource(Res.string.business_number_subtitle),
         onBack = onBack,
-        modifier = modifier
+        modifier = modifier,
+        bottomContent = {
+            FilledActionButton(text = stringResource(Res.string.next), onClick = onNext)
+        }
     ) {
         Spacer(modifier = Modifier.height(64.dp))
 
@@ -562,12 +558,6 @@ internal fun BusinessNumberStep(
         if (businessNumberErrorMessage.isNotEmpty()) {
             KoinTextFieldAlert(message = businessNumberErrorMessage, type = KoinTextFieldAlertType.Error)
         }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        FilledActionButton(text = stringResource(Res.string.next), onClick = onNext)
-
-        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
@@ -589,7 +579,31 @@ internal fun StoreNameStep(
         title = stringResource(Res.string.store_search_title),
         subtitle = stringResource(Res.string.store_search_subtitle),
         onBack = onBack,
-        modifier = modifier
+        modifier = modifier,
+        bottomContent = {
+            FilledActionButton(
+                text = stringResource(Res.string.search),
+                onClick = onSearch,
+                enabled = !uiState.isLoading
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .border(1.dp, KoinTheme.colors.primary500, RoundedCornerShape(12.dp))
+                    .clickable(enabled = !uiState.isLoading, onClick = onEnterManually),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(Res.string.store_direct_input),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.W600,
+                    color = KoinTheme.colors.primary500
+                )
+            }
+        }
     ) {
         Spacer(modifier = Modifier.height(64.dp))
 
@@ -613,35 +627,6 @@ internal fun StoreNameStep(
         if (storeNameErrorMessage.isNotEmpty()) {
             KoinTextFieldAlert(message = storeNameErrorMessage, type = KoinTextFieldAlertType.Error)
         }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        FilledActionButton(
-            text = stringResource(Res.string.search),
-            onClick = onSearch,
-            enabled = !uiState.isLoading
-        )
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .border(1.dp, KoinTheme.colors.primary500, RoundedCornerShape(12.dp))
-                .clickable(enabled = !uiState.isLoading, onClick = onEnterManually),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = stringResource(Res.string.store_direct_input),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.W600,
-                color = KoinTheme.colors.primary500
-            )
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
@@ -658,7 +643,25 @@ internal fun SearchStoreStep(
         title = stringResource(Res.string.store_search_title),
         subtitle = stringResource(Res.string.store_search_results_subtitle),
         onBack = onBack,
-        modifier = modifier
+        modifier = modifier,
+        bottomContent = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .border(1.dp, KoinTheme.colors.neutral400, RoundedCornerShape(12.dp))
+                    .clickable(enabled = !uiState.isLoading, onClick = onEnterManually),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = stringResource(Res.string.store_direct_input),
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.W600,
+                    color = KoinTheme.colors.primary500
+                )
+            }
+        }
     ) {
         Spacer(modifier = Modifier.height(40.dp))
 
@@ -684,27 +687,6 @@ internal fun SearchStoreStep(
                 color = KoinTheme.colors.neutral700
             )
         }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .border(1.dp, KoinTheme.colors.neutral400, RoundedCornerShape(12.dp))
-                .clickable(enabled = !uiState.isLoading, onClick = onEnterManually),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = stringResource(Res.string.store_direct_input),
-                fontSize = 16.sp,
-                fontWeight = FontWeight.W600,
-                color = KoinTheme.colors.primary500
-            )
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 
@@ -763,7 +745,15 @@ internal fun AttachFileStep(
         subtitle = stringResource(Res.string.attach_files_subtitle),
         onBack = onBack,
         scrollable = true,
-        modifier = modifier
+        modifier = modifier,
+        bottomContent = {
+            FilledActionButton(
+                text = stringResource(Res.string.sign_up_button),
+                onClick = onNext,
+                isLoading = uiState.isLoading,
+                enabled = !uiState.isLoading
+            )
+        }
     ) {
         Spacer(modifier = Modifier.height(64.dp))
 
@@ -832,17 +822,6 @@ internal fun AttachFileStep(
             Spacer(modifier = Modifier.height(8.dp))
             KoinTextFieldAlert(message = attachFileErrorMessage, type = KoinTextFieldAlertType.Error)
         }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        FilledActionButton(
-            text = stringResource(Res.string.sign_up_button),
-            onClick = onNext,
-            isLoading = uiState.isLoading,
-            enabled = !uiState.isLoading
-        )
-
-        Spacer(modifier = Modifier.height(32.dp))
     }
 }
 

@@ -18,6 +18,7 @@ import koreatech.business.designsystem.resources.event_editor_error_period_inval
 import koreatech.business.designsystem.resources.event_editor_error_period_required
 import koreatech.business.designsystem.resources.event_editor_error_title_required
 import kotlin.time.Clock
+import org.orbitmvi.orbit.blockingIntent
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
@@ -76,10 +77,10 @@ class WriteEventViewModel(
         }
     }
 
-    fun onTitleChanged(value: String) = intent { reduce { state.copy(title = value) } }
-    fun onContentChanged(value: String) = intent { reduce { state.copy(content = value) } }
-    fun onStartDateChanged(value: String) = intent { reduce { state.copy(startDate = value) } }
-    fun onEndDateChanged(value: String) = intent { reduce { state.copy(endDate = value) } }
+    fun onTitleChanged(value: String) = blockingIntent { reduce { state.copy(title = value) } }
+    fun onContentChanged(value: String) = blockingIntent { reduce { state.copy(content = value) } }
+    fun onStartDateChanged(value: String) = blockingIntent { reduce { state.copy(startDate = value) } }
+    fun onEndDateChanged(value: String) = blockingIntent { reduce { state.copy(endDate = value) } }
 
     fun addImage(file: PlatformFile) {
         intent(registerIdling = false) { reduce { state.copy(images = state.images + file) } }

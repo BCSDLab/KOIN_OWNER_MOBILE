@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -82,6 +84,14 @@ internal fun StartStep(
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = KoinTheme.colors.neutral50)
             )
         },
+        bottomBar = {
+            InsertStoreBottomBar {
+                GradientActionButton(
+                    text = stringResource(Res.string.insert_store_start),
+                    onClick = onNext
+                )
+            }
+        },
         containerColor = KoinTheme.colors.neutral50
     ) { paddingValues ->
         StepCenteredBox(paddingValues) {
@@ -91,7 +101,7 @@ internal fun StartStep(
                     .padding(horizontal = 32.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Spacer(modifier = Modifier.weight(2f))
+                Spacer(modifier = Modifier.weight(1f))
                 KoinLogo(colored = true)
                 Spacer(modifier = Modifier.height(32.dp))
                 Text(
@@ -107,12 +117,7 @@ internal fun StartStep(
                     style = KoinTheme.typography.regular14,
                     color = KoinTheme.colors.neutral700
                 )
-                Spacer(modifier = Modifier.weight(3f))
-                GradientActionButton(
-                    text = stringResource(Res.string.insert_store_start),
-                    onClick = onNext
-                )
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.weight(1f))
             }
         }
     }
@@ -139,6 +144,11 @@ internal fun SelectCategoryStep(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = KoinTheme.colors.neutral50)
             )
+        },
+        bottomBar = {
+            InsertStoreBottomBar {
+                GradientActionButton(text = stringResource(Res.string.next), onClick = onNext)
+            }
         },
         containerColor = KoinTheme.colors.neutral50
     ) { paddingValues ->
@@ -192,11 +202,6 @@ internal fun SelectCategoryStep(
                     if (errorMessage.isNotEmpty()) {
                         KoinTextFieldAlert(message = errorMessage, type = KoinTextFieldAlertType.Error)
                     }
-                    GradientActionButton(
-                        text = stringResource(Res.string.next),
-                        onClick = onNext,
-                        modifier = Modifier.padding(16.dp)
-                    )
                 }
             }
         }
@@ -227,6 +232,11 @@ internal fun BasicInfoStep(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = KoinTheme.colors.neutral50)
             )
+        },
+        bottomBar = {
+            InsertStoreBottomBar {
+                GradientActionButton(text = stringResource(Res.string.next), onClick = onNext)
+            }
         },
         containerColor = KoinTheme.colors.neutral50
     ) { paddingValues ->
@@ -283,12 +293,6 @@ internal fun BasicInfoStep(
                 if (errorMessage.isNotEmpty()) {
                     KoinTextFieldAlert(message = errorMessage, type = KoinTextFieldAlertType.Error)
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                GradientActionButton(text = stringResource(Res.string.next), onClick = onNext)
-
-                Spacer(modifier = Modifier.height(32.dp))
             }
         }
     }
@@ -320,6 +324,11 @@ internal fun DetailInfoStep(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = KoinTheme.colors.neutral50)
             )
+        },
+        bottomBar = {
+            InsertStoreBottomBar {
+                GradientActionButton(text = stringResource(Res.string.next), onClick = onNext)
+            }
         },
         containerColor = KoinTheme.colors.neutral50
     ) { paddingValues ->
@@ -419,10 +428,6 @@ internal fun DetailInfoStep(
                 if (errorMessage.isNotEmpty()) {
                     KoinTextFieldAlert(message = errorMessage, type = KoinTextFieldAlertType.Error)
                 }
-
-                Spacer(modifier = Modifier.height(8.dp))
-                GradientActionButton(text = stringResource(Res.string.next), onClick = onNext)
-                Spacer(modifier = Modifier.height(32.dp))
             }
         }
     }
@@ -448,6 +453,15 @@ internal fun FinalCheckStep(
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = KoinTheme.colors.neutral50)
             )
+        },
+        bottomBar = {
+            InsertStoreBottomBar {
+                GradientActionButton(
+                    text = stringResource(Res.string.insert_store_submit_btn),
+                    onClick = onSubmit,
+                    isLoading = uiState.isLoading
+                )
+            }
         },
         containerColor = KoinTheme.colors.neutral50
     ) { paddingValues ->
@@ -485,12 +499,6 @@ internal fun FinalCheckStep(
                     if (errorMessage.isNotEmpty()) {
                         KoinTextFieldAlert(message = errorMessage, type = KoinTextFieldAlertType.Error)
                     }
-                    GradientActionButton(
-                        text = stringResource(Res.string.insert_store_submit_btn),
-                        onClick = onSubmit,
-                        isLoading = uiState.isLoading,
-                        modifier = Modifier.padding(16.dp)
-                    )
                 }
             }
         }
@@ -557,6 +565,23 @@ private fun StepCenteredBox(
                 .widthIn(max = 720.dp)
                 .fillMaxHeight()
                 .align(Alignment.TopCenter)
+        ) {
+            content()
+        }
+    }
+}
+
+@Composable
+private fun InsertStoreBottomBar(content: @Composable () -> Unit) {
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier
+                .widthIn(max = 720.dp)
+                .align(Alignment.Center)
+                .fillMaxWidth()
+                .imePadding()
+                .navigationBarsPadding()
+                .padding(horizontal = 24.dp, vertical = 16.dp)
         ) {
             content()
         }

@@ -11,6 +11,7 @@ import `in`.koreatech.business.ui.util.BusinessValidators
 import koreatech.business.designsystem.resources.Res
 import koreatech.business.designsystem.resources.error_phone_invalid
 import koreatech.business.designsystem.resources.store_info_error_operating_time_invalid
+import org.orbitmvi.orbit.blockingIntent
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
 
@@ -63,14 +64,14 @@ class StoreInfoEditViewModel(
         }
     }
 
-    fun onPhoneChanged(value: String) = intent {
+    fun onPhoneChanged(value: String) = blockingIntent {
         reduce { state.copy(phone = BusinessFormatters.digitsOnly(value, 11)) }
     }
 
-    fun onAddressChanged(value: String) = intent { reduce { state.copy(address = value) } }
-    fun onDescriptionChanged(value: String) = intent { reduce { state.copy(description = value) } }
-    fun onOpenTimeChanged(value: String) = intent { reduce { state.copy(openTime = value) } }
-    fun onCloseTimeChanged(value: String) = intent { reduce { state.copy(closeTime = value) } }
+    fun onAddressChanged(value: String) = blockingIntent { reduce { state.copy(address = value) } }
+    fun onDescriptionChanged(value: String) = blockingIntent { reduce { state.copy(description = value) } }
+    fun onOpenTimeChanged(value: String) = blockingIntent { reduce { state.copy(openTime = value) } }
+    fun onCloseTimeChanged(value: String) = blockingIntent { reduce { state.copy(closeTime = value) } }
     fun onToggleDelivery() = intent { reduce { state.copy(isDelivery = !state.isDelivery) } }
     fun onToggleCard() = intent { reduce { state.copy(isCard = !state.isCard) } }
     fun onToggleBank() = intent { reduce { state.copy(isBank = !state.isBank) } }
@@ -81,13 +82,13 @@ class StoreInfoEditViewModel(
         reduce { state.copy(operatingTimes = times) }
     }
 
-    fun onOperatingOpenTimeChanged(index: Int, value: String) = intent {
+    fun onOperatingOpenTimeChanged(index: Int, value: String) = blockingIntent {
         val times = state.operatingTimes.toMutableList()
         if (index in times.indices) times[index] = times[index].copy(openTime = BusinessFormatters.normalizeTime(value))
         reduce { state.copy(operatingTimes = times) }
     }
 
-    fun onOperatingCloseTimeChanged(index: Int, value: String) = intent {
+    fun onOperatingCloseTimeChanged(index: Int, value: String) = blockingIntent {
         val times = state.operatingTimes.toMutableList()
         if (index in times.indices) times[index] = times[index].copy(closeTime = BusinessFormatters.normalizeTime(value))
         reduce { state.copy(operatingTimes = times) }
