@@ -2,7 +2,6 @@ package `in`.koreatech.business.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -20,6 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import `in`.koreatech.business.ui.theme.KoinTheme
+import `in`.koreatech.business.ui.theme.WindowSizeClass
 import koreatech.business.designsystem.resources.Res
 import koreatech.business.designsystem.resources.desktop_shell_role
 import koreatech.business.designsystem.resources.desktop_shell_tagline1
@@ -34,13 +34,8 @@ fun DesktopAppShell(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 ) {
-    BoxWithConstraints(modifier = modifier.fillMaxSize()) {
-        if (maxWidth < 960.dp) {
-            content()
-            return@BoxWithConstraints
-        }
-
-        Row(modifier = Modifier.fillMaxSize()) {
+    if (KoinTheme.windowSizeClass is WindowSizeClass.Expanded) {
+        Row(modifier = modifier.fillMaxSize()) {
             BrandPanel(modifier = Modifier.width(340.dp).fillMaxHeight())
 
             Box(
@@ -51,6 +46,10 @@ fun DesktopAppShell(
             ) {
                 content()
             }
+        }
+    } else {
+        Box(modifier = modifier.fillMaxSize()) {
+            content()
         }
     }
 }
