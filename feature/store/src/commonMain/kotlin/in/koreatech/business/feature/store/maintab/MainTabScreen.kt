@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.icons.Icons
@@ -32,8 +33,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.backhandler.BackHandler
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import `in`.koreatech.business.feature.store.navigation.StoreDestination
 import `in`.koreatech.business.ui.theme.KoinTheme
 import `in`.koreatech.business.ui.theme.WindowSizeClass
@@ -161,19 +165,36 @@ fun MainTabScreen(
             stringResource(Res.string.expand) // "펼치기" — 현재 할 수 있는 액션
         }
 
+        // WideNavigationRail 의 header 슬롯은 너비 제약이 unbounded 라 fillMaxWidth 로
+        // 가운데 정렬이 불가능하다. rail 의 실제 너비를 onSizeChanged 로 측정해
+        // header 콘텐츠에 명시 너비를 주어 햄버거를 가로 중앙에 배치한다.
+        var railWidthPx by remember { mutableStateOf(0) }
+        val railHeaderWidth = with(LocalDensity.current) { railWidthPx.toDp() }
+
         Row(modifier = modifier.fillMaxSize()) {
             WideNavigationRail(
                 state = railState,
                 header = {
-                    IconButton(onClick = { scope.launch { railState.toggle() } }) {
-                        Icon(
-                            imageVector = Icons.Filled.Menu,
-                            contentDescription = hamburgerContentDesc // "펼치기" / "접기"
-                        )
+                    Box(
+                        modifier = if (railWidthPx > 0) {
+                            Modifier.width(railHeaderWidth)
+                        } else {
+                            Modifier
+                        },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        IconButton(onClick = { scope.launch { railState.toggle() } }) {
+                            Icon(
+                                imageVector = Icons.Filled.Menu,
+                                contentDescription = hamburgerContentDesc // "펼치기" / "접기"
+                            )
+                        }
                     }
                 },
                 arrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxHeight()
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .onSizeChanged { railWidthPx = it.width }
             ) {
                 StoreDestination.TopTab.entries.forEach { dest ->
                     val isSelected = dest == selectedTab
