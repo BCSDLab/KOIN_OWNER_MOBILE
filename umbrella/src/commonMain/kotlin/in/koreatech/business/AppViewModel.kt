@@ -2,7 +2,9 @@ package `in`.koreatech.business
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import `in`.koreatech.business.domain.error.DomainError
 import `in`.koreatech.business.domain.usecase.auth.DeleteAccountUseCase
+import `in`.koreatech.business.domain.usecase.owner.GetOwnerProfileUseCase
 import `in`.koreatech.business.domain.usecase.owner.GetRequiredVersionUseCase
 import `in`.koreatech.business.domain.usecase.preferences.ObserveThemeModeUseCase
 import `in`.koreatech.business.domain.usecase.store.SetActiveStoreIdUseCase
@@ -29,6 +31,7 @@ class AppViewModel(
     private val deleteAccountUseCase: DeleteAccountUseCase,
     private val getRequiredVersionUseCase: GetRequiredVersionUseCase,
     private val getAccessTokenUseCase: GetAccessTokenUseCase,
+    private val getOwnerProfileUseCase: GetOwnerProfileUseCase,
     private val observeAccessTokenUseCase: ObserveAccessTokenUseCase,
     private val clearTokensUseCase: ClearTokensUseCase,
     private val setActiveStoreIdUseCase: SetActiveStoreIdUseCase,
@@ -139,19 +142,45 @@ class AppViewModel(
         }
     }
 
-    private suspend fun hasValidOwnerSession(): Boolean = getAccessTokenUseCase()
-        .onFailure { e ->
-            // CancellationException은 runCatchingCancellable이 이미 재전파하지만,
-            // Result.failure로 도착하는 다른 throwable은 여기서 흡수해 launchState가
-            // 영구히 Loading에 갇히지 않게 한다 — 안전 기본값은 "세션 없음".
-            if (e is CancellationException) throw e
-            Napier.e("hasValidOwnerSession failed: ${e.message}", e, tag = "AppViewModel")
-        }
-        .map { token ->
-            val trimmed = token.trim()
-            trimmed.isNotBlank() && trimmed.lowercase() != "null"
-        }
-        .getOrDefault(false)
+    private suspend fun hasValidOwnerSession(): Boolean {
+        val token = getAccessTokenUseCase()
+            .onFailure { e ->
+                // CancellationException은 runCatchingCancellable이 이미 재전파하지만,
+                // Result.failure로 도착하는 다른 throwable은 여기서 흡수해 launchState가
+                // 영구히 Loading에 갇히지 않게 한다 — 안전 기본값은 "세션 없음".
+                if (e is CancellationException) throw e
+                Napier.e("hasValidOwnerSession token read failed: ${e.message}", e, tag = "AppViewModel")
+            }
+            .getOrDefault("")
+            .trim()
+
+        // 토큰 자체가 없으면 네트워크 호출 없이 미인증.
+        if (token.isBlank() || token.lowercase() == "null") return false
+
+        // 토큰이 있으면 서버로 실제 검증한다(깜빡임 제거: Loading 화면을 유지한 채
+        // /owner 호출이 끝난 뒤 곧장 StoreGraph 또는 AuthGraph로 분기).
+        //  - 성공             → 유효(또는 Bearer가 내부적으로 refresh 성공) → 인증됨
+        //  - DomainError.Auth → 401 + refresh 실패 → 인증 클라이언트 validator가
+        //                       이미 토큰을 비웠고 sessionExpired도 발사됨 → 미인증
+        //  - 그 외(네트워크/서버 오류) → 토큰은 아직 살아있으므로 강제 로그아웃하지
+        //    않고 낙관적으로 인증됨 처리(오프라인/일시 장애로 로그인 튕김 방지)
+        return getOwnerProfileUseCase().fold(
+            onSuccess = { true },
+            onFailure = { e ->
+                if (e is CancellationException) throw e
+                if (e is DomainError.Auth) {
+                    Napier.i("Session invalid (401) on launch — routing to login", tag = "AppViewModel")
+                    false
+                } else {
+                    Napier.w(
+                        "Session check failed with non-auth error — assuming authenticated: ${e.message}",
+                        tag = "AppViewModel"
+                    )
+                    true
+                }
+            }
+        )
+    }
 
     private suspend fun isForceUpdateRequired(): Boolean = getRequiredVersionUseCase()
         .onFailure { if (it is CancellationException) throw it }

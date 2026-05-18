@@ -9,7 +9,9 @@ import `in`.koreatech.business.domain.repository.AppPreferencesRepository
 import `in`.koreatech.business.domain.repository.AuthRepository
 import `in`.koreatech.business.domain.repository.OwnerRepository
 import `in`.koreatech.business.domain.repository.TokenRepository
+import `in`.koreatech.business.domain.error.DomainError
 import `in`.koreatech.business.domain.usecase.auth.DeleteAccountUseCase
+import `in`.koreatech.business.domain.usecase.owner.GetOwnerProfileUseCase
 import `in`.koreatech.business.domain.usecase.owner.GetRequiredVersionUseCase
 import `in`.koreatech.business.domain.usecase.preferences.ObserveThemeModeUseCase
 import `in`.koreatech.business.domain.usecase.store.SetActiveStoreIdUseCase
@@ -54,10 +56,11 @@ class AppViewModelSessionTest {
     }
 
     private fun newViewModel(
-        initialAccessToken: String = ""
+        initialAccessToken: String = "",
+        ownerProfile: suspend () -> OwnerProfile = { OwnerProfile("owner", "owner@test.com", null) }
     ): Pair<AppViewModel, FakeTokenRepository> {
         val tokenRepo = FakeTokenRepository(access = initialAccessToken)
-        val ownerRepo = FakeOwnerRepository()
+        val ownerRepo = FakeOwnerRepository(onGetOwnerProfile = ownerProfile)
         val authRepo = FakeAuthRepository()
         val activeStoreRepo = FakeActiveStoreRepository()
         val prefsRepo = FakeAppPreferencesRepository()
@@ -65,6 +68,7 @@ class AppViewModelSessionTest {
             deleteAccountUseCase = DeleteAccountUseCase(authRepo),
             getRequiredVersionUseCase = GetRequiredVersionUseCase(ownerRepo),
             getAccessTokenUseCase = GetAccessTokenUseCase(tokenRepo),
+            getOwnerProfileUseCase = GetOwnerProfileUseCase(ownerRepo),
             observeAccessTokenUseCase = ObserveAccessTokenUseCase(tokenRepo),
             clearTokensUseCase = ClearTokensUseCase(tokenRepo),
             setActiveStoreIdUseCase = SetActiveStoreIdUseCase(activeStoreRepo),
@@ -172,6 +176,7 @@ class AppViewModelSessionTest {
             deleteAccountUseCase = DeleteAccountUseCase(authRepo),
             getRequiredVersionUseCase = GetRequiredVersionUseCase(ownerRepo),
             getAccessTokenUseCase = GetAccessTokenUseCase(tokenRepo),
+            getOwnerProfileUseCase = GetOwnerProfileUseCase(ownerRepo),
             observeAccessTokenUseCase = ObserveAccessTokenUseCase(tokenRepo),
             clearTokensUseCase = ClearTokensUseCase(tokenRepo),
             setActiveStoreIdUseCase = SetActiveStoreIdUseCase(activeStoreRepo),
@@ -198,6 +203,7 @@ class AppViewModelSessionTest {
             deleteAccountUseCase = DeleteAccountUseCase(authRepo),
             getRequiredVersionUseCase = GetRequiredVersionUseCase(ownerRepo),
             getAccessTokenUseCase = GetAccessTokenUseCase(tokenRepo),
+            getOwnerProfileUseCase = GetOwnerProfileUseCase(ownerRepo),
             observeAccessTokenUseCase = ObserveAccessTokenUseCase(tokenRepo),
             clearTokensUseCase = ClearTokensUseCase(tokenRepo),
             setActiveStoreIdUseCase = SetActiveStoreIdUseCase(activeStoreRepo),
@@ -221,6 +227,49 @@ class AppViewModelSessionTest {
             LaunchState.Unauthenticated,
             vm.launchState.value,
             "launchState must reflect Unauthenticated after token clear"
+        )
+    }
+
+    @Test
+    fun validTokenWithSuccessfulProfileResolvesAuthenticated() = runTest {
+        // 토큰이 있고 /owner 검증이 성공하면 그대로 인증됨.
+        val (vm, _) = newViewModel(
+            initialAccessToken = "valid-token",
+            ownerProfile = { OwnerProfile("owner", "owner@test.com", null) }
+        )
+        advanceUntilIdle()
+        assertEquals(LaunchState.Authenticated, vm.launchState.value)
+    }
+
+    @Test
+    fun validTokenWith401ResolvesUnauthenticated() = runTest {
+        // 토큰은 있으나 서버 검증이 401(DomainError.Auth)이면 미인증으로 분기 →
+        // Loading에서 곧장 AuthGraph로(StoreGraph 깜빡임 없음).
+        val (vm, _) = newViewModel(
+            initialAccessToken = "expired-token",
+            ownerProfile = { throw DomainError.Auth("인증이 필요합니다.") }
+        )
+        advanceUntilIdle()
+        assertEquals(
+            LaunchState.Unauthenticated,
+            vm.launchState.value,
+            "Expired token (401 on /owner) must resolve to Unauthenticated, not Authenticated"
+        )
+    }
+
+    @Test
+    fun validTokenWithNetworkErrorResolvesAuthenticated() = runTest {
+        // 토큰이 있고 검증이 네트워크 오류(비-Auth)면 토큰을 유지하고 낙관적으로
+        // 인증됨 — 오프라인/일시 장애로 로그인 화면에 튕기지 않게 한다.
+        val (vm, _) = newViewModel(
+            initialAccessToken = "valid-token",
+            ownerProfile = { throw DomainError.Network("서버 오류가 발생했습니다.") }
+        )
+        advanceUntilIdle()
+        assertEquals(
+            LaunchState.Authenticated,
+            vm.launchState.value,
+            "Non-auth network error must not force logout when a token is present"
         )
     }
 }
@@ -271,9 +320,12 @@ private class FakeTokenRepository(access: String) : TokenRepository {
     }
 }
 
-private class FakeOwnerRepository : OwnerRepository {
+private class FakeOwnerRepository(
+    private val onGetOwnerProfile: suspend () -> OwnerProfile =
+        { OwnerProfile("owner", "owner@test.com", null) }
+) : OwnerRepository {
     override suspend fun getShopList(): List<OwnerStore> = emptyList()
-    override suspend fun getOwnerProfile(): OwnerProfile = throw UnsupportedOperationException()
+    override suspend fun getOwnerProfile(): OwnerProfile = onGetOwnerProfile()
     override suspend fun getRequiredVersion(): String = "1.0.0"
     override suspend fun uploadFile(fileName: String, mimeType: String, bytes: ByteArray): String = ""
     override suspend fun searchShops(query: String): List<ShopSearchResult> = emptyList()
